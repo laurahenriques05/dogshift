@@ -248,3 +248,5 @@ The optional local setting is documented in `.env.example`. Existing three
 `VITE_` Supabase values remain the only required configuration for app use.
 Task reminders and their escalation are materialized by the database; the
 scheduled Edge Function is required to deliver them to subscribed devices.
+
+Carol’s Walks integration review is recorded in [the handoff](docs/carol-integration-review.md).
