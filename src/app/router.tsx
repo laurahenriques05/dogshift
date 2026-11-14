@@ -18,7 +18,6 @@ import { WalksPage } from '../features/walks/WalksPage'
 import { WalkDetailPage } from '../features/walks/WalkDetailPage'
 import { GpsDiagnosticPage } from '../features/walks/GpsDiagnosticPage'
 import { WalkProvider } from '../features/walks/WalkProvider'
-import { WalkingLesson } from '../features/walks/WalkingLesson'
 import { pendingWalkStart, rememberWalkStart } from '../features/walks/nfc'
 import { FamilyPage } from '../features/household/FamilyPage'
 import { FeedingPage } from '../features/feeding/FeedingPage'
@@ -69,7 +68,7 @@ export function Router() {
               <Route path="/walks" element={<WalksPage/>}/>
               <Route path="/walks/:walkId" element={<WalkDetailPage/>}/>
               <Route path="/walks/gps-test" element={<GpsDiagnosticPage/>}/>
-              <Route path="/walks/learn" element={<WalkingLesson/>}/>
+              <Route path="/walks/learn" element={<Navigate to="/academy/walking-basics" replace/>}/>
               <Route path="/tasks" element={<TasksPage/>}/>
               <Route path="/calendar" element={<CalendarPage/>}/>
               <Route path="/academy" element={<AcademyPage/>}/>

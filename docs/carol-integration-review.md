@@ -17,12 +17,12 @@ unlocked after `daily-care-check-in`. Opening either URL must not save practice,
 complete the lesson or award XP. Locked, loading and failed progress reads must
 remain subject to the shared Academy checks.
 
-**Outstanding integration change:** Maria's reviewed router still renders the
-standalone `WalkingLesson` at `/walks/learn`. It does not yet redirect. Main does
-not yet contain Academy, so redirecting main now would lead to a missing page.
-Maria/Laura should include the redirect when integrating Academy, then verify
-both URLs for locked and unlocked households and verify opening never writes.
-The standalone page must no longer be a second completion/progress path.
+**Implemented on this branch:** `/walks/learn` redirects with replacement navigation
+to `/academy/walking-basics`. It stays inside the authenticated household routes;
+Academy retains its loading/error/unlock checks and explicit practice saving.
+The standalone component is no longer routed. This branch targets Maria's
+integration branch, where Academy exists; do not cherry-pick the router change
+alone into a version of main without Academy.
 
 ## Walk alerts decision
 
@@ -62,3 +62,7 @@ Validation: an isolated archive of the exact Maria SHA above passed 19 tests in
 Node 26.13.0 was used (project/CI target: Node 22). Build reported Zod annotation
 and bundle-size warnings. These are local unit/PGlite and compile checks, not a
 browser redirect test, full-suite run, hosted migration test or device test.
+
+Fix validation: on `codex/carol-academy-redirect`, the full suite passed (130 tests
+in 27 files), as did typecheck, build and diff whitespace checks. Build warnings
+remain as above. No browser/device or hosted write validation was performed.
