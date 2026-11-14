@@ -1,11 +1,19 @@
-import { useRef, useState, type ReactNode } from 'react'
+import { useEffect, useRef, useState, type ReactNode } from 'react'
 import type { MedicationDose } from '../../lib/supabase/database.types'
 
-export function MedicationProgress({ doses, name, zone, busy, onTake, renderDose }: {
- doses: MedicationDose[]; name: string; zone: string; busy: boolean;
+export function MedicationProgress({ doses, name, zone, busy, onTake, renderDose, requestedDoseId }: {
+ doses: MedicationDose[]; name: string; zone: string; busy: boolean; requestedDoseId?: string | null;
  onTake: (dose: MedicationDose) => Promise<void>; renderDose: (dose: MedicationDose) => ReactNode
 }) {
- const [selected, setSelected] = useState<string | null>(null)
+ const hasRequestedDose = !!requestedDoseId && doses.some(dose => dose.id === requestedDoseId)
+ const [selected, setSelected] = useState<string | null>(() => hasRequestedDose ? requestedDoseId! : null)
+ const detailsRef = useRef<HTMLDivElement>(null)
+ useEffect(() => { setSelected(hasRequestedDose ? requestedDoseId! : null) }, [requestedDoseId, hasRequestedDose])
+ useEffect(() => {
+  if (!requestedDoseId || selected !== requestedDoseId || !hasRequestedDose) return
+  detailsRef.current?.scrollIntoView({ block: 'center', behavior: 'auto' })
+  detailsRef.current?.focus({ preventScroll: true })
+ }, [requestedDoseId, selected, hasRequestedDose])
  const [saving, setSaving] = useState<string | null>(null)
  const inFlight = useRef(false)
  const given = doses.filter(dose => dose.status === 'given').length
@@ -45,6 +53,6 @@ export function MedicationProgress({ doses, name, zone, busy, onTake, renderDose
     </li>
    })}
   </ul> : <p className="muted">No doses scheduled yet.</p>}
-  {selectedDose && <ul className="walk-history health-record-list">{renderDose(selectedDose)}</ul>}
+  {selectedDose && <div ref={detailsRef} tabIndex={-1} role="region" aria-label={`${name}: dose details`}><ul className="walk-history health-record-list">{renderDose(selectedDose)}</ul></div>}
  </div>
 }
