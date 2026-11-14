@@ -55,9 +55,16 @@ it('enforces task household access, recurrence materialization and completion ow
   const home=(await sql.query<{id:string}>("select public.create_household('A','Europe/Lisbon') id")).rows[0].id
   await sql.exec(`reset role;insert into public.household_members(household_id,user_id,role) values('${home}','${b}','member')`);await user(a)
   const dog=(await sql.query<{id:string}>("insert into public.dogs(household_id,name,sex,activity_level) values($1,'Milo','unknown','moderate') returning id",[home])).rows[0].id
-  const series=(await sql.query<{id:string}>("select public.save_household_task($1,null,'Water plants','',null,clock_timestamp()+interval '1 hour','daily',1,(clock_timestamp() at time zone 'Europe/Lisbon')::date+2) id",[home])).rows[0].id
+  const firstDueAt=(await sql.query<{due_at:string}>("select clock_timestamp()+interval '1 hour' due_at")).rows[0].due_at
+  const endsOn=(await sql.query<{ends_on:string}>("select (($1::timestamptz at time zone 'Europe/Lisbon')::date+2)::text ends_on",[firstDueAt])).rows[0].ends_on
+  const series=(await sql.query<{id:string}>("select public.save_household_task($1,null,'Water plants','',null,$2::timestamptz,'daily',1,$3::date) id",[home,firstDueAt,endsOn])).rows[0].id
   expect((await sql.query<{count:number}>("select count(*) count from public.task_occurrences where series_id=$1",[series])).rows[0].count).toBe(3)
   expect((await sql.query("select * from public.scheduled_notifications where category='task'")).rows).toHaveLength(3)
+  const nearMidnightDueAt=(await sql.query<{due_at:string}>("select (date_trunc('day',clock_timestamp() at time zone 'Europe/Lisbon')+interval '1 day 30 minutes') at time zone 'Europe/Lisbon' due_at")).rows[0].due_at
+  const nearMidnightEndsOn=(await sql.query<{ends_on:string}>("select (($1::timestamptz at time zone 'Europe/Lisbon')::date+2)::text ends_on",[nearMidnightDueAt])).rows[0].ends_on
+  const nearMidnightSeries=(await sql.query<{id:string}>("select public.save_household_task($1,null,'Near midnight','',null,$2::timestamptz,'daily',1,$3::date) id",[home,nearMidnightDueAt,nearMidnightEndsOn])).rows[0].id
+  expect((await sql.query<{count:number}>("select count(*) count from public.task_occurrences where series_id=$1",[nearMidnightSeries])).rows[0].count).toBe(3)
+  expect((await sql.query("select * from public.scheduled_notifications where category='task' and body='Near midnight'")).rows).toHaveLength(3)
   const generated=await sql.query<{public:number}>("select public.generate_task_occurrences($1,clock_timestamp()-interval '1 day',clock_timestamp()+interval '5 days') public",[home])
   expect(generated.rows[0].public).toBe(0)
   expect((await sql.query<{public:number}>("select public.generate_task_occurrences($1,clock_timestamp()-interval '1 day',clock_timestamp()+interval '5 days') public",[home])).rows[0].public).toBe(0)
