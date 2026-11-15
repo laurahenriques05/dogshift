@@ -282,3 +282,9 @@ Task reminders and their escalation are materialized by the database; the
 scheduled Edge Function is required to deliver them to subscribed devices.
 
 Carol’s Walks integration review is recorded in [the handoff](docs/carol-integration-review.md).
+
+The follow-up [PR #12 review corrections](docs/pr12-review-fixes.md) preserve
+completed-task history during account deletion, remove stopped tasks' future
+open dates and prevent requeueing sent reminders. They require the additional
+`20261115140000_task_review_fixes.sql` migration after Tasks/Academy and Push;
+this is source awaiting coordinated review/application, not a hosted rollout.

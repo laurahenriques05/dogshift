@@ -13,6 +13,10 @@ it('tests coordinated deletion using disposable data, preserves history and reje
  const schedule=(await sql.query<{id:string}>("select public.save_medication_schedule($1,null,'Medication','Instructions',array[now()]) id",[home])).rows[0].id
  const dose=(await sql.query<{id:string}>('select id from public.medication_doses where schedule_id=$1',[schedule])).rows[0].id
  await sql.query("select public.log_medication_dose($1,'given',clock_timestamp(),'')",[dose])
+ const task=(await sql.query<{id:string}>("select public.save_household_task($1,null,'Keep completed task','',null,clock_timestamp()+interval '2 hours','none',1,null) id",[home])).rows[0].id
+ const taskOccurrence=(await sql.query<{id:string}>('select id from public.task_occurrences where series_id=$1',[task])).rows[0].id
+ await sql.query('select public.complete_household_task($1,true)',[taskOccurrence])
+ const completion=(await sql.query<{completed_at:string}>('select completed_at from public.task_occurrences where id=$1',[taskOccurrence])).rows[0].completed_at
  await expect(sql.query("select public.begin_account_deletion('DELETE MY ACCOUNT')")).rejects.toThrow('Leave all families')
  await expect(sql.query("select public.begin_household_deletion($1,'Keep')",[home])).rejects.toThrow('Owner')
  await user(a);await expect(sql.query("select public.begin_household_deletion($1,'Keep')",[home])).rejects.toThrow('sole')
@@ -23,6 +27,13 @@ it('tests coordinated deletion using disposable data, preserves history and reje
  await sql.query('select public.prepare_auth_deletion($1)',[b]);await sql.exec(`reset role;delete from auth.users where id='${b}'`)
  expect((await sql.query<{created_by:null}>('select created_by from public.treatments')).rows[0].created_by).toBeNull()
  expect((await sql.query<{owner_id:null}>('select owner_id from storage.objects')).rows[0].owner_id).toBeNull()
+ const preserved=(await sql.query<{completed_by:null;completed_at:string}>('select completed_by,completed_at from public.task_occurrences where id=$1',[taskOccurrence])).rows[0]
+ expect(preserved.completed_by).toBeNull();expect(preserved.completed_at).toEqual(completion)
+ await user(a)
+ await expect(sql.query('select public.complete_household_task($1,true)',[taskOccurrence])).rejects.toThrow('Only the person')
+ await expect(sql.query('select public.complete_household_task($1,false)',[taskOccurrence])).rejects.toThrow('Only the person')
+ await expect(sql.query('select public.complete_household_task($1,null)',[taskOccurrence])).rejects.toThrow('Choose a completion state')
+ expect((await sql.query<{completed_at:string}>('select completed_at from public.task_occurrences where id=$1',[taskOccurrence])).rows[0].completed_at).toEqual(completion)
  await user(b);expect((await sql.query('select * from public.treatments')).rows).toHaveLength(0);await user(a);await expect(sql.query("select public.log_medication_dose($1,'given',now(),'')",[dose])).rejects.toThrow('another member')
  const removed=(await sql.query<{id:string}>("select public.create_household('Ignored','UTC') id")).rows[0].id;expect(removed).toBe(home)
  await sql.query("select public.begin_household_deletion($1,'Keep')",[home]);expect((await sql.query('select * from public.households')).rows).toHaveLength(0)
