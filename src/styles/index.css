@@ -109,6 +109,20 @@
 .medication-card-header{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:12px}.medication-card-header h2{margin:0;min-width:0;overflow-wrap:anywhere}.medication-card-header .button.medication-edit-button{flex:0 0 auto;width:auto;min-height:36px;padding:6px 12px;border-radius:8px;border-color:#e3e8df;color:#637168;background:transparent;font-size:.78rem;font-weight:500;gap:4px}.medication-card-header .button.medication-edit-button:hover{background:#f5f7ee;border-color:#bccbb5;color:#244d3c}
 @media(pointer:coarse){.medication-card-header .button.medication-edit-button{min-height:44px}}
 
+/* Contrast and loading refinements from the PawShare UI research audit. */
+:root{--paw-text-muted:#566459;--paw-text-accent:#506848;--paw-focus:#a7673f}
+.muted,.desktop-label,.nav-label,.sidebar nav>span,.bottom-nav>a,.bottom-nav>span,.steps,.section-heading>span,.home-private-label,.dog-summary dt,.empty-activity,.fine-print,.photo-hint,.task-history-note,.calendar-day-list li small,.academy-course-heading>span{color:var(--paw-text-muted)}
+.eyebrow,.steps .active{color:var(--paw-text-accent)}
+button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{outline-color:var(--paw-focus)}
+.visually-hidden{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important}
+.loading-placeholder{min-height:38px;display:flex;align-items:center}
+.loading-placeholder>div{display:grid;gap:8px;width:min(100%,260px)}
+.loading-placeholder-line{height:11px;border-radius:999px;background:linear-gradient(90deg,#e7ecdf 0%,#f4f6ef 45%,#e7ecdf 90%);background-size:220% 100%;animation:pawshare-loading 1.8s ease-in-out infinite}
+.loading-placeholder-line.line-2{width:64%}
+@keyframes pawshare-loading{to{background-position:-220% 0}}
+@media(prefers-reduced-motion:reduce){.loading-placeholder-line{animation:none;background:#e7ecdf}}
+@media(pointer:coarse){.shared-calendar-month>button,.task-row-actions .task-icon-button{min-width:44px;min-height:44px}.notification-preference-row input{width:24px;height:24px}.calendar-filters label{min-height:44px;display:inline-flex;align-items:center;padding:4px 8px}}
+
 /* Vaccination booklet: chronological records on a vertical care timeline */
 .vaccination-booklet{list-style:none;margin:24px 0 0;padding:0;display:flex;flex-direction:column;gap:0}
 .vaccination-booklet-entry{position:relative;display:grid;grid-template-columns:40px minmax(0,1fr);gap:18px;padding:0 0 22px;align-items:start}
@@ -145,16 +159,3 @@
 @media(max-width:900px){.health-hub-options{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:540px){.health-hub-options{grid-template-columns:1fr;gap:12px;margin-bottom:24px}.health-hub-option{min-height:88px;padding:18px;gap:14px}}
 @media(prefers-reduced-motion:reduce){.health-hub-option{transition:none}}
-/* Contrast and loading refinements from the PawShare UI research audit. */
-:root{--paw-text-muted:#566459;--paw-text-accent:#506848;--paw-focus:#a7673f}
-.muted,.desktop-label,.nav-label,.sidebar nav>span,.bottom-nav>a,.bottom-nav>span,.steps,.section-heading>span,.home-private-label,.dog-summary dt,.empty-activity,.fine-print,.photo-hint,.task-history-note,.calendar-day-list li small,.academy-course-heading>span{color:var(--paw-text-muted)}
-.eyebrow,.steps .active{color:var(--paw-text-accent)}
-button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{outline-color:var(--paw-focus)}
-.visually-hidden{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important}
-.loading-placeholder{min-height:38px;display:flex;align-items:center}
-.loading-placeholder>div{display:grid;gap:8px;width:min(100%,260px)}
-.loading-placeholder-line{height:11px;border-radius:999px;background:linear-gradient(90deg,#e7ecdf 0%,#f4f6ef 45%,#e7ecdf 90%);background-size:220% 100%;animation:pawshare-loading 1.8s ease-in-out infinite}
-.loading-placeholder-line.line-2{width:64%}
-@keyframes pawshare-loading{to{background-position:-220% 0}}
-@media(prefers-reduced-motion:reduce){.loading-placeholder-line{animation:none;background:#e7ecdf}}
-@media(pointer:coarse){.shared-calendar-month>button,.task-row-actions .task-icon-button{min-width:44px;min-height:44px}.notification-preference-row input{width:24px;height:24px}.calendar-filters label{min-height:44px;display:inline-flex;align-items:center;padding:4px 8px}}

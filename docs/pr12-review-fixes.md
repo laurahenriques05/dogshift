@@ -1,7 +1,9 @@
 # PR #12 review corrections — 15 November 2026
 
-This integration combines main `13b2672` with the reviewed Tasks/Academy branch
-`9e432462b3073f5d47e3adb9f3003b5abbc9e7a4`. The two conflicts retain both public
+This branch now incorporates the updated Tasks/Academy branch at
+`48c44277b8f9db14fb043f19f5cccb6e2f932721`, which already integrates main
+`13b2672` and fixes anonymized task completions. The earlier integration was
+based on `9e432462b3073f5d47e3adb9f3003b5abbc9e7a4`. The two conflicts retain both public
 Google Maps/VAPID configuration examples and both Health and shared-feature CSS.
 Health's dose query links from PR #15 and the Walks Academy redirect are retained.
 No local environment file was copied or changed.
@@ -29,7 +31,8 @@ No local environment file was copied or changed.
 
 `20261115140000_task_review_fixes.sql` is a new, append-only correction after
 `20261114120000_tasks_academy.sql` and `20261114130000_push_notifications.sql`.
-The earlier migrations are unchanged. The full local migration chain includes
+The earlier migrations match the updated Tasks/Academy branch, including its
+account-deletion fix and regression assertions. The full local migration chain includes
 20 files. The correction needs review with Maria/Laura and Beni before hosted
 application. Applying Tasks/Push alone does not include these corrections.
 
@@ -60,11 +63,25 @@ Storage, actual hosted migrations or concurrent in-flight network delivery.
 Push setup and real-device validation remain a later phase. Group-member review
 and CI are required before integrating these corrections into PR #12.
 
-Final local checks: fresh `npm ci` reported no vulnerabilities; Node 22.23.5
+Checks on the prior fix revision: fresh `npm ci` reported no vulnerabilities; Node 22.23.5
 ran all 164 tests in 34 files with one worker and the extended hook timeout.
 The three regression cases were also run against the original PR commit and
 failed for the reviewed reasons, then passed with these corrections.
 Typecheck, production build and `git diff --check` passed. The build retains the
 existing dependency-annotation and large-bundle warnings. Health and Walks source
-files match current main; the earlier Tasks/Push migrations match the reviewed
-PR exactly. Local verification is not formal group-member approval.
+files match current main; the earlier Tasks/Push migrations match PR #12 at
+`48c4427` exactly. Local verification is not formal group-member approval.
+
+## Refresh from PR #12 at 48c4427
+
+The refresh keeps the upstream account-deletion constraint, null-safe completion
+checks and its regression assertions. The later correction RPC retains the
+upstream explicit rejection of undoing an open occurrence, alongside the stopped
+future-date cleanup and null-command validation. The compatibility constraint
+replacement in the correction migration also remains valid after the updated
+Tasks migration.
+
+Both text conflicts (`.env.example` and shared CSS) use the updated Maria version,
+which already contains the public Maps/VAPID settings and both feature style
+sets. Stopped-task history and sent/in-flight notification guards are retained.
+The exact refreshed SHA and fresh test/CI results are recorded in PR #16.

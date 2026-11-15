@@ -17,7 +17,7 @@ begin
   if v_task.completed_at is not null and v_task.completed_by is distinct from auth.uid() then raise exception 'Only the person who logged this completion can correct it' using errcode='42501'; end if;
   update public.task_occurrences set completed_at=coalesce(completed_at,clock_timestamp()),completed_by=auth.uid() where id=p_occurrence;
  else
-  if v_task.completed_by is distinct from auth.uid() then raise exception 'Only the person who logged this completion can correct it' using errcode='42501'; end if;
+  if v_task.completed_at is null or v_task.completed_by is distinct from auth.uid() then raise exception 'Only the person who logged this completion can correct it' using errcode='42501'; end if;
   -- Undoing an early completion must not resurrect a stopped future date.
   if v_task.due_at>clock_timestamp() and exists(select 1 from public.task_series where id=v_task.series_id and archived_at is not null) then
    delete from public.task_occurrences where id=p_occurrence;
