@@ -55,6 +55,11 @@ it('stopping a task removes future open calendar dates, cancels reminders and pr
   expect((await sql.query('select id from public.task_occurrences where series_id=$1', [future.series])).rows).toHaveLength(2)
   await sql.exec('reset role;set role service_role')
   expect((await sql.query("select id from public.claim_due_notifications(100) where source_id=$1", [`task:${future.occurrence}`])).rows).toHaveLength(0)
+  await user(owner)
+  await expect(sql.query('select public.complete_household_task($1,false)', [history.rows[1].id])).rejects.toThrow('Only the person')
+  await user(member)
+  await sql.query('select public.complete_household_task($1,false)', [history.rows[1].id])
+  expect((await sql.query('select id from public.task_occurrences where series_id=$1', [future.series])).rows).toEqual([{id:history.rows[0].id}])
  } finally { await sql.close() }
 }, 30000)
 

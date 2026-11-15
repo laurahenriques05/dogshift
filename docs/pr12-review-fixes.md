@@ -17,7 +17,9 @@ No local environment file was copied or changed.
   pending reminders. Overdue and completed history remains in the database and
   in Tasks. Archived series no longer offer edit/stop controls. Calendar reads
   the same surviving source rows. Existing future open dates of already archived
-  series are cleaned by the correction migration too.
+  series are cleaned by the correction migration too. If the recorder later undoes
+  an early completion of a stopped future date, that date is removed rather than
+  resurrected as an open calendar event.
 - Undoing a completion can restore a cancelled reminder, but cannot reset a
   notice already marked sent or currently claimed by the sender. Repeating an
   undo does not create additional reminder rows. The same protection covers
