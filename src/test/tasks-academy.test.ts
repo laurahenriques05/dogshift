@@ -108,6 +108,15 @@ it('enforces task household access, recurrence materialization and completion ow
   expect((await sql.query<{title:string}>("select title from public.task_occurrences where series_id=$1 and due_at>clock_timestamp()",[oldTask])).rows[0].title).toBe('Annual vet check')
   await expect(sql.query("insert into public.push_subscriptions(user_id,endpoint,p256dh,auth) values($1,'https://fcm.googleapis.com/push/other','abcdefghijklmnopqrstuvwxyz1234567890','abcdefghijklmno123456')",[a])).rejects.toThrow('new row violates row-level security')
   await expect(sql.query("insert into public.task_series(household_id,title,first_due_at) values($1,'Direct write',now())",[home])).rejects.toThrow()
+  // Deleting a member must anonymize, not erase, their completed task. The
+  // remaining family must not be able to claim or correct that historical log.
+  await sql.exec(`reset role;delete from auth.users where id='${b}'`)
+  const anonymizedCompletion=(await sql.query<{completed_at:string|null;completed_by:string|null}>('select completed_at,completed_by from public.task_occurrences where id=$1',[first])).rows[0]
+  expect(anonymizedCompletion.completed_at).not.toBeNull()
+  expect(anonymizedCompletion.completed_by).toBeNull()
+  await user(a)
+  await expect(sql.query('select public.complete_household_task($1,true)',[first])).rejects.toThrow('Only the person')
+  await expect(sql.query('select public.complete_household_task($1,false)',[first])).rejects.toThrow('Only the person')
   await user(c)
   const other=(await sql.query<{id:string}>("select public.create_household('Other','UTC') id")).rows[0].id
   const otherDog=(await sql.query<{id:string}>("insert into public.dogs(household_id,name,sex,activity_level) values($1,'Rex','unknown','moderate') returning id",[other])).rows[0].id

@@ -32,7 +32,9 @@ create table public.task_occurrences (
  completed_by uuid references auth.users(id) on delete set null,
  created_at timestamptz not null default clock_timestamp(),
  unique (series_id,due_at),
- check ((completed_at is null) = (completed_by is null))
+ -- A completed task remains part of the family history after its author deletes
+ -- their account. The FK anonymizes the author while preserving the timestamp.
+ check (completed_at is not null or completed_by is null)
 );
 
 create index task_series_household_due on public.task_series(household_id,first_due_at) where archived_at is null;
@@ -126,10 +128,13 @@ begin
  select * into v_task from public.task_occurrences where id=p_occurrence for update;
  if v_task.id is null or not private.is_member(v_task.household_id) then raise exception 'Family access denied' using errcode='42501'; end if;
  if p_completed then
-  if v_task.completed_by is not null and v_task.completed_by<>auth.uid() then raise exception 'Only the person who logged this completion can correct it' using errcode='42501'; end if;
+  -- completed_at is the source of truth. A null completed_by on an already
+  -- completed row means the original author was deleted; nobody else may
+  -- claim or correct that historical completion.
+  if v_task.completed_at is not null and v_task.completed_by is distinct from auth.uid() then raise exception 'Only the person who logged this completion can correct it' using errcode='42501'; end if;
   update public.task_occurrences set completed_at=coalesce(completed_at,clock_timestamp()),completed_by=auth.uid() where id=p_occurrence;
  else
-  if v_task.completed_by is distinct from auth.uid() then raise exception 'Only the person who logged this completion can correct it' using errcode='42501'; end if;
+  if v_task.completed_at is null or v_task.completed_by is distinct from auth.uid() then raise exception 'Only the person who logged this completion can correct it' using errcode='42501'; end if;
   update public.task_occurrences set completed_at=null,completed_by=null where id=p_occurrence;
  end if;
 end; $$;
