@@ -84,6 +84,22 @@ it('completion corrections never requeue sent reminders, but restore cancelled r
    await sql.exec('set role service_role')
    expect((await sql.query('select id from public.claim_due_notifications(100) where source_id=$1', [source])).rows).toHaveLength(0)
   }
+  // A worker may still be delivering a claimed reminder when completion cancels it.
+  // Undo must not clear that claim and make a second worker send it again.
+  await user(owner)
+  const inFlight = await task(member)
+  await sql.exec('reset role;set role service_role')
+  expect((await sql.query('select id from public.claim_due_notifications(100) where source_id=$1', [`task:${inFlight.occurrence}`])).rows).toHaveLength(1)
+  await user(member)
+  await sql.query('select public.complete_household_task($1,true)', [inFlight.occurrence])
+  await sql.query('select public.complete_household_task($1,false)', [inFlight.occurrence])
+  await sql.exec('reset role')
+  const inFlightNotice = (await sql.query<{status:string;claimed_at:string|null;attempts:number}>("select status,claimed_at,attempts from public.scheduled_notifications where source_id=$1 and delivery_kind='reminder'", [`task:${inFlight.occurrence}`])).rows[0]
+  expect(inFlightNotice.status).toBe('cancelled')
+  expect(inFlightNotice.claimed_at).not.toBeNull()
+  expect(inFlightNotice.attempts).toBe(1)
+  await sql.exec('set role service_role')
+  expect((await sql.query('select id from public.claim_due_notifications(100) where source_id=$1', [`task:${inFlight.occurrence}`])).rows).toHaveLength(0)
   await user(owner)
   const { occurrence } = await task(member)
   await sql.query('select public.complete_household_task($1,true)', [occurrence])

@@ -49,6 +49,7 @@ begin
    values(o.household_id,s.assigned_to,'task',v_source,'reminder','Task due soon',s.title,'/tasks?occurrence='||o.id::text,greatest(o.due_at-interval '1 hour',clock_timestamp()))
    on conflict(recipient_id,source_id,delivery_kind) do update set title=excluded.title,body=excluded.body,route=excluded.route,send_at=excluded.send_at,status='pending',attempts=0,claimed_at=null,last_error=''
     where public.scheduled_notifications.sent_at is null
+     and public.scheduled_notifications.claimed_at is null
      and public.scheduled_notifications.status in ('pending','cancelled','failed');
   end if;
   for m in select user_id from public.household_members where household_id=o.household_id and user_id<>s.assigned_to loop
@@ -57,6 +58,7 @@ begin
     values(o.household_id,m.user_id,'task',v_source,'overdue_escalation','Task is overdue',s.title,'/tasks?occurrence='||o.id::text,greatest(o.due_at+interval '1 hour',clock_timestamp()))
     on conflict(recipient_id,source_id,delivery_kind) do update set title=excluded.title,body=excluded.body,route=excluded.route,send_at=excluded.send_at,status='pending',attempts=0,claimed_at=null,last_error=''
     where public.scheduled_notifications.sent_at is null
+     and public.scheduled_notifications.claimed_at is null
      and public.scheduled_notifications.status in ('pending','cancelled','failed');
    end if;
   end loop;
@@ -67,6 +69,7 @@ begin
     values(o.household_id,m.user_id,'task',v_source,'reminder','Task due soon',s.title,'/tasks?occurrence='||o.id::text,greatest(o.due_at-interval '1 hour',clock_timestamp()))
     on conflict(recipient_id,source_id,delivery_kind) do update set title=excluded.title,body=excluded.body,route=excluded.route,send_at=excluded.send_at,status='pending',attempts=0,claimed_at=null,last_error=''
     where public.scheduled_notifications.sent_at is null
+     and public.scheduled_notifications.claimed_at is null
      and public.scheduled_notifications.status in ('pending','cancelled','failed');
    end if;
   end loop;
