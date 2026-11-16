@@ -28,7 +28,7 @@ Feature owners implement their own UI, rules, migrations and tests. Coordinate s
 - A duplicate regular-meal warning only when another meal is recorded too soon. Treats are separate. The threshold uses the shortest planned gap, an explicit override, or the meals/day fallback.
 - Feeding NFC URL and confirmed quick logging; optional in-app tag writing on compatible Android Chrome browsers.
 
-Walks includes GPS recording, private active routes, completed history, statistics, corrections, a Home summary and a confirmed NFC start URL. Tasks, Calendar and the original Academy are merged into `main`; Maria's local Academy follow-up focuses the visible Academy on one progressive dog-trick path and adds eleven challenges. Earlier non-trick module IDs and XP history are retained internally, but the old course is no longer shown. The follow-up is pending review and one seed migration. See [Tasks, Calendar, Academy and Notifications](#tasks-calendar-academy-and-notifications) for rollout limits. Lost Dog Mode has been removed from scope. Current shared Feeding data refreshes on manual refresh/window focus; the clock update does not provide cross-device live synchronisation.
+Walks includes GPS recording, private active routes, completed history, statistics, corrections, a Home summary and a confirmed NFC start URL. Tasks, Calendar and Academy now have a local implementation on Maria's feature branch; see [Tasks, Calendar, Academy and Notifications](#tasks-calendar-academy-and-notifications) for its current limits and rollout steps. Lost Dog Mode has been removed from scope. Current shared Feeding data refreshes on manual refresh/window focus; the clock update does not provide cross-device live synchronisation.
 
 For the design references and the rationale for keeping PawShare's interactions calm and accessible, see [UI design research](docs/ui-design-research.md).
 
@@ -45,7 +45,7 @@ npm run check:config
 npm run dev
 ```
 
-Open the localhost address printed by Vite (normally http://localhost:5173). If you already have the repository, fetch/pull the reviewed branch rather than cloning again; `main` is the intended release branch.
+Open the localhost address printed by Vite (normally http://localhost:5173). If you already have the repository, fetch/pull the reviewed branch rather than cloning again. Until the Feeding pull request is reviewed and merged, use `feature/laura-feeding` for that work; `main` is the intended release branch.
 
 The checked-in example contains the shared project's public browser settings. Required configuration:
 
@@ -164,7 +164,7 @@ Owners can open More → Family and tap the small pencil beside the family name.
 
 Home now presents a compact private dog portrait beside the dog’s name, a real household-member summary, an owner-only Invite someone shortcut, and the dog's saved details. The family summary uses the existing authorized roster RPC, with loading, empty, error and retry states. Owners and members see the appropriate family action. Missing profile fields are labeled clearly. No care logs or statistics are invented. The responsive layout was visually checked at desktop and 390px mobile widths using local preview fixtures; screenshots are design previews with sample content, not live account data. No new database migration is needed.
 
-Home contains live Feeding, Walks, Tasks and Academy summaries, with a Coming soon preview for Health. These summaries read real household data and include loading/error states; they do not imply that push delivery or cross-device realtime has been verified. Existing family membership and invitations remain available in the family card.
+Home contains live Feeding and Walks summaries, with Coming soon previews for Academy, Family tasks and Health. They describe future highlights without simulated data, progress, or inactive action buttons. Each preview can be replaced independently by its live feature summary. Existing family membership and invitations remain available in the real family card.
 
 ## Walks
 
@@ -223,19 +223,14 @@ apply schema or publish server functions.
 
 ## Tasks, Calendar, Academy and Notifications
 
-The merged Tasks/Calendar/Academy feature adds household tasks with
-one-time/daily/weekly/monthly recurrence, completion attribution, a shared month
-calendar, Academy progression, Home summaries, notification preferences, and a
-Web Push service worker/sender. Maria's chosen demo rules and the three small teammate
+Maria's feature branch adds household tasks with one-time/daily/weekly/monthly
+recurrence, completion attribution, a shared month calendar, two starter Academy
+modules, Home summaries, notification preferences, and a Web Push service
+worker/sender. Maria's chosen demo rules and the three small teammate
 integration checks are in
 [the feature handoff](docs/tasks-calendar-academy-proposal.md). This code is
-merged into `main`. Laura is the sole person applying migrations to the shared
-Supabase project. The Academy curriculum follow-up in this branch makes the
-dog-trick path the main course and includes a new curriculum/progress migration.
-Four complex tricks also have shared, ordered subchallenge steps; simpler tricks
-remain one short challenge. Parts do not award XP or unlock the next trick; the
-family earns XP once after explicitly completing the full challenge. This is not
-available in the hosted app until Laura reviews and applies the migration.
+local to that branch and is not yet merged or applied to the shared Supabase
+project.
 
 Calendar events read their source records (tasks, Feeding restock projections,
 Health appointments, vaccinations and scheduled medication doses) and link back
@@ -247,19 +242,23 @@ integration from those features still needs their review and implementation.
 Feeding/Health event display works from the source records. Walks does not yet
 publish events to this calendar.
 
-The Vite app runs locally and `.env.local` points to the shared Supabase project.
-A local UI build does not create or apply database schema. If PostgREST cannot
-find an RPC after an approved migration, refresh the Supabase API schema cache;
-do not reset the database or re-run older migrations.
+The Vite app runs locally, but `.env.local` still points to the shared Supabase
+project. New pages that call an RPC or table from these migrations will show a
+clear setup message until the reviewed migrations exist in that connected
+database. A local UI build does not create or apply a local database schema.
+After an approved migration is applied, refresh the Supabase API schema cache if
+PostgREST still reports that it cannot find the RPC; do not reset the database or
+re-run older migrations.
 
 ### Safe rollout
 
-1. For the merged feature, Laura confirmed the coordinated migration rollout.
-   Never reset the shared project or re-run its existing migrations.
-2. The Academy curriculum follow-up adds the 11-module dog-trick course and
-   shared subchallenge progress in `20261115150000_academy_curriculum.sql`.
-   Laura must verify it is pending and apply it once after review; Maria must
-   not run it in the hosted SQL editor.
+1. Ask Laura to review migration ordering, shared types/routes, and Feeding
+   adapter compatibility. Ask Beni and Carol the specific source/link questions
+   in the handoff document. Review the resulting changes before merge.
+2. Apply `20261114120000_tasks_academy.sql` and then
+   `20261114130000_push_notifications.sql` **only after the team has reviewed
+   and coordinated the shared database change**. Never reset the shared project
+   or re-run its existing migrations.
 3. For real push delivery, generate VAPID keys (`npx web-push generate-vapid-keys`)
    and set the public VAPID key as `VITE_WEB_PUSH_PUBLIC_KEY` in the local/Vercel
    build environment. It is a public key; never put the private key in a `VITE_`

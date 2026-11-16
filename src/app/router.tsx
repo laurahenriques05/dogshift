@@ -68,7 +68,7 @@ export function Router() {
               <Route path="/walks" element={<WalksPage/>}/>
               <Route path="/walks/:walkId" element={<WalkDetailPage/>}/>
               <Route path="/walks/gps-test" element={<GpsDiagnosticPage/>}/>
-              <Route path="/walks/learn" element={<Navigate to="/walks" replace/>}/>
+              <Route path="/walks/learn" element={<Navigate to="/academy/walking-basics" replace/>}/>
               <Route path="/tasks" element={<TasksPage/>}/>
               <Route path="/calendar" element={<CalendarPage/>}/>
               <Route path="/academy" element={<AcademyPage/>}/>

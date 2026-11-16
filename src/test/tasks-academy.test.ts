@@ -25,8 +25,8 @@ it('awards one shared milestone per module and computes household-local streaks'
  const progressRows=[{module_id:'daily-care-check-in'}] as AcademyModuleProgress[]
  const result=academyProgress(records,'Europe/Lisbon',new Date('2026-11-14T12:00:00Z'),progressRows)
  expect(result.xp).toBe(10);expect(result.level).toBe(1);expect(result.completedCount).toBe(1);expect(result.streak).toBe(2)
- expect(result.badges).toEqual(['First Academy win']);expect(result.nextModule?.id).toBe('marker-and-reward')
- expect(academyModules.find(module=>module.id==='walking-basics')?.courseId).toBe('everyday-care')
+ expect(result.badges).toEqual(['First lesson']);expect(result.nextModule?.id).toBe('walking-basics')
+ expect(academyModules[1].id).toBe('walking-basics')
 })
 
 it('enforces task household access, recurrence materialization and completion ownership, plus Academy milestone and practice ownership',async()=>{
@@ -50,9 +50,7 @@ it('enforces task household access, recurrence materialization and completion ow
     if exists(select 1 from public.households where id=new.household_id and deletion_requested_by is not null) then raise exception 'Family deletion pending'; end if;
     return new;
    end;$$;`)
-  for(const file of ['20261114120000_tasks_academy.sql','20261114130000_push_notifications.sql','20261115150000_academy_curriculum.sql'])await sql.exec(readFileSync('supabase/migrations/'+file,'utf8'))
-  expect((await sql.query<{count:number}>("select count(*) count from public.academy_modules where course_id='trick-training'")).rows[0].count).toBe(11)
-  expect((await sql.query<{count:number}>('select count(*) count from public.academy_subchallenges')).rows[0].count).toBe(12)
+  for(const file of ['20261114120000_tasks_academy.sql','20261114130000_push_notifications.sql'])await sql.exec(readFileSync('supabase/migrations/'+file,'utf8'))
   await sql.exec(`insert into auth.users(id) values('${a}'),('${b}'),('${c}')`);await user(a)
   const home=(await sql.query<{id:string}>("select public.create_household('A','Europe/Lisbon') id")).rows[0].id
   await sql.exec(`reset role;insert into public.household_members(household_id,user_id,role) values('${home}','${b}','member')`);await user(a)
@@ -79,26 +77,6 @@ it('enforces task household access, recurrence materialization and completion ow
   await sql.query("select public.save_academy_practice($1,$2,$3,'daily-care-check-in','{}','Practice again',true)",[home,'20000000-0000-0000-0000-000000000002',dog])
   expect((await sql.query('select * from public.academy_module_progress')).rows).toHaveLength(1)
   await expect(sql.query("select public.save_academy_practice($1,'20000000-0000-0000-0000-000000000001',$2,'daily-care-check-in','{}','Hijack',true,true)",[home,dog])).rejects.toThrow('Only your own')
-  await user(a)
-  await expect(sql.query("select public.save_academy_practice($1,$2,$3,'sit','{}','Skip ahead',true)",[home,'20000000-0000-0000-0000-000000000004',dog])).rejects.toThrow('previous lesson')
-  await sql.query("select public.save_academy_practice($1,$2,$3,'marker-and-reward','{}','Marker challenge complete',true)",[home,'20000000-0000-0000-0000-000000000005',dog])
-  expect((await sql.query('select * from public.academy_module_progress')).rows).toHaveLength(2)
-  for(const [index,moduleId] of ['nose-target','sit','give-paw','lie-down','spin','high-five'].entries())
-    await sql.query('select public.save_academy_practice($1,$2,$3,$4,\'{}\',$5,true)',[home,`20000000-0000-0000-0000-${String(index+10).padStart(12,'0')}`,dog,moduleId,`${moduleId} complete`])
-  await expect(sql.query("select public.save_academy_practice($1,$2,$3,'stay','{}','Skip the parts',true)",[home,'20000000-0000-0000-0000-000000000030',dog])).rejects.toThrow('Complete each challenge part first')
-  await expect(sql.query("select public.complete_academy_subchallenge($1,$2,'stay','one-step-away',$3)",[home,dog,'20000000-0000-0000-0000-000000000031'])).rejects.toThrow('previous part first')
-  const firstPart=await sql.query<{complete:boolean}>("select public.complete_academy_subchallenge($1,$2,'stay','short-stay',$3) complete",[home,dog,'20000000-0000-0000-0000-000000000032'])
-  expect(firstPart.rows[0].complete).toBe(true)
-  expect((await sql.query<{completed:boolean}>('select completed from public.academy_practice where id=$1',['20000000-0000-0000-0000-000000000032'])).rows[0].completed).toBe(false)
-  expect((await sql.query<{complete:boolean}>("select public.complete_academy_subchallenge($1,$2,'stay','short-stay',$3) complete",[home,dog,'20000000-0000-0000-0000-000000000033'])).rows[0].complete).toBe(false)
-  await sql.query("select public.complete_academy_subchallenge($1,$2,'stay','one-step-away',$3)",[home,dog,'20000000-0000-0000-0000-000000000034'])
-  await sql.query("select public.complete_academy_subchallenge($1,$2,'stay','mild-distraction',$3)",[home,dog,'20000000-0000-0000-0000-000000000035'])
-  expect((await sql.query<{count:number}>('select count(*) count from public.academy_module_progress')).rows[0].count).toBe(8)
-  await sql.query("select public.save_academy_practice($1,$2,$3,'stay','{}','Stay challenge complete',true)",[home,'20000000-0000-0000-0000-000000000036',dog])
-  expect((await sql.query("select * from public.academy_module_progress where module_id='stay'")).rows).toHaveLength(1)
-  expect((await sql.query<{count:number}>('select count(*) count from public.academy_module_progress')).rows[0].count).toBe(9)
-  expect((await sql.query<{count:number}>("select count(*) count from public.academy_subchallenge_progress where module_id='stay'")).rows[0].count).toBe(3)
-  await user(b)
   const ownSubscription=await sql.query("insert into public.push_subscriptions(user_id,endpoint,p256dh,auth) values($1,'https://fcm.googleapis.com/push/test','abcdefghijklmnopqrstuvwxyz1234567890','abcdefghijklmno123456')",[b])
   expect(ownSubscription.rowCount).toBe(1)
   await sql.query("insert into public.notification_preferences(user_id,category,enabled) values($1,'task',false)",[b])
@@ -140,7 +118,6 @@ it('enforces task household access, recurrence materialization and completion ow
   await expect(sql.query('select public.complete_household_task($1,true)',[first])).rejects.toThrow('Only the person')
   await expect(sql.query('select public.complete_household_task($1,false)',[first])).rejects.toThrow('Only the person')
   await user(c)
-  await expect(sql.query("select public.complete_academy_subchallenge($1,$2,'stay','short-stay',$3)",[home,dog,'20000000-0000-0000-0000-000000000037'])).rejects.toThrow('Family access denied')
   const other=(await sql.query<{id:string}>("select public.create_household('Other','UTC') id")).rows[0].id
   const otherDog=(await sql.query<{id:string}>("insert into public.dogs(household_id,name,sex,activity_level) values($1,'Rex','unknown','moderate') returning id",[other])).rows[0].id
   await expect(sql.query("select public.save_academy_practice($1,$2,$3,'walking-basics','{}','Walk practice',true)",[other,'20000000-0000-0000-0000-000000000003',otherDog])).rejects.toThrow('previous lesson')
