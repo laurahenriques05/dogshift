@@ -168,6 +168,12 @@ Home contains live Feeding and Walks summaries, with Coming soon previews for Ac
 
 ## Walks
 
+Walking together recalculates completed walks, kilometres and duration for Today,
+This week, This month or This year in the household timezone. Its chart groups
+walks by hour, day or month, using the same period selection and selector as Past
+Adventures. The chart opens with Show statistics and can display walk count,
+kilometres or minutes on an automatic scale. See [local preview data](docs/walks-demo.md) for fixture limitations.
+
 The Walks feature on `codex/walk-tracking` adds private GPS recording, history,
 calendar summaries, recorder-only corrections, reversible deletion, a Home summary
 and a confirmed NFC start link. Apply only the new

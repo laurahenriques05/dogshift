@@ -45,10 +45,47 @@ Style notices are retained in `public/licenses/walk-map-style.txt`.
 
 ## Try it locally
 
-Sign in, open Walks and select This month. Last Adventures previews the latest
+Sign in, open Walks and select This month. Last Adventure previews the latest
 entry; Show more opens all records in Past Adventures. Open each
 record or follow the other-walk links. Pinch to zoom or use explicit +/- controls;
 ordinary mouse-wheel scrolling must move the page without changing the map scale.
 Reproduce route animates the green trace with only the Start marker; Stop replay restores the full route and Finish marker. Fit route returns to the recorded trace. World and double-click zoom are removed.
 Real GPS capture and SQL permissions are unchanged. The samples cannot be edited
 or deleted as real household activities.
+
+## Walking together summary
+
+The summary selector shares the exact component and arrow styling with Past
+Adventures and supports Today, This week, This month and This year. Completed,
+non-deleted walks are selected by their start date in the household timezone
+(Monday-based weeks). Count, recorded kilometres and total duration update
+together from that selection. The bar chart counts walks by local hour for Today,
+by day for week/month and by month for year, with empty buckets retained. Hover
+or keyboard-focus a bucket for count, distance and duration. Development fixtures
+contribute to this chart just as they do to the totals; production uses saved walks
+only. No schema or hosted data changes are required.
+
+Statistics are collapsed by default. The bottom-right Show statistics button
+reveals the chart (Hide statistics collapses it). Its measure selector switches
+between completed-walk count, kilometres and minutes, retaining the summary's
+calendar period. Bars start at zero and share an automatically rounded scale with
+no fixed value ceiling. Equal counts correctly have equal heights; distance/time
+can show differences between equally frequent walking days.
+
+Today now positions bars at the household-local start minute (15:20 appears
+between 15h and 16h). Starts within the same minute are combined. Every hour is
+labelled, and month views label every calendar day, including February/leap years.
+The plot scrolls horizontally on narrow screens to keep all labels legible.
+Tooltips and accessible bar labels show only the selected measure and period.
+The measure selector uses the same divided chevron control as the period selector.
+
+Monthly tooltips prefix the day with “Day” (for example, Day 10). Time chart
+axis ticks and bar tooltips use the same hours/minutes formatter as Total time;
+bar heights continue to use the full recorded duration. The measure selector
+has a compact arrow area and larger text.
+
+When no completed walks exist in the selected period, Show statistics reveals
+only the bold “No completed walks in this period.” message and the existing Hide
+statistics button. Chart captions, controls and axes are omitted. Percentage mode
+has been removed. Completed walks still uses the existing chart; a dot timeline
+(one dot per completed walk) is a proposal awaiting the user's choice.
