@@ -32,3 +32,27 @@ Validation/configuration, invitation routing and authorization, household isolat
 ## Release smoke test
 
 Follow the README manual smoke test on the deployed website with separate owner/member sessions and a separate household. Test invalid input, forbidden actions, persistence/reload and network failure. Rehearse the complete university demonstration on the live URL; prepare role accounts and starting data without committing passwords. Treat device-specific NFC/push/GPS checks as pending until tested on real phones.
+
+## Academy curriculum rollout — 16 November 2026
+
+- PR #20 was approved by Beni and merged by Laura as merge commit
+  `138dc67`; GitHub showed all four checks passing.
+- Laura reports that `20261115150000_academy_curriculum.sql` was applied
+  successfully to shared Supabase. This workspace did not inspect the hosted
+  migration ledger or schema, so this is a team-reported status; do not run the
+  migration again.
+- On updated local `main` (`0d5d79d`), the Academy catalog and Tasks/Academy
+  database tests passed: 6 tests in 2 files. `npm run typecheck` and
+  `npm run build` also passed. The build retains existing dependency-comment and
+  large-chunk warnings.
+- The authenticated local UI showed the dog-trick path with 11 challenges,
+  0/11 completed and 0 XP. No practice or progress was written. The first lesson
+  loaded with its checklist and explicit save action. The multi-step `stay`
+  challenge remained locked until preceding lessons are completed, so its live
+  UI could not be inspected in this household without inventing training
+  progress. Isolated database tests cover ordered subchallenge completion and
+  one-time XP.
+- The PR preview reported READY, but that does not prove the production Vercel
+  alias serves this merge. Push delivery, live shared-schema behavior,
+  household-to-household progress, and the full challenge flow after real dog
+  practice remain unverified.

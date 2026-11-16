@@ -28,7 +28,7 @@ Feature owners implement their own UI, rules, migrations and tests. Coordinate s
 - A duplicate regular-meal warning only when another meal is recorded too soon. Treats are separate. The threshold uses the shortest planned gap, an explicit override, or the meals/day fallback.
 - Feeding NFC URL and confirmed quick logging; optional in-app tag writing on compatible Android Chrome browsers.
 
-Walks includes GPS recording, private active routes, completed history, statistics, corrections, a Home summary and a confirmed NFC start URL. Tasks, Calendar and the original Academy are merged into `main`; Maria's local Academy follow-up focuses the visible Academy on one progressive dog-trick path and adds eleven challenges. Earlier non-trick module IDs and XP history are retained internally, but the old course is no longer shown. The follow-up is pending review and one seed migration. See [Tasks, Calendar, Academy and Notifications](#tasks-calendar-academy-and-notifications) for rollout limits. Lost Dog Mode has been removed from scope. Current shared Feeding data refreshes on manual refresh/window focus; the clock update does not provide cross-device live synchronisation.
+Walks includes GPS recording, private active routes, completed history, statistics, corrections, a Home summary and a confirmed NFC start URL. Tasks, Calendar and the progressive dog-trick Academy are merged into `main`. PR #20 adds eleven challenges; the earlier non-trick module IDs and XP history remain internally, while the old course is no longer shown. The PR was approved by Beni and merged by Laura on 16 November 2026. Laura reports that the curriculum migration was successfully applied to shared Supabase; this repository review has not independently inspected the hosted schema. See [Tasks, Calendar, Academy and Notifications](#tasks-calendar-academy-and-notifications) for the remaining rollout limits. Lost Dog Mode has been removed from scope. Current shared Feeding data refreshes on manual refresh/window focus; the clock update does not provide cross-device live synchronisation.
 
 For the design references and the rationale for keeping PawShare's interactions calm and accessible, see [UI design research](docs/ui-design-research.md).
 
@@ -236,12 +236,14 @@ Web Push service worker/sender. Maria's chosen demo rules and the three small te
 integration checks are in
 [the feature handoff](docs/tasks-calendar-academy-proposal.md). This code is
 merged into `main`. Laura is the sole person applying migrations to the shared
-Supabase project. The Academy curriculum follow-up in this branch makes the
-dog-trick path the main course and includes a new curriculum/progress migration.
-Four complex tricks also have shared, ordered subchallenge steps; simpler tricks
-remain one short challenge. Parts do not award XP or unlock the next trick; the
-family earns XP once after explicitly completing the full challenge. This is not
-available in the hosted app until Laura reviews and applies the migration.
+Supabase project. PR #20, approved by Beni, adds the progressive dog-trick
+curriculum and was merged by Laura on 16 November 2026. Laura reports that its
+migration completed successfully; do not apply it again. The curriculum makes the
+dog-trick path the main course and includes shared, ordered subchallenge steps
+for four complex tricks; simpler tricks remain one short challenge. Parts do not
+award XP or unlock the next trick; the family earns XP once after explicitly
+completing the full challenge. Hosted schema was not independently inspected in
+this handoff; do not record real household progress until the dog has practised.
 
 Calendar events read their source records (tasks, Feeding restock projections,
 Health appointments, vaccinations and scheduled medication doses) and link back
@@ -260,12 +262,13 @@ do not reset the database or re-run older migrations.
 
 ### Safe rollout
 
-1. For the merged feature, Laura confirmed the coordinated migration rollout.
-   Never reset the shared project or re-run its existing migrations.
-2. The Academy curriculum follow-up adds the 11-module dog-trick course and
-   shared subchallenge progress in `20261115150000_academy_curriculum.sql`.
-   Laura must verify it is pending and apply it once after review; Maria must
-   not run it in the hosted SQL editor.
+1. Laura reported completing the coordinated migration rollout. Never reset the
+   shared project or re-run migrations she has already applied.
+2. The Academy curriculum migration is
+   `20261115150000_academy_curriculum.sql`. Laura reports that she applied it
+   successfully after checking prerequisites; do not run it again. If hosted
+   behaviour disagrees with the local/PR preview, Laura should inspect the
+   migration ledger and schema before taking further action.
 3. For real push delivery, generate VAPID keys (`npx web-push generate-vapid-keys`)
    and set the public VAPID key as `VITE_WEB_PUSH_PUBLIC_KEY` in the local/Vercel
    build environment. It is a public key; never put the private key in a `VITE_`

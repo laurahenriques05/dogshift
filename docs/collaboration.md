@@ -21,11 +21,26 @@ For a manual release, use a clean checkout of the pushed, reviewed main commit, 
 
 GitHub Actions already runs `npm ci`, `npm test`, and `npm run build`. The team should configure a main-branch rule requiring one other member's approval and successful Verify checks where the GitHub plan supports it. This document does not create or prove that protection. Do not request additional access or change branch protection without the repository owner's authorization.
 
-## Current alignment handoff (11 November 2026)
+## Historical alignment handoff (11 November 2026; superseded)
 
 The published Feeding source before this documentation update is commit `c6449b205f878ce13fd8bc5a271cfba19526dcfa`, deployment `dpl_Cj3oFD5A1A51HeB7NWtxtxbdPmne`. It was deployed directly from feature/laura-feeding. GitHub main still needs the reviewed Feeding pull request, including these documentation updates. This is a historical snapshot, not a statement that alignment is complete.
 
-The alignment PR should include all Feeding commits since main, the latest visual polish, updated README/verification, AGENTS.md and this workflow. A different group member must review it before merge. Once merged, deploy the resulting main SHA and replace this pending handoff with a dated release entry containing PR, merge SHA, deployment ID and smoke-test result. Do not undo/reapply database migrations that are already installed.
+At that time, the alignment PR was expected to include all Feeding commits since main and documentation updates. That integration was later completed by subsequent pull requests. Do not undo/reapply database migrations that are already installed.
+
+## Repository status (16 November 2026)
+
+The current local `main` is `0d5d79d` (PR #24). It includes Academy PR #20,
+merged by Laura as `138dc67` after Beni's approval. Laura reports that she
+applied the Academy curriculum and coordinated Tasks/Push migrations to shared
+Supabase; this workspace did not independently inspect the hosted migration
+ledger. Never apply those migrations again without first reconciling the live
+schema and ledger.
+
+PR #20's Vercel preview reported READY, and the public production site loaded
+its sign-in page during a read-only check. The production deployment's commit
+SHA was not verified, so do not claim that production serves current `main`.
+Verify Vercel's Git connection, production branch, READY deployment and served
+commit before reporting the release complete.
 
 ## Shared migration ownership
 
