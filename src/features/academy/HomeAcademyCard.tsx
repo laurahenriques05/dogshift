@@ -14,7 +14,7 @@ export function HomeAcademyCard({householdId,zone,dogName}:{householdId:string;z
  const progress=academyProgress(records,zone,new Date(),milestones),next=progress.nextModule
  return <section className="card home-walk-card home-academy-card"><div className="home-card-heading"><span className="icon-tile peach"><GraduationCap size={20}/></span><div><p className="eyebrow">LITTLE WINS TOGETHER</p><h3>Academy</h3></div></div>
   {loading?<LoadingPlaceholder label="Loading shared progress"/>:error?<><Notice error>{error}</Notice><Button className="secondary" onClick={()=>setRetry(value=>value+1)}>Try again</Button></>:<div className="home-academy-stats"><span><Sparkles size={14}/>{progress.xp} XP · Level {progress.level}</span><span><Flame size={14}/>{progress.streak} day streak</span></div>}
-  {!loading&&!error&&next&&<p>{progress.completedIds.has(next.id)?`${dogName} has started learning together.`:`Next challenge: ${next.title}`}</p>}
+  {!loading&&!error&&next&&<p>{progress.completedIds.has(next.id)?`${dogName} has started learning together.`:`Next lesson: ${next.title}`}</p>}
   <Link className="text-link" to={!loading&&!error&&next?`/academy/${next.id}`:'/academy'}>Open Academy <ArrowUpRight size={15}/></Link>
  </section>
 }

@@ -8,13 +8,21 @@ approval, permission to merge, or evidence of hosted migration application.
 
 ## Academy decision
 
-**Scope update (15 November 2026):** the user clarified that Academy should have
-one clear purpose: progressive dog-trick training. The earlier choice to expose
-`walking-basics` as an Academy lesson is superseded. `/walks/learn` now returns
-to Walks, while the old module IDs/history stay preserved internally.
+Confirm `/walks/learn` should open `/academy/walking-basics` after Academy is
+integrated. Keep the old URL as a redirect using replacement navigation so
+existing Walks links continue working. Maria's catalog already contains Carol's
+three lesson sections, sniffing-break practice and GPS knowledge check under the
+stable ID `walking-basics`. Use the shared Academy progression: this is lesson 2,
+unlocked after `daily-care-check-in`. Opening either URL must not save practice,
+complete the lesson or award XP. Locked, loading and failed progress reads must
+remain subject to the shared Academy checks.
 
-The detailed walkthrough below records the earlier integration review and is
-retained as history; follow the scope update above for the current behavior.
+**Implemented on this branch:** `/walks/learn` redirects with replacement navigation
+to `/academy/walking-basics`. It stays inside the authenticated household routes;
+Academy retains its loading/error/unlock checks and explicit practice saving.
+The standalone component is no longer routed. This branch targets Maria's
+integration branch, where Academy exists; do not cherry-pick the router change
+alone into a version of main without Academy.
 
 ## Walk alerts decision
 

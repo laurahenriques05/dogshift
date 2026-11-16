@@ -74,14 +74,10 @@ ordering; these product defaults do not need a team vote.
   progress.
 - A member can edit/delete only their own practice entries. Completion is an
   explicit action, not a side effect of opening a lesson.
-- The merged baseline includes Maria's daily care check-in and Carol's walking
-  basics. Maria's follow-up presents one progressive dog-trick course, from
-  marker/target foundations to multi-step challenges. The two earlier non-trick
-  IDs remain internally so saved history and XP are preserved, but those entries
-  are no longer shown in Academy. The new module IDs are seeded by
-  `20261115150000_academy_curriculum.sql`; Laura must review and apply this
-  migration before the challenges are available in the shared app. Teammates
-  can propose additional trick challenges using [the lesson template](academy/lesson-template.md).
+- The demo starts with two short modules: Maria's daily care check-in and
+  Carol's walking basics. Everyone can add a module using
+  [the lesson template](academy/lesson-template.md); no unlicensed media or
+  large content library is needed.
 
 ## Decisions to ask the team
 
@@ -95,10 +91,10 @@ These are integration checks, not requests to decide Maria's task/reward rules:
    for appointments, vaccinations and medication doses used in the Calendar,
    and flag any schema/route mismatch. Health can then use the shared sync/cancel
    RPCs for its agreed reminder policy.
-3. **Carol (Walks integration):** confirm whether the existing Walks
+3. **Carol (Walks integration):** confirm whether `/walks/learn` should redirect
+   to the shared Academy `walking-basics` module, and whether the existing Walks
    notification adapter should connect to shared push through the new RPCs or
-   remain an in-app alert. `/walks/learn` now returns to Walks; the Academy is
-   reserved for the progressive dog-trick course.
+   remain an in-app alert.
 
 No team meeting is required to continue the work. Do not apply these migrations
 to the shared database or deploy the push function until the owners have
