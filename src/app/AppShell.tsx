@@ -1,20 +1,21 @@
-import { NavLink, Outlet } from 'react-router-dom'
+import { NavLink, Outlet, useLocation } from 'react-router-dom'
 import { Home, Utensils, Footprints, GraduationCap, Ellipsis, LogOut, HeartPulse, ListChecks } from 'lucide-react'
 import { Brand, Button, Notice } from '../components/ui'
 import { db } from '../lib/supabase/client'
 import { useHousehold } from '../features/household/HouseholdProvider'
 import { useState } from 'react'
 export function AppShell() {
- const { household, households, select } = useHousehold(); const [error, setError] = useState('')
+ const { household, households, select } = useHousehold(); const [error, setError] = useState(''); const { pathname }=useLocation()
+ const moreActive=['/more','/health','/academy','/calendar'].some(path=>pathname===path||pathname.startsWith(`${path}/`))
  async function signOut() { const { error } = await db().auth.signOut(); if (error) setError(error.message) }
  return (
   <div className="app-layout">
     <aside className="sidebar">
       <Brand/>
-      <p className="nav-label">YOUR EVERYDAY</p>
+      <p className="nav-label">DAILY CARE</p>
       <nav aria-label="Main navigation">
         <NavLink to="/" end><Home size={20}/>Home</NavLink>
-        <NavLink to="/feed"><Utensils size={20}/>Feed</NavLink>
+        <NavLink to="/feed"><Utensils size={20}/>Feeding</NavLink>
         <NavLink to="/walks"><Footprints size={20}/>Walks</NavLink>
         <NavLink to="/academy"><GraduationCap size={20}/>Academy</NavLink>
         <NavLink to="/tasks"><ListChecks size={20}/>Tasks</NavLink>
@@ -38,8 +39,8 @@ export function AppShell() {
       <NavLink to="/" end><Home/><span>Home</span></NavLink>
       <NavLink to="/feed"><Utensils/><span>Feed</span></NavLink>
       <NavLink to="/walks"><Footprints/><span>Walks</span></NavLink>
-      <NavLink to="/academy"><GraduationCap/><span>Academy</span></NavLink>
-      <NavLink to="/health"><HeartPulse/><span>Health</span></NavLink><NavLink to="/more"><Ellipsis/><span>More</span></NavLink>
+      <NavLink to="/tasks"><ListChecks/><span>Tasks</span></NavLink>
+      <NavLink className={moreActive?'active':undefined} to="/more"><Ellipsis/><span>More</span></NavLink>
     </nav>
   </div>
 )
