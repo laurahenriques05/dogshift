@@ -64,7 +64,7 @@ export function Router() {
             <Route path="/onboarding/dog" element={<OnboardingPage/>}/>
             <Route element={<WalkProvider><AppShell/></WalkProvider>}>
               <Route index element={<DashboardPage/>}/>
-              <Route path="/health/treatments" element={<HealthRecordsPage kind="treatments"/>}/><Route path="/health/contacts" element={<HealthRecordsPage kind="vet_contacts"/>}/><Route path="/health/weight" element={<HealthRecordsPage kind="weight_measurements"/>}/><Route path="/health/documents" element={<DocumentsPage/>}/><Route path="/health" element={<AppointmentsPage/>}/><Route path="/health/appointments" element={<AppointmentsPage/>}/><Route path="/health/medications" element={<MedicationsPage/>}/><Route path="/health/vaccinations" element={<VaccinationsPage/>}/><Route path="/feed" element={<FeedingPage/>}/>
+              <Route path="/health/treatments" element={<HealthRecordsPage kind="treatments"/>}/><Route path="/health/contacts" element={<HealthRecordsPage kind="vet_contacts"/>}/><Route path="/health/weight" element={<HealthRecordsPage kind="weight_measurements"/>}/><Route path="/health/documents" element={<DocumentsPage/>}/><Route path="/health" element={<AppointmentsPage/>}/><Route path="/health/appointments" element={<AppointmentsPage/>}/><Route path="/health/past-appointments" element={<AppointmentsPage historyOnly/>}/><Route path="/health/medications" element={<MedicationsPage/>}/><Route path="/health/vaccinations" element={<VaccinationsPage/>}/><Route path="/feed" element={<FeedingPage/>}/>
               <Route path="/walks" element={<WalksPage/>}/>
               <Route path="/walks/:walkId" element={<WalkDetailPage/>}/>
               <Route path="/walks/gps-test" element={<GpsDiagnosticPage/>}/>
