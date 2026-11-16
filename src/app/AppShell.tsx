@@ -6,7 +6,7 @@ import { useHousehold } from '../features/household/HouseholdProvider'
 import { useState } from 'react'
 export function AppShell() {
  const { household, households, select } = useHousehold(); const [error, setError] = useState(''); const { pathname }=useLocation()
- const moreActive=['/more','/health','/academy','/calendar'].some(path=>pathname===path||pathname.startsWith(`${path}/`))
+ const moreActive=['/more','/health','/calendar'].some(path=>pathname===path||pathname.startsWith(`${path}/`))
  async function signOut() { const { error } = await db().auth.signOut(); if (error) setError(error.message) }
  return (
   <div className="app-layout">
@@ -39,7 +39,7 @@ export function AppShell() {
       <NavLink to="/" end><Home/><span>Home</span></NavLink>
       <NavLink to="/feed"><Utensils/><span>Feed</span></NavLink>
       <NavLink to="/walks"><Footprints/><span>Walks</span></NavLink>
-      <NavLink to="/tasks"><ListChecks/><span>Tasks</span></NavLink>
+      <NavLink to="/academy"><GraduationCap/><span>Academy</span></NavLink>
       <NavLink className={moreActive?'active':undefined} to="/more"><Ellipsis/><span>More</span></NavLink>
     </nav>
   </div>
