@@ -1,4 +1,5 @@
 import { useState, type FormEvent } from 'react'
+import { ArrowRight } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { Button, Field, Notice } from '../../components/ui'
 import { parseInvitationInput } from '../household/invitations'
@@ -21,7 +22,7 @@ export function JoinFamilyForm() {
    <p className="muted">Ask the family member to share an invitation from their Family page. Use the same email address they invited.</p>
    <Field label="Invitation code" name="invitation" required autoComplete="off" spellCheck={false} placeholder="Paste your invitation code"/>
    {error && <Notice error>{error}</Notice>}
-   <Button>Continue to invitation →</Button>
+   <Button>Continue to invitation <ArrowRight size={18} strokeWidth={1.8}/></Button>
   </form>}
  </section>
 }

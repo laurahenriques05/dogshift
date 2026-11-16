@@ -1,4 +1,6 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react'
+import { Check, Circle, LoaderCircle, Minus, Pill } from 'lucide-react'
+import { EmptyState } from '../../components/ui'
 import type { MedicationDose } from '../../lib/supabase/database.types'
 
 export function MedicationProgress({ doses, name, zone, busy, onTake, renderDose, requestedDoseId }: {
@@ -46,13 +48,13 @@ export function MedicationProgress({ doses, name, zone, busy, onTake, renderDose
       aria-label={`${name}, ${full.format(when)}, ${state}. ${dose.status === 'scheduled' && !dose.recorded_at ? 'Confirm taken' : 'View record'}`}
       aria-busy={saving === dose.id} onClick={() => void take(dose)}>
       <span className="dose-bubble-day">{date.format(when)}</span><strong>{time.format(when)}</strong>
-      <span className="dose-bubble-mark" aria-hidden="true">{saving === dose.id ? '…' : dose.status === 'given' ? '✓' : dose.status === 'skipped' ? '−' : '○'}</span>
+      <span className="dose-bubble-mark" aria-hidden="true">{saving === dose.id ? <LoaderCircle size={16} strokeWidth={1.8}/> : dose.status === 'given' ? <Check size={16} strokeWidth={1.8}/> : dose.status === 'skipped' ? <Minus size={16} strokeWidth={1.8}/> : <Circle size={14} strokeWidth={1.8}/>}</span>
      </button>
      <small>{saving === dose.id ? 'Saving…' : state}</small>
      <button type="button" className="dose-detail-link" aria-expanded={selected === dose.id} onClick={() => setSelected(selected === dose.id ? null : dose.id)}>Details</button>
     </li>
    })}
-  </ul> : <p className="muted">No doses scheduled yet.</p>}
+  </ul> : <EmptyState icon={<Pill size={20} strokeWidth={1.8}/>} title="No doses scheduled">Add a medication schedule to see each dose here and record it when it is given.</EmptyState>}
   {selectedDose && <div ref={detailsRef} tabIndex={-1} role="region" aria-label={`${name}: dose details`}><ul className="walk-history health-record-list">{renderDose(selectedDose)}</ul></div>}
  </div>
 }
