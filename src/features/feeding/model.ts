@@ -8,7 +8,9 @@ export function stockForecast(product: FoodProduct, entries: FeedingEntry[], now
  const days = Number(product.daily_grams) > 0 ? remaining / Number(product.daily_grams) : null
  const runsOut = days === null ? null : new Date(now.getTime() + days * 86400000)
  const buyBy = days === null ? null : new Date(now.getTime() + Math.max(0, days - product.reminder_days) * 86400000)
- return { remaining, days, runsOut, buyBy, low: days !== null && days <= product.reminder_days }
+ const low = days !== null && days <= product.reminder_days
+ const status = remaining <= 0 ? 'critical' : low ? 'low' : 'enough'
+ return { remaining, days, runsOut, buyBy, low, status }
 }
 export function dayKey(value: string | Date, timezone: string) {
  return new Intl.DateTimeFormat('en-CA', { timeZone: timezone, year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date(value))

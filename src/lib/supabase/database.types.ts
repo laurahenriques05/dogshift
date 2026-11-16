@@ -11,6 +11,7 @@ export type TaskSeries = { id:string;household_id:string;title:string;details:st
 export type TaskOccurrence = { id:string;household_id:string;series_id:string;title:string;details:string;assigned_to:string|null;recurrence:'none'|'daily'|'weekly'|'monthly';recurrence_every:number;due_at:string;completed_at:string|null;completed_by:string|null;created_at:string }
 export type AcademyPractice = { id:string;household_id:string;dog_id:string;module_id:string;user_id:string|null;practiced_at:string;checklist:Record<string,boolean>;performance:string;completed:boolean;deleted_at:string|null;updated_at:string }
 export type AcademyModuleProgress = { household_id:string;dog_id:string;module_id:string;completed_at:string;completed_by:string|null }
+export type AcademySubchallengeProgress = { household_id:string;dog_id:string;module_id:string;subchallenge_id:string;completed_at:string;completed_by:string|null }
 export type AcademyModuleRow = { id:string;course_id:string;position:number }
 export type PushSubscription = { id:string;user_id:string;endpoint:string;p256dh:string;auth:string;created_at:string;updated_at:string }
 export type NotificationPreference = { user_id:string;category:'task'|'feeding'|'health'|'walk'|'academy';enabled:boolean;updated_at:string }
@@ -40,6 +41,7 @@ export type Database = { public: { Tables: {
  task_occurrences: Table<TaskOccurrence, never>;
  academy_practice: Table<AcademyPractice, Pick<AcademyPractice,'household_id'|'dog_id'|'module_id'|'checklist'|'performance'|'completed'>>;
  academy_module_progress: Table<AcademyModuleProgress, never>;
+ academy_subchallenge_progress: Table<AcademySubchallengeProgress, never>;
  academy_modules: Table<AcademyModuleRow, never>;
  push_subscriptions: Table<PushSubscription, Pick<PushSubscription,'user_id'|'endpoint'|'p256dh'|'auth'>>;
  notification_preferences: Table<NotificationPreference, Pick<NotificationPreference,'user_id'|'category'|'enabled'>>;
@@ -82,6 +84,7 @@ export type Database = { public: { Tables: {
  complete_household_task: { Args:{p_occurrence:string;p_completed:boolean}; Returns:undefined };
  archive_household_task: { Args:{p_household:string;p_task:string}; Returns:undefined };
  save_academy_practice: { Args:{p_household:string;p_id:string|null;p_dog:string;p_module:string;p_checklist:Record<string,boolean>;p_performance:string;p_completed:boolean;p_delete?:boolean}; Returns:string };
+ complete_academy_subchallenge: { Args:{p_household:string;p_dog:string;p_module:string;p_subchallenge:string;p_id:string}; Returns:boolean };
  claim_due_notifications: { Args:{p_limit?:number}; Returns:ScheduledNotification[] };
  finish_notification_delivery: { Args:{p_id:string;p_outcome:string;p_error?:string}; Returns:undefined };
  sync_household_notification: { Args:{p_household:string;p_recipient:string|null;p_category:'feeding'|'health'|'walk'|'academy';p_source_id:string;p_delivery_kind:'reminder'|'overdue_escalation';p_title:string;p_body:string;p_route:string;p_send_at:string}; Returns:number };

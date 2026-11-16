@@ -1,11 +1,11 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { ChevronDown } from 'lucide-react'
-import { Button, Notice, PageTitle } from '../../components/ui'
+import { Footprints } from 'lucide-react'
+import { WalkPeriodSelect } from './WalkPeriodSelect'
+import { Button, EmptyState, LoadingPlaceholder, Notice, PageTitle } from '../../components/ui'
 import { filterHistory, type HistoryEntry, type HistoryPeriod } from './history'
 import { WalkActivityCard } from './WalkActivityCard'
 
-const periodLabels = { day: 'Today', week: 'This week', month: 'This month', year: 'This year' } as const
 
 export function WalkHistoryPage({ history, timezone, loading, ready, error, onRetry }: {
  history: HistoryEntry[]; timezone: string; loading: boolean; ready: boolean; error: string; onRetry: () => void
@@ -13,10 +13,10 @@ export function WalkHistoryPage({ history, timezone, loading, ready, error, onRe
  const [limit, setLimit] = useState(20)
  const [period, setPeriod] = useState<HistoryPeriod>('month')
  const selected = filterHistory(history, period, timezone)
- return <div className="walk-page walk-history-page"><Link to="/walks">← Walks</Link><div className="walk-diary-heading"><PageTitle eyebrow="YOUR WALKING DIARY" title="Past Adventures"/><span className="walk-period-select"><select aria-label="Walking history period" value={period} onChange={e=>{setPeriod(e.target.value as HistoryPeriod);setLimit(20)}}><option value="day">Today</option><option value="week">This week</option><option value="month">This month</option><option value="year">This year</option></select><span className="walk-period-value" aria-hidden="true">{periodLabels[period]}</span><ChevronDown aria-hidden="true" size={16}/></span></div>
+ return <div className="walk-page walk-history-page"><Link to="/walks">← Walks</Link><div className="walk-diary-heading"><PageTitle eyebrow="YOUR WALKING DIARY" title="Past Adventures"/><WalkPeriodSelect label="Walking history period" value={period} onChange={value=>{setPeriod(value);setLimit(20)}}/></div>
   {error && <Notice error>{error}<p><Button className="secondary" onClick={onRetry}>Retry connection</Button></p></Notice>}
-  {loading ? <p role="status">Loading walks…</p> : !ready ? <section className="card"><p>Your walking history is not available yet.</p><Button className="secondary" onClick={onRetry}>Retry connection</Button></section> : <section className="card">
-   {!history.length ? <p className="walk-empty">Your first completed walk will appear here.</p> : !selected.length ? <p className="walk-empty" role="status">No completed walks in this period.</p> : <div className="walk-activity-list">{selected.slice(0,limit).map(walk => <WalkActivityCard key={walk.id} {...walk} loadRoute={!walk.demo}/>)}</div>}
+  {loading ? <section className="card"><LoadingPlaceholder label="Loading your walking history" lines={3}/></section> : !ready ? <section className="card"><EmptyState icon={<Footprints size={20} strokeWidth={1.8}/>} title="Walking history is not available" action={<Button className="secondary" onClick={onRetry}>Retry connection</Button>}>Reconnect to load the walks saved for this family.</EmptyState></section> : <section className="card">
+   {!history.length ? <EmptyState icon={<Footprints size={20} strokeWidth={1.8}/>} title="Your walking diary starts here">Complete a walk and its route, duration and distance will appear here.</EmptyState> : !selected.length ? <EmptyState title="No walks in this period">Choose another time period to see earlier completed walks.</EmptyState> : <div className="walk-activity-list">{selected.slice(0,limit).map(walk => <WalkActivityCard key={walk.id} {...walk} loadRoute={!walk.demo}/>)}</div>}
    {selected.length > limit && <Button className="secondary" onClick={() => setLimit(value => value + 20)}>Load more walks</Button>}
   </section>}
  </div>

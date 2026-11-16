@@ -74,31 +74,41 @@ ordering; these product defaults do not need a team vote.
   progress.
 - A member can edit/delete only their own practice entries. Completion is an
   explicit action, not a side effect of opening a lesson.
-- The demo starts with two short modules: Maria's daily care check-in and
-  Carol's walking basics. Everyone can add a module using
-  [the lesson template](academy/lesson-template.md); no unlicensed media or
-  large content library is needed.
+- The merged baseline includes Maria's daily care check-in and Carol's walking
+  basics. Maria's follow-up presents one progressive dog-trick course, from
+  marker/target foundations to multi-step challenges. The two earlier non-trick
+  IDs remain internally so saved history and XP are preserved, but those entries
+  are no longer shown in Academy. The new module IDs are seeded by
+  `20261115150000_academy_curriculum.sql`. PR #20 was approved by Beni and merged
+  into `main` by Laura on 16 November 2026. Laura reports that she applied this
+  migration successfully; do not run it again. Teammates
+  can propose additional trick challenges using [the lesson template](academy/lesson-template.md).
 
-## Decisions to ask the team
+## Remaining integration checks
 
 These are integration checks, not requests to decide Maria's task/reward rules:
 
-1. **Laura (integration/migrations):** review the two new migration files,
-   handwritten Supabase types and routes; confirm migration ordering and the
-   existing Feeding event adapter/reminder timestamp before anyone applies the
-   changes to the shared Supabase project.
-2. **Beni (Health source events):** confirm the stable source IDs and deep links
-   for appointments, vaccinations and medication doses used in the Calendar,
-   and flag any schema/route mismatch. Health can then use the shared sync/cancel
-   RPCs for its agreed reminder policy.
-3. **Carol (Walks integration):** confirm whether `/walks/learn` should redirect
-   to the shared Academy `walking-basics` module, and whether the existing Walks
-   notification adapter should connect to shared push through the new RPCs or
-   remain an in-app alert.
+1. **Laura (integration/migrations):** PR #20 review and merge are complete; she
+   reports applying the Academy migration. The hosted schema has not been
+   independently inspected here. Confirm current migration state before future
+   schema work; never re-run the curriculum migration.
+2. **Beni (Health source events):** still confirm the stable source IDs and
+   exact deep links for appointments, vaccinations and medication doses used in
+   the Calendar, and flag any mismatch. Her earlier task-deletion review did not
+   confirm these calendar links. Health can then connect to the shared
+   sync/cancel RPCs for its agreed reminder policy.
+3. **Carol (Walks integration):** review recorded 14 November. Keep walk
+   stationary alerts local to the walker; do not connect them to shared push or
+   add completed GPS walks to the calendar without a new agreement. `/walks/learn`
+   returns to Walks; Academy is reserved for progressive dog-trick training.
 
-No team meeting is required to continue the work. Do not apply these migrations
-to the shared database or deploy the push function until the owners have
-reviewed the integration and agreed the shared rollout.
+No team meeting is required to continue the work. Laura reports that the shared
+Tasks/Push and Academy migrations were applied. Do not reapply them. The
+`send-push` Edge Function source and task reminder queue exist in the repository,
+but the function still needs server secrets, deployment and a scheduled
+invocation. Feature-specific Feeding and Health adapters do not currently call
+the shared sync/cancel RPCs. Real-device delivery also needs validation before
+push can be called functional.
 
 ## Laura migration and Feeding review
 
@@ -106,8 +116,10 @@ Laura reviewed the two migrations against the complete existing migration
 chain. The required order is the filename order:
 `20261114120000_tasks_academy.sql` first, followed by
 `20261114130000_push_notifications.sql`. The second migration depends on the
-task tables created by the first. Neither migration has been applied to the
-shared Supabase project by this review.
+task tables created by the first. At review time, neither migration had been
+applied. Laura later reported completing the shared rollout; this note is not
+proof of the hosted migration ledger. Verify current project state before any
+future migration.
 
 The new household-scoped tables now explicitly install the existing
 `private.guard_deletion()` trigger. The original deletion migration could not

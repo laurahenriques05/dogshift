@@ -20,7 +20,7 @@ export function academyProgress(records:AcademyPractice[],zone:string,now=new Da
  return {
   completedIds,xp,level:Math.floor(xp/ACADEMY_RULES.xpPerLevel)+1,streak,
   completedCount,
-  badges:ACADEMY_RULES.badgeModuleCounts.filter(count=>completedCount>=count).map(count=>count===1?'First lesson':`${count} lessons`),
-  nextModule:academyModules.find(module=>!completedIds.has(module.id)),
+  badges:ACADEMY_RULES.badgeModuleCounts.filter(count=>completedCount>=count).map(count=>count===1?'First Academy win':`${count} Academy wins`),
+  nextModule:academyModules.find(module=>module.courseId==='trick-training'&&!completedIds.has(module.id)),
  }
 }
