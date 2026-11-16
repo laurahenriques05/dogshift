@@ -9,11 +9,15 @@ describe('Feeding summaries and integration adapter',()=>{
  it('uses corrected ledger quantities and excludes removed records',()=>expect(stockGrams(p,entries)).toBe(2000))
  it('calculates run-out and seven-day advance restocking dates',()=>{
   const f=stockForecast(p,entries,new Date('2026-11-11T12:00:00Z'))
-  expect(f.days).toBe(10);expect(f.low).toBe(false)
+  expect(f.days).toBe(10);expect(f.low).toBe(false);expect(f.status).toBe('enough')
   expect(f.runsOut?.toISOString()).toBe('2026-11-21T12:00:00.000Z')
   expect(f.buyBy?.toISOString()).toBe('2026-11-14T12:00:00.000Z')
  })
  it('does not invent forecasts for irregular products',()=>expect(stockForecast({...p,daily_grams:0},entries).days).toBeNull())
+ it('labels low and empty cupboards without changing forecast quantities',()=>{
+  expect(stockForecast(p,[entry('1','meal',50)]).status).toBe('low')
+  expect(stockForecast(p,[entry('1','meal',100)]).status).toBe('critical')
+ })
  it('alerts immediately for low stock and supplies stable integration IDs',()=>{
   const result=foodRestockingEvents([p],[entry('1','meal',50)],new Date('2026-11-11T12:00:00Z'))
   expect(result[0].id).toBe('food-restock:p');expect(result[0].lowStock).toBe(true)

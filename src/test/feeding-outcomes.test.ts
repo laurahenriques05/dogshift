@@ -61,6 +61,7 @@ it('builds due/upcoming/fed states using household-local dates and excludes remo
  const plan:PlannedMeal[]=[{id:'a',name:'Breakfast',time:'08:00',notes:'',items:[]},{id:'b',name:'Dinner',time:'20:00',notes:'',items:[]}]
  const e={id:'e',routine_meal_id:'a',occurred_at:'2026-11-11T08:05:00Z',outcome:'given',deleted_at:null} as MealEvent
  expect(todayChecklist(plan,[],'Europe/Lisbon',new Date('2026-11-11T12:00:00Z')).map(r=>r.status)).toEqual(['Due','Upcoming'])
+ expect(todayChecklist(plan,[],'Europe/Lisbon',new Date('2026-11-11T12:00:00Z'))[0].minutesLate).toBe(240)
  expect(todayChecklist(plan,[e],'Europe/Lisbon',new Date('2026-11-11T12:00:00Z')).map(r=>r.status)).toEqual(['Fed','Upcoming'])
  expect(todayChecklist(plan,[e],'America/Los_Angeles',new Date('2026-11-12T00:30:00Z'))[0].status).toBe('Fed')
  expect(todayChecklist(plan,[{...e,deleted_at:'2026-11-11'}],'Europe/Lisbon',new Date('2026-11-11T12:00:00Z'))[0].status).toBe('Due')
