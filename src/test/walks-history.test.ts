@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import type { Walk } from '../lib/supabase/database.types'
 import { demoWalks } from '../features/walks/demo'
-import { filterHistory, summarizeHistory, walkHistory, presentationHistoryEnabled } from '../features/walks/history'
+import { dailyHistoryChart, historyChart, filterHistory, summarizeHistory, walkHistory, presentationHistoryEnabled } from '../features/walks/history'
 const now = new Date('2026-11-12T12:00:00Z')
 const saved = (id: string, ended = true, deleted = false): Walk => ({ id, household_id: 'h', dog_id: 'd', walker_id: 'u', started_at: '2026-11-11T12:00:00Z', ended_at: ended ? '2026-11-11T12:10:00Z' : null, distance_m: 700, notes: '', end_reason: ended ? 'manual' : null, deleted_at: deleted ? '2026-11-11T13:00:00Z' : null })
 afterEach(()=>vi.unstubAllEnvs())
@@ -61,4 +61,36 @@ describe('Past adventures and displayed totals', () => {
   expect(summarizeHistory(history,'week','Europe/Lisbon',now).count).toBe(2)
   expect(summarizeHistory(history,'month','Europe/Lisbon',now).count).toBe(3)
  })
+})
+
+describe('Walking together chart and totals', () => {
+ it('keeps every bucket total equal to the summary across all four periods', () => {
+  const entries = ['2025-12-31','2026-01-01','2026-10-31','2026-11-01','2026-11-09','2026-11-12','2026-11-13'].map(day=>({id:day,title:'Walk',startedAt:`${day}T12:00:00Z`,meters:1250,seconds:900,demo:false}))
+  for(const period of ['day','week','month','year'] as const) {
+   const buckets=historyChart(entries,period,'Europe/Lisbon',now)
+   const totals=buckets.reduce((sum,bucket)=>({count:sum.count+bucket.count,meters:sum.meters+bucket.meters,seconds:sum.seconds+bucket.seconds}),{count:0,meters:0,seconds:0})
+   expect(totals).toEqual(summarizeHistory(entries,period,'Europe/Lisbon',now))
+  }
+  expect(historyChart(entries,'year','Europe/Lisbon',now)).toHaveLength(12)
+  expect(historyChart(entries,'month','Europe/Lisbon',now)).toHaveLength(30)
+  expect(historyChart(entries,'week','Europe/Lisbon',now).map(bucket=>bucket.count)).toEqual([1,0,0,1,0,0,0])
+ })
+ it('groups local hours across midnight and combines repeated DST hours', () => {
+  const entry=(startedAt:string)=>({id:startedAt,title:'Walk',startedAt,meters:100,seconds:60,demo:false})
+  const buckets=historyChart([entry('2026-11-11T23:30:00Z')],'day','Asia/Tokyo',now)
+  expect(buckets[8].count).toBe(1)
+  const dst=historyChart([entry('2026-10-25T00:30:00Z'),entry('2026-10-25T01:30:00Z')],'day','Europe/Lisbon',new Date('2026-10-25T12:00:00Z'))
+  expect(dst[1].count).toBe(2)
+  expect(historyChart([],'month','UTC',new Date('2028-02-29T12:00:00Z'))).toHaveLength(29)
+ })
+})
+
+it('positions Today bars at their local start minute and combines only matching minutes',()=>{
+ const entries=['2026-11-12T15:20:00Z','2026-11-12T15:45:00Z','2026-11-12T15:20:30Z','2026-11-11T15:20:00Z'].map(startedAt=>({id:startedAt,title:'Walk',startedAt,meters:100,seconds:90,demo:false}))
+ expect(dailyHistoryChart(entries,'Europe/Lisbon',now)).toEqual([
+  {label:'15:20',minute:920,count:2,meters:200,seconds:180},
+  {label:'15:45',minute:945,count:1,meters:100,seconds:90},
+ ])
+ expect(historyChart([],'month','UTC',new Date('2026-01-14T12:00:00Z'))).toHaveLength(31)
+ expect(historyChart([],'month','UTC',new Date('2026-02-14T12:00:00Z'))).toHaveLength(28)
 })

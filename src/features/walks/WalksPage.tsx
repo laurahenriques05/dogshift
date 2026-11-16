@@ -9,21 +9,25 @@ import { duration, paceLabel, routeDistance, timeLabel } from './gps'
 import { RouteMap } from './RouteMap'
 import { walkNotifications } from './notifications'
 import { clearWalkStart, pendingWalkStart } from './nfc'
-import { walkHistory, summarizeHistory, presentationHistoryEnabled } from './history'
+import { walkHistory, summarizeHistory, presentationHistoryEnabled, type HistoryPeriod } from './history'
 import { kilometersLabel } from './mapGestures'
 import { WalkActivityCard } from './WalkActivityCard'
+import { WalkPeriodSelect } from './WalkPeriodSelect'
+import { WalkSummaryChart } from './WalkSummaryChart'
 import { WalkHistoryPage } from './WalkHistoryPage'
 
 export function WalksPage() {
  const {session}=useAuth(),{household,dog}=useHousehold(),data=useWalks(),navigate=useNavigate()
- const [search,setSearch]=useSearchParams(),[confirm,setConfirm]=useState<'start'|'end'|null>(null),[period,setPeriod]=useState<'day'|'week'|'month'>('month')
+ const [search,setSearch]=useSearchParams(),[confirm,setConfirm]=useState<'start'|'end'|null>(null),[period,setPeriod]=useState<HistoryPeriod>('month')
+ const [showStatistics,setShowStatistics]=useState(false)
  const [notify,setNotify]=useState(''),[copied,setCopied]=useState('')
  const [finishingWalk,setFinishingWalk]=useState<string|null>(null)
  const active=data.walks.find(w=>!w.ended_at&&!w.deleted_at),mine=active?.walker_id===session!.user.id
  const historyView=search.get('view')==='history'
  useEffect(()=>{window.scrollTo(0,0)},[historyView])
  const history=walkHistory(data.walks,presentationHistoryEnabled(),session!.user.id)
- const summary=summarizeHistory(history,period,household!.timezone)
+ const summaryNow=new Date(data.now)
+ const summary=summarizeHistory(history,period,household!.timezone,summaryNow)
  const deleted=data.walks.filter(w=>w.deleted_at&&w.walker_id===session!.user.id)
  const meters=mine?routeDistance(data.points):0
  const dialog=useRef<HTMLDivElement>(null),previousFocus=useRef<HTMLElement|null>(null)
@@ -66,8 +70,8 @@ export function WalksPage() {
      </>}
     </>:<><p>Confirm the start, allow location access, and carry your phone with you to record the route. Your family sees it after you finish.</p><Button disabled={data.busy} onClick={()=>setConfirm('start')}>Start walk</Button></>}
    </section>
-   <section className="card"><div className="walk-heading"><div><p className="eyebrow">LITTLE STEPS ADD UP</p><h2>Walking together</h2></div><select aria-label="Summary period" value={period} onChange={e=>setPeriod(e.target.value as typeof period)}><option value="day">Today</option><option value="week">This week</option><option value="month">This month</option></select></div><div className="walk-metrics"><div><strong>{summary.count}</strong><span>Completed walks</span></div><div><strong>{kilometersLabel(summary.meters)} km</strong><span>Recorded distance</span></div><div><strong>{timeLabel(summary.seconds)}</strong><span>Total time</span></div></div></section>
-   <section className="card"><div className="walk-heading walk-history-heading"><h2>Last Adventures</h2><Link className="walk-show-more" to="/walks?view=history">Show more</Link></div>{!history.length?<p className="walk-empty">Your first completed walk will appear here.</p>:<div className="walk-activity-list">{history.slice(0,1).map(w=><WalkActivityCard key={w.id} {...w} loadRoute={!w.demo}/>)}</div>}</section>
+   <section className="card"><div className="walk-heading"><div><p className="eyebrow">LITTLE STEPS ADD UP</p><h2>Walking together</h2></div><WalkPeriodSelect label="Summary period" value={period} onChange={setPeriod}/></div><div className="walk-metrics"><div><strong>{summary.count}</strong><span>Completed walks</span></div><div><strong>{kilometersLabel(summary.meters)} km</strong><span>Recorded distance</span></div><div><strong>{timeLabel(summary.seconds)}</strong><span>Total time</span></div></div><div id="walk-statistics" hidden={!showStatistics}>{showStatistics&&<WalkSummaryChart history={history} period={period} timezone={household!.timezone} now={summaryNow}/>}</div><div className="walk-statistics-action"><button type="button" className="walk-statistics-toggle" aria-expanded={showStatistics} aria-controls="walk-statistics" onClick={()=>setShowStatistics(value=>!value)}>{showStatistics?'Hide statistics':'Show statistics'}</button></div></section>
+   <section className="card"><div className="walk-heading walk-history-heading"><h2>Last Adventure</h2><Link className="walk-show-more" to="/walks?view=history">Show more</Link></div>{!history.length?<p className="walk-empty">Your first completed walk will appear here.</p>:<div className="walk-activity-list">{history.slice(0,1).map(w=><WalkActivityCard key={w.id} {...w} loadRoute={!w.demo}/>)}</div>}</section>
    {deleted.length>0&&<section className="card"><h2>Recently deleted by you</h2><p>These walks are excluded from family history and summaries. Open one to restore it.</p><ul>{deleted.map(w=><li key={w.id}><Link to={`/walks/${w.id}`}>{new Date(w.started_at).toLocaleString()}</Link></li>)}</ul></section>}
   </>}
   <section className="card"><h2>A shortcut on the leash</h2><p>Tap the NFC tag on the leash to open PawShare. Your phone records the GPS route while you carry it on the walk. Configure the tag once with this link. It opens the Start Walk confirmation for the signed-in user’s selected family. Opening a link never starts a walk automatically.</p><code className="walk-url">{window.location.origin}/walks?action=start</code><p><Button className="secondary" onClick={async()=>{try{await navigator.clipboard.writeText(`${window.location.origin}/walks?action=start`);setCopied('Link copied.')}catch{setCopied('Copy the link shown above manually.')}}}>Copy NFC link</Button></p>{copied&&<p role="status">{copied}</p>}<Link to="/walks/gps-test">Open GPS diagnostics</Link></section>
