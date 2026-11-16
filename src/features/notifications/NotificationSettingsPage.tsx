@@ -58,6 +58,6 @@ export function NotificationSettingsPage(){
   <section className="card notification-preferences"><h2>Your preferences</h2><p className="muted">Turning a category off cancels future reminders for you, not for other family members.</p>
    {categories.map(category=><label className="notification-preference-row" key={category.id}><span><strong>{category.label}</strong><small>{category.description}</small></span><input type="checkbox" checked={preferences[category.id]} disabled={busy||loading||schemaUnavailable} onChange={event=>void setCategory(category.id,event.target.checked)} aria-label={`${category.label} notifications`}/></label>)}
   </section>
-  {!error&&loading&&<Button className="secondary" onClick={()=>setRetry(value=>value+1)}>Retry settings</Button>}
+  {error&&!loading&&<Button className="secondary" disabled={busy} onClick={()=>setRetry(value=>value+1)}>Retry settings</Button>}
  </div>
 }
