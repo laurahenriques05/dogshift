@@ -34,7 +34,7 @@ function PrivateRoutes() {
  if (auth.error) return <div className="setup"><Notice error>{auth.error}</Notice><Button onClick={() => window.location.reload()}>Retry</Button></div>
  if (!auth.session) return <Navigate to="/sign-in" replace/>
  if (data.loading) return <Loading/>
- if (data.error) return <div className="setup"><Notice error>{data.error}</Notice><Button onClick={data.reload}>Try again</Button></div>
+ if (data.error) return <div className="setup"><Notice error>{data.error}</Notice><Button onClick={data.reload}>Reload family data</Button></div>
  const pending = pendingInvitation(location.search)
  if (pending) return <Navigate to={`/invite/${pending}`} replace/>
  const onboard = location.pathname.startsWith('/onboarding')
