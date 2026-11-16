@@ -61,8 +61,9 @@ or hosted configuration change is part of this update.
   No account, email, household ID or secret is embedded in the tag. Opening or
   prefetching the link never creates a walk.
 - `/walks/gps-test`: memory-only position-delivery diagnostic, separate from walks.
-- `/walks/learn`: Carol's walking lesson. Shared Academy XP/progress is pending
-  Maria's system; no artificial completion data is written.
+- `/walks/learn`: legacy link returns to Walks. The old walking lesson was
+  archived from Academy so that Academy has one clear purpose: progressive
+  dog-training challenges.
 
 ## Database security
 
@@ -183,9 +184,9 @@ Copy the link in Walks, verify it on the deployment, then write it as a URL reco
 to a reusable physical NFC tag. Localhost is only for development; use HTTPS for
 phone/tag testing. NFC hardware writing and physical taps have not been tested.
 
-Carol's Academy contribution is in `/walks/learn` and
-`docs/academy/walking-basics.md`. Maria can adapt it to her shared content schema.
-Do not build a second XP or notifications system just for Walks.
+Carol's original walking guide remains documented in
+`docs/academy/walking-basics.md`, but it is no longer presented as an Academy
+challenge. Do not build a second XP or notifications system just for Walks.
 
 ## Validation and release checklist
 
