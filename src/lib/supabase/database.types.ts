@@ -1,3 +1,4 @@
+export type HealthDocumentFolder = {id:string;household_id:string;name:string;created_by:string|null;created_at:string}
 export type HealthAudit = { id:string;household_id:string;created_by:string|null;updated_by:string|null;created_at:string;updated_at:string }
 export type Treatment = HealthAudit & {title:string;occurred_on:string;veterinarian:string;notes:string}
 export type VetContact = HealthAudit & {name:string;phone:string;email:string;address:string;notes:string}
@@ -28,6 +29,7 @@ export type Walk = { id: string; household_id: string; dog_id: string; walker_id
 export type WalkPoint = { walk_id: string; seq: number; recorded_at: string; latitude: number; longitude: number; accuracy: number }
 type Table<R, I> = { Row: R; Insert: I; Update: Partial<I>; Relationships: [] }
 export type Database = { public: { Tables: {
+ health_document_folders: Table<HealthDocumentFolder,Pick<HealthDocumentFolder,'household_id'|'name'>>;
  treatments: Table<Treatment,Pick<Treatment,'household_id'|'title'|'occurred_on'|'veterinarian'|'notes'>>;
  vet_contacts: Table<VetContact,Pick<VetContact,'household_id'|'name'|'phone'|'email'|'address'|'notes'>>;
  weight_measurements: Table<WeightMeasurement,Pick<WeightMeasurement,'household_id'|'weight_kg'|'measured_at'|'notes'>>;
