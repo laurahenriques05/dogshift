@@ -14,7 +14,7 @@ it('enforces medication privacy, shared scheduling, atomic dose ownership and va
  const user=async(id:string)=>sql.exec(`reset role;set role authenticated;select set_config('request.jwt.claim.sub','${id}',false)`)
  try{
  await sql.exec(`create role anon;create role authenticated;create schema auth;create table auth.users(id uuid primary key,raw_user_meta_data jsonb);create function auth.uid() returns uuid language sql stable as $$select nullif(current_setting('request.jwt.claim.sub',true),'')::uuid$$;grant usage on schema auth to authenticated;grant execute on function auth.uid() to authenticated;`)
- for(const f of ['202611070001_initial_schema.sql','202611110003_medications.sql'])await sql.exec(readFileSync('supabase/migrations/'+f,'utf8'))
+ for(const f of ['202611070001_initial_schema.sql','202611110003_medications.sql','20261117131000_undo_medication_dose.sql'])await sql.exec(readFileSync('supabase/migrations/'+f,'utf8'))
  await sql.exec(`insert into auth.users(id) values('${a}'),('${b}'),('${c}')`);await user(a)
  const home=(await sql.query<{id:string}>("select public.create_household('A','Europe/Lisbon') id")).rows[0].id
  await sql.exec(`reset role;insert into public.household_members(household_id,user_id,role) values('${home}','${b}','member')`);await user(a)
@@ -38,15 +38,37 @@ it('enforces medication privacy, shared scheduling, atomic dose ownership and va
  await sql.query("select public.log_medication_dose($1,'skipped',null,'Correction')",[dose])
  const corrected=(await sql.query<{status:string;administered_at:null;recorded_by:string}>('select status,administered_at,recorded_by from public.medication_doses')).rows[0]
  expect(corrected).toEqual({status:'skipped',administered_at:null,recorded_by:b})
+ const recorded=(await sql.query<{updated_at:Date}>('select updated_at from public.medication_doses where id=$1',[dose])).rows[0].updated_at
+ await user(a)
+ await expect(sql.query('select public.undo_medication_dose($1,$2)',[dose,recorded])).rejects.toThrow('Only the person')
+ await user(b)
+ await expect(sql.query('select public.undo_medication_dose($1,null)',[dose])).rejects.toThrow('changed')
+ await expect(sql.query("select public.undo_medication_dose($1,'2000-01-01T00:00Z')",[dose])).rejects.toThrow('changed')
+ await sql.query('select public.undo_medication_dose($1,$2)',[dose,recorded])
+ expect((await sql.query('select status,administered_at,recorded_by,recorded_at,notes,scheduled_at from public.medication_doses where id=$1',[dose])).rows[0]).toEqual({status:'scheduled',administered_at:null,recorded_by:null,recorded_at:null,notes:'',scheduled_at:new Date('2026-01-01T10:00Z')})
+ await expect(sql.query('select public.undo_medication_dose($1,$2)',[dose,recorded])).rejects.toThrow('Only the person')
+ await sql.query("select public.log_medication_dose($1,'given','2026-01-01T10:05Z','Mistake')",[dose])
+ const given=(await sql.query<{updated_at:Date}>('select updated_at from public.medication_doses where id=$1',[dose])).rows[0].updated_at
+ await sql.query('select public.undo_medication_dose($1,$2)',[dose,given])
+ expect((await sql.query<{status:string}>('select status from public.medication_doses where id=$1',[dose])).rows[0].status).toBe('scheduled')
+ await user(a)
+ await sql.query("select public.log_medication_dose($1,'given','2026-01-01T10:10Z','New recorder')",[dose])
+ await user(b)
+ await expect(sql.query('select public.undo_medication_dose($1,$2)',[dose,given])).rejects.toThrow('Only the person')
+
  await user(c)
+ await expect(sql.query('select public.undo_medication_dose($1,now())',[dose])).rejects.toThrow('denied')
  expect((await sql.query('select * from public.medication_schedules')).rows).toHaveLength(0)
  expect((await sql.query('select * from public.medication_doses')).rows).toHaveLength(0)
+ await expect(sql.query('select public.undo_medication_dose($1,now())',[dose])).rejects.toThrow('denied')
  await expect(sql.query("select public.save_medication_schedule($1,null,'Bad','Bad',array[now()])",[home])).rejects.toThrow('denied')
  await expect(sql.query("select public.log_medication_dose($1,'given',now(),'')",[dose])).rejects.toThrow('denied')
  await sql.exec(`reset role;delete from public.household_members where user_id='${b}'`);await user(b)
  expect((await sql.query('select * from public.medication_doses')).rows).toHaveLength(0)
+ await expect(sql.query('select public.undo_medication_dose($1,now())',[dose])).rejects.toThrow('denied')
  await expect(sql.query("select public.log_medication_dose($1,'given',now(),'')",[dose])).rejects.toThrow('denied')
  await sql.exec('reset role;set role anon')
+ await expect(sql.query('select public.undo_medication_dose($1,now())',[dose])).rejects.toThrow()
  await expect(sql.query('select * from public.medication_doses')).rejects.toThrow()
  await expect(sql.query("select public.log_medication_dose($1,'given',now(),'')",[dose])).rejects.toThrow()
  }finally{await sql.close()}
