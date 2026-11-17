@@ -1,3 +1,4 @@
+import { locationTimestamp } from './locationTimestamp'
 import { useEffect, useRef, useState } from 'react'
 import { Button, Notice, PageTitle } from '../../components/ui'
 
@@ -58,7 +59,8 @@ export function GpsDiagnosticPage() {
    if (failure.code === 1) stop()
   }, { enableHighAccuracy: true, maximumAge: 0, timeout: 20000 })
  }
- const age = fix ? Math.max(0, Math.floor((now - fix.timestamp) / 1000)) : null
+ const timestamp = fix ? locationTimestamp(fix.timestamp, lastFix.current ?? now) : null
+ const age = timestamp === null ? null : Math.max(0, Math.floor((now - timestamp) / 1000))
  return <section>
   <PageTitle eyebrow="WALKS · GPS PROTOTYPE" title="Test your walking GPS">Check location delivery on your phone before we build recorded walks.</PageTitle>
   <Notice>This test requests your location only when you press Start GPS test. Coordinates stay in this screen’s memory and are cleared when you leave or reload. No walk is saved or shared.</Notice>

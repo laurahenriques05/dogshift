@@ -18,3 +18,11 @@ export async function getWalks(household:string) {
   if(result.data.length<1000) return walks
  }
 }
+
+export async function setWalkDeletion(id: string, deleted: boolean) {
+ const result = await db().rpc('set_walk_deleted', { p_walk: id, p_deleted: deleted })
+ if (result.error) throw result.error
+ const verified = await db().from('walks').select('id,deleted_at').eq('id', id).single()
+ if (verified.error) throw verified.error
+ if ((verified.data.deleted_at !== null) !== deleted) throw new Error('The walk status could not be confirmed. Please retry.')
+}

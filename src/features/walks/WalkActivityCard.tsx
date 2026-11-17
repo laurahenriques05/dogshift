@@ -1,4 +1,5 @@
-import { Footprints, ArrowUpRight } from 'lucide-react'
+import { WalkWastePanel } from './WalkWastePanel'
+import { Footprints, ArrowUpRight, X } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { useEffect, useRef, useState } from 'react'
 import { Button, errorMessage } from '../../components/ui'
@@ -16,7 +17,7 @@ export function WalkStats({ meters, seconds }: { meters: number; seconds: number
   <div><dt>Average speed</dt><dd>{(seconds > 0 ? meters / seconds * 3.6 : 0).toFixed(1)} <small>km/h</small></dd></div>
  </dl>
 }
-function SavedRoutePreview({ id }: { id: string }) {
+function SavedRoutePreview({ id, hideEmpty = false }: { id: string; hideEmpty?: boolean }) {
  const host = useRef<HTMLDivElement>(null)
  const [visible, setVisible] = useState(false)
  const [points, setPoints] = useState<Point[] | null>(null)
@@ -37,15 +38,17 @@ function SavedRoutePreview({ id }: { id: string }) {
   void getPoints(id).then(result => { if (live) setPoints(result) }).catch(e => { if (live) setError(errorMessage(e)) })
   return () => { live = false }
  }, [id, visible, retry])
- return <div ref={host} className="walk-saved-route">{error ? <p role="alert">Route unavailable: {error} <Button className="secondary" onClick={() => setRetry(n => n + 1)}>Retry route</Button></p> : points ? <RouteMap points={points} compact/> : <p role="status">{visible ? 'Loading saved route…' : 'Map loads when viewed.'}</p>}</div>
+ return <div ref={host} className="walk-saved-route">{error ? <p role="alert">Route unavailable: {error} <Button className="secondary" onClick={() => setRetry(n => n + 1)}>Retry route</Button></p> : points ? (hideEmpty && !points.length ? null : <RouteMap points={points} compact/>) : <p role="status">{visible ? 'Loading saved route…' : 'Map loads when viewed.'}</p>}</div>
 }
-export function WalkActivityCard({ id, title, startedAt, location, points, meters, seconds, loadRoute = false }: {
- id: string; title: string; startedAt: string; location?: string; points?: Point[]; meters: number; seconds: number; loadRoute?: boolean
+export function WalkActivityCard({ id, title, startedAt, location, points, meters, seconds, loadRoute = false, deleted = false, onRestore, onDelete }: {
+ id: string; title: string; startedAt: string; location?: string; points?: Point[]; meters: number; seconds: number; loadRoute?: boolean; deleted?: boolean; onRestore?: () => void; onDelete?: () => void
 }) {
- return <article className="walk-activity-card">
-  <div className="walk-activity-heading"><span className="icon-tile"><Footprints size={28}/></span><div><p className="muted">{new Date(startedAt).toLocaleString()}</p><h3><Link to={`/walks/${id}`}>{title}</Link></h3></div></div>
+ return <article className={`walk-activity-card${onDelete ? ' walk-activity-deletable' : ''}`}>
+  {onDelete && <button type="button" className="walk-delete-icon" aria-label={`Delete ${title}`} onClick={onDelete}><X size={15} aria-hidden="true"/></button>}
+  <div className="walk-activity-heading"><span className="icon-tile"><Footprints size={28}/></span><div><p className="muted">{new Date(startedAt).toLocaleString()}</p><h3>{deleted ? title : <Link to={`/walks/${id}`}>{title}</Link>}</h3></div></div>
   <WalkStats meters={meters} seconds={seconds}/>
-  {points ? <RouteMap points={points} compact/> : loadRoute && <SavedRoutePreview id={id}/>}
-  <div className="walk-activity-footer"><Link to={`/walks/${id}`}>View walk <ArrowUpRight size={16}/></Link></div>
+  {(points ? <RouteMap points={points} compact/> : loadRoute && <SavedRoutePreview id={id} hideEmpty={deleted}/>)}
+  {deleted && <WalkWastePanel walkId={id} own finished readOnly/>}
+  <div className="walk-activity-footer">{deleted ? <button type="button" className="walk-restore-link" onClick={onRestore}>Restore walk <ArrowUpRight size={16} aria-hidden="true"/></button> : <Link to={`/walks/${id}`}>View walk <ArrowUpRight size={16}/></Link>}</div>
  </article>
 }

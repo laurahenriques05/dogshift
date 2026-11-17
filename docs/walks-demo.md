@@ -47,7 +47,7 @@ Style notices are retained in `public/licenses/walk-map-style.txt`.
 
 Sign in, open Walks and select This month. Last Adventure previews the latest
 entry; Show more opens all records in Past Adventures. Open each
-record or follow the other-walk links. Pinch to zoom or use explicit +/- controls;
+record from history. Pinch to zoom or use explicit +/- controls;
 ordinary mouse-wheel scrolling must move the page without changing the map scale.
 Reproduce route animates the green trace with only the Start marker; Stop replay restores the full route and Finish marker. Fit route returns to the recorded trace. World and double-click zoom are removed.
 Real GPS capture and SQL permissions are unchanged. The samples cannot be edited
@@ -89,3 +89,14 @@ only the bold “No completed walks in this period.” message and the existing 
 statistics button. Chart captions, controls and axes are omitted. Percentage mode
 has been removed. Completed walks still uses the existing chart; a dot timeline
 (one dot per completed walk) is a proposal awaiting the user's choice.
+
+## Synthetic dog waste summaries
+
+At the user's request, View walk also shows invented dog waste counts for the
+three development fixtures: Alvalade 3 pee / 1 poop, Expo 2 pee / 1 poop and
+Benfica 1 pee / 0 poop. At the user’s request, the summary omits the on-screen sample-record sentence;
+these remain development-only synthetic fixtures. Counts live only in the local fixture and never call the recording
+RPCs or write to Supabase. Production gating and real walk summaries are unchanged.
+
+The detail page does not show cross-links or recommendations to other example
+walks. The user explicitly requested their removal and no similar navigation.

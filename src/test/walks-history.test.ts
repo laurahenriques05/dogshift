@@ -6,6 +6,17 @@ const now = new Date('2026-11-12T12:00:00Z')
 const saved = (id: string, ended = true, deleted = false): Walk => ({ id, household_id: 'h', dog_id: 'd', walker_id: 'u', started_at: '2026-11-11T12:00:00Z', ended_at: ended ? '2026-11-11T12:10:00Z' : null, distance_m: 700, notes: '', end_reason: ended ? 'manual' : null, deleted_at: deleted ? '2026-11-11T13:00:00Z' : null })
 afterEach(()=>vi.unstubAllEnvs())
 describe('Past adventures and displayed totals', () => {
+ it('shows only the current user’s completed deleted walks without examples or active entries', () => {
+  const source = [saved('visible'), saved('mine-deleted', true, true), {...saved('other-deleted', true, true), walker_id: 'other'}, saved('unfinished', false, true)]
+  const before = structuredClone(source)
+  const deleted = walkHistory(source, true, 'u', true)
+  expect(deleted.map(entry => entry.id)).toEqual(['mine-deleted'])
+  expect(deleted[0].deleted).toBe(true)
+  expect(filterHistory(deleted, 'month', 'Europe/Lisbon', now)).toHaveLength(1)
+  expect(walkHistory(source, false, 'u').map(entry => entry.id)).toEqual(['visible'])
+  expect(summarizeHistory(walkHistory(source, false, 'u'), 'month', 'Europe/Lisbon', now).count).toBe(1)
+  expect(source).toEqual(before)
+ })
  it('filters calendar periods before pagination and preserves the source history', () => {
   const entries = ['2025-12-31', '2026-01-01', '2026-10-31', '2026-11-01', '2026-11-08', '2026-11-09', '2026-11-12', '2026-11-13'].map(day => ({id:day,title:'Walk',startedAt:`${day}T12:00:00Z`,meters:100,seconds:60,demo:false}))
   const ids = (period: 'day'|'week'|'month'|'year') => filterHistory(entries,period,'Europe/Lisbon',now).map(entry=>entry.id)
