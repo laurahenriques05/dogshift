@@ -1,0 +1,8 @@
+.task-form-fields{border:0;padding:0;margin:0;min-width:0;display:grid;gap:16px}
+.task-list-filters{display:flex;gap:8px;flex-wrap:wrap;margin-top:20px;align-items:center}
+.task-list-filters .button{min-height:44px}
+.task-list-filters button[aria-pressed="true"]{background:#244d3c;border-color:#244d3c;color:#fff}
+.task-list-filters .text-link{margin:0 0 0 8px}
+.task-form-card h2{scroll-margin-top:24px}
+.task-form-fields:disabled{opacity:.7}
+@media(prefers-reduced-motion:reduce){.task-page{scroll-behavior:auto}}

@@ -229,6 +229,10 @@ apply schema or publish server functions.
 
 ## Tasks, Calendar, Academy and Notifications
 
+For the task reliability corrections and the single pending migration, see
+[Tasks reliability and rollout](docs/tasks-reliability.md). Earlier migration
+rollout reports do not include this follow-up.
+
 The merged Tasks/Calendar/Academy feature adds household tasks with
 one-time/daily/weekly/monthly recurrence, completion attribution, a shared month
 calendar, Academy progression, Home summaries, notification preferences, and a
