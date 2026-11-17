@@ -1,7 +1,7 @@
 import type { Walk } from '../../lib/supabase/database.types'
 import { demoWalks } from './demo'
 import { duration, localDay, periodStart, type Point } from './gps'
-export type HistoryEntry = { id: string; title: string; startedAt: string; meters: number; seconds: number; demo: boolean; points?: Point[]; location?: string }
+export type HistoryEntry = { id: string; title: string; startedAt: string; meters: number; seconds: number; demo: boolean; deleted?: boolean; own?: boolean; points?: Point[]; location?: string }
 
 export const presentationHistoryEnabled = () => import.meta.env.DEV
 export type HistoryPeriod = 'day' | 'week' | 'month' | 'year'
@@ -14,12 +14,12 @@ export function filterHistory(entries: HistoryEntry[], period: HistoryPeriod, ti
 }
 
 /** View-only demo history; never modifies household records or Home statistics. */
-export function walkHistory(walks: Walk[], includeExamples: boolean, user: string): HistoryEntry[] {
- const saved: HistoryEntry[] = walks.filter(walk => walk.ended_at && !walk.deleted_at).map(walk => ({
+export function walkHistory(walks: Walk[], includeExamples: boolean, user: string, deletedOnly = false): HistoryEntry[] {
+ const saved: HistoryEntry[] = walks.filter(walk => walk.ended_at && (deletedOnly ? !!walk.deleted_at && walk.walker_id === user : !walk.deleted_at)).map(walk => ({
   id: walk.id, title: `${walk.walker_id === user ? 'Your walk' : 'Family walk'}${walk.end_reason === 'stationary' ? ' · Automatically ended' : ''}`,
-  startedAt: walk.started_at, meters: walk.distance_m, seconds: duration(walk), demo: false,
+  startedAt: walk.started_at, meters: walk.distance_m, seconds: duration(walk), demo: false, deleted: !!walk.deleted_at, own: walk.walker_id === user,
  }))
- const examples = includeExamples ? demoWalks.map(walk => ({ ...walk, demo: true })) : []
+ const examples = includeExamples && !deletedOnly ? demoWalks.map(walk => ({ ...walk, demo: true })) : []
  return [...saved, ...examples].sort((a, b) => b.startedAt.localeCompare(a.startedAt) || a.id.localeCompare(b.id))
 }
 export function summarizeHistory(entries: HistoryEntry[], period: HistoryPeriod, timezone: string, now = new Date()) {

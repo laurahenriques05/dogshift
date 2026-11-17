@@ -298,3 +298,40 @@ completed-task history during account deletion, remove stopped tasks' future
 open dates and prevent requeueing sent reminders. They require the additional
 `20261115140000_task_review_fixes.sql` migration after Tasks/Academy and Push;
 this is source awaiting coordinated review/application, not a hosted rollout.
+
+Start Walk now opens a location confirmation map with live device geolocation,
+reported accuracy, and **Confirm current location** / **Another location**.
+Manual mode searches addresses and places worldwide on explicit submission via
+Photon, or allows selecting a point on the map. Map tiles use the existing
+OpenFreeMap street style. The selected manual point is a pre-walk preview; it
+is not persisted as a GPS fix or substituted for the actual recorded route.
+No walk is created until confirmation. Permission errors, timeout, unavailable
+search and map failures offer recovery. Phone GPS and consent still require
+real-device validation over HTTPS; worldwide coverage and accuracy depend on
+the device and map/search data. See [location confirmation checks](docs/walks-start-location.md).
+
+Walk setup brings **Route Recording with GPS location** and **Record Dog Waste**
+together as switches. Enabling waste recording reveals **During the walk** or
+**At the end** on the same screen. GPS-enabled walks then confirm location;
+time-only walks skip it. Enabled walks expose **Record pee**
+and **Record poop** at the selected stage, with totals in the saved walk summary.
+This feature requires the reviewed migration
+`20261116170000_walk_dog_waste.sql` before it can start walks/save records against
+a hosted database. It has only been tested in an isolated local database; no
+hosted migration has been applied. See [dog waste handoff](docs/walks-dog-waste.md).
+
+Walk setup now starts with **Track your route?**. **No, record time only** skips
+location permission and the map, retains dog waste options and records duration
+without distance/pace. GPS choice is persisted and respected after reloading.
+This also requires the reviewed, unapplied migration
+`20261116190000_walk_tracking_choice.sql` after the dog-waste migration.
+
+Past Adventures also filters **Not deleted / Deleted** alongside the period.
+Deleted view shows only the current user's deleted completed walks and opens a
+centred confirmation to restore them; those walks remain excluded from statistics.
+
+Saved walk cards expose a small delete cross for their author, with a centred
+Confirm delete dialog. Deleted cards offer Restore walk. Showing retained GPS
+and summary data inside Deleted history also needs the reviewed, unapplied
+`20261117130000_deleted_walk_owner_preview.sql` policy migration; access remains
+limited to the author while deleted. No hosted application is claimed.

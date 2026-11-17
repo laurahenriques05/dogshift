@@ -27,3 +27,78 @@
 .walk-summary-chart{padding-left:58px}.walk-chart-scroll{padding-left:58px;margin-left:-58px}.walk-chart-grid span{white-space:nowrap}.walk-summary-chart .walk-measure-select select{min-width:175px!important;padding:9px 32px 9px 10px;font-size:14px;border-radius:10px}.walk-measure-select .walk-period-value{right:32px;font-size:14px}.walk-measure-select::after{right:32px;height:18px}.walk-measure-select>svg{right:9px;width:14px;height:14px}
 
 .walk-chart-empty{padding:12px 0 8px;font-size:13px}
+
+/* Start location sheet: light streets and compact floating controls. */
+.walk-start-dialog{width:min(620px,100%);max-height:calc(100dvh - 32px);overflow:auto;padding:0!important;border-radius:24px}
+.walk-location-heading{display:flex;align-items:center;justify-content:space-between;gap:14px}
+.walk-start-dialog>.walk-location-heading{padding:22px 24px 16px;align-items:flex-start}
+.walk-location-heading h2,.walk-location-heading h3,.walk-location-heading p{margin:0 0 5px}
+.walk-location-heading h2{font-size:1.4rem}.walk-location-heading h3{font-size:1rem}
+.walk-location-heading p:not(.eyebrow){font-size:.85rem;color:#657060}
+.walk-location-close{display:grid;place-items:center;background:#f1f2ec;border:0;border-radius:50%;padding:9px;color:#425c39;cursor:pointer}
+.walk-location-map-wrap{position:relative;background:#edf0e8}.walk-location-map{height:300px;width:100%}
+.walk-location-dot{width:18px;height:18px;background:#3281e8;border:3px solid white;border-radius:50%;box-shadow:0 0 0 10px #3281e82b,0 2px 7px #193b6a40}
+.walk-location-body{padding:20px 24px}.walk-location-body>.muted{font-size:.8rem;line-height:1.55}
+.walk-location-actions{display:flex;flex-direction:column;gap:9px;margin-top:16px}.walk-location-actions button{width:100%}
+.walk-place-search{display:flex;gap:8px;margin-top:7px}.walk-place-search input{min-width:0;flex:1}
+.walk-place-results{list-style:none;padding:0;margin:10px 0}.walk-place-results button{width:100%;display:flex;align-items:center;gap:9px;text-align:left;background:#f5f5ee;border:1px solid #dce1d4;border-radius:12px;padding:12px;margin-bottom:6px;color:#344730;cursor:pointer}
+@media(max-width:600px){.walk-start-dialog{max-height:calc(100dvh - 16px);border-radius:20px}.walk-location-map{height:260px}.walk-location-body{padding:16px}.walk-start-dialog>.walk-location-heading{padding:18px 16px 12px}}
+.walk-location-heading>div{flex:1;min-width:0}
+.walk-location-recenter{position:absolute;left:12px;top:12px;display:flex;align-items:center;gap:7px;box-shadow:0 2px 8px #243b2520}
+.walk-waste-options{border:0;padding:0;margin:18px 0;display:grid;gap:10px}.walk-waste-options legend{font-weight:600;margin-bottom:10px}.walk-waste-options label{display:flex;align-items:center;gap:10px;padding:12px;border:1px solid #dce3d2;border-radius:12px}.walk-waste-options input{width:18px;height:18px;accent-color:#425c39}.walk-waste{margin:18px 0;padding:16px 0;border-top:1px solid #e2e7d9;border-bottom:1px solid #e2e7d9}.walk-waste h3{margin:0}
+
+.walk-start-dialog .button.secondary.walk-location-recenter{background:#fffdf7;min-height:30px;padding:5px 8px;gap:4px;font-size:12px;font-weight:500;border-radius:8px;border-color:#d7ded2;color:#244d3c}
+.walk-start-dialog .button.secondary.walk-location-recenter:hover{background:#f4f5ef}
+.walk-step-back-row{display:flex;justify-content:flex-end;margin-top:8px}
+.walk-step-back{display:inline-flex;align-items:center;gap:5px;min-height:44px;padding:8px 0;background:none;border:0;color:#425c39;font-size:13px;font-weight:500}
+.walk-step-back:hover{text-decoration:underline;text-underline-offset:3px}
+@media(pointer:coarse){.walk-location-recenter::after{content:"";position:absolute;inset:-7px}}
+.walk-start-dialog .walk-filter-title{display:flex;align-items:baseline;gap:8px 16px;flex-wrap:wrap}
+.walk-filter-subtitle{font:inherit;color:inherit;letter-spacing:inherit}
+.walk-filter-switch{position:relative;display:flex;align-items:center;gap:16px;justify-content:space-between;min-height:60px;padding:12px 0;border-bottom:1px solid #e2e7d9;cursor:pointer;font-weight:500}
+.walk-filter-switch>span:first-child{flex:1;min-width:0}
+.walk-filter-switch input{position:absolute;right:0;width:52px;height:44px;margin:0;opacity:0;cursor:pointer}
+.walk-filter-switch-track{flex:none;width:48px;height:29px;border-radius:20px;background:#d8ded8;position:relative;pointer-events:none;transition:background .15s}
+.walk-filter-switch-track::after{content:"";position:absolute;left:3px;top:3px;width:23px;height:23px;border-radius:50%;background:#fff;box-shadow:0 1px 3px #18312626;transition:transform .15s}
+.walk-filter-switch input:checked+.walk-filter-switch-track{background:#244d3c}
+.walk-filter-switch input:checked+.walk-filter-switch-track::after{transform:translateX(19px)}
+.walk-filter-switch input:focus-visible+.walk-filter-switch-track{outline:3px solid #b57545;outline-offset:3px}
+.walk-filter-switch:has(input:disabled){opacity:.55;cursor:wait}
+@media(prefers-reduced-motion:reduce){.walk-filter-switch-track,.walk-filter-switch-track::after{transition:none}}
+.walk-hero .walk-heading>.icon-tile{width:60px;height:60px;border-radius:17px;display:grid;place-items:center;transform:translateY(5px)}
+.walk-hero .walk-heading>.icon-tile>svg{width:28px;height:28px}
+.walk-hero .walk-heading{gap:14px;align-items:center}
+.walk-hero .walk-heading>div{display:flex;flex-direction:column;justify-content:center;gap:4px;min-width:0}
+.walk-hero .walk-heading .eyebrow,.walk-hero .walk-heading h2{margin:0}
+.walk-hero .walk-heading .eyebrow{line-height:1.45}
+.walk-hero .walk-heading h2{line-height:1.25}
+.walk-hero .walk-hero-description{margin:10px 0 26px}
+.walk-history-filters{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.walk-hero-header{display:flex;align-items:center;gap:20px;flex-wrap:wrap}
+.walk-hero-header>.button{flex-shrink:0}
+.walk-hero-header>.walk-heading{flex:1;min-width:min(100%,280px)}
+.walk-hero .walk-hero-description{margin-bottom:0}
+.walk-hero-header>.button{margin-left:auto}
+.walk-restore-link{display:inline-flex;align-items:center;gap:4px;min-height:44px;padding:4px 0;background:none;border:0;color:#425c39;font-size:12px;font-weight:500}
+.walk-restore-link:hover{text-decoration:underline;text-underline-offset:3px}
+.walk-restore-dialog{width:min(440px,calc(100% - 32px));max-height:calc(100dvh - 32px);overflow:auto;padding:28px;border:0;border-radius:20px;background:#fffdf7;color:#244d3c;box-shadow:0 20px 70px #15230f33;text-align:center}
+.walk-restore-dialog::backdrop{background:#26342088}
+.walk-restore-dialog>p{margin:0 0 22px;line-height:1.6}
+.walk-restore-actions{display:grid;gap:10px}
+.walk-restore-dialog{position:fixed;inset:0;margin:auto;height:fit-content}
+.walk-activity-card{position:relative}
+.walk-activity-deletable .walk-activity-heading{padding-right:34px}
+.walk-delete-icon{position:absolute;top:9px;right:9px;display:grid;place-items:center;width:36px;height:36px;padding:0;border:0;border-radius:50%;background:transparent;color:#637168}
+.walk-delete-icon:hover{background:#edf1e6;color:#244d3c}
+@media(pointer:coarse){.walk-delete-icon{width:44px;height:44px;top:5px;right:5px}}
+.walk-filter-select::after{display:none}
+.walk-filter-trigger{display:flex;align-items:center;gap:16px;min-width:170px;min-height:46px;padding:12px 14px 12px 16px;border:1px solid #dce3d5;border-radius:12px;background:#fffdf7;color:#233e32;font:inherit}
+.walk-filter-trigger>span{flex:1;text-align:center}
+.walk-filter-trigger>svg{box-sizing:content-box;border-left:1px solid #d3d6d0;padding-left:12px;flex-shrink:0}
+.walk-filter-menu{position:absolute;top:calc(100% + 6px);right:0;z-index:30;min-width:100%;width:max-content;max-width:min(280px,calc(100vw - 32px));padding:5px;background:#fffdf7;border:1px solid #dce3d5;border-radius:12px;box-shadow:0 8px 24px #244d3c1a}
+.walk-filter-option{display:flex;align-items:center;justify-content:space-between;gap:16px;width:100%;min-height:42px;padding:10px 12px;border:0;border-radius:7px;background:transparent;color:#233e32;font:inherit;text-align:left}
+.walk-filter-option:hover,.walk-filter-option:focus{background:#e8efde;outline:none}
+.walk-filter-option[aria-selected="true"]{font-weight:600}
+.walk-restore-dialog:focus{outline:none}
+.walk-restore-actions .button:focus-visible{outline:2px solid #779866;outline-offset:3px}
+.walk-measure-select .walk-filter-trigger{min-width:175px;min-height:38px;padding:9px 10px;font-size:14px;border-radius:10px}

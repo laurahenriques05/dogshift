@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { timeLabel } from './gps'
-import { ChevronDown } from 'lucide-react'
+import { WalkFilterSelect } from './WalkFilterSelect'
 import { dailyHistoryChart, historyChart, type HistoryEntry, type HistoryPeriod } from './history'
 
 export function WalkSummaryChart({history, period, timezone, now}: {history: HistoryEntry[]; period: HistoryPeriod; timezone: string; now: Date}) {
@@ -23,7 +23,7 @@ export function WalkSummaryChart({history, period, timezone, now}: {history: His
  const total = buckets.reduce((sum,bucket)=>sum+bucket.count,0)
  if(!total)return <p className="walk-chart-empty" role="status"><strong>No completed walks in this period.</strong></p>
  return <figure className="walk-summary-chart" aria-label={`${label} by ${unit}`}>
-  <figcaption><span>Walks by {unit}</span><span className="walk-period-select walk-measure-select"><select aria-label="Statistics measure" value={metric} onChange={event=>setMetric(event.target.value as typeof metric)}><option value="count">Completed walks</option><option value="meters">Distance (km)</option><option value="seconds">Time</option></select><span className="walk-period-value" aria-hidden="true">{label}</span><ChevronDown aria-hidden="true" size={16}/></span></figcaption>
+  <figcaption><span>Walks by {unit}</span><WalkFilterSelect className="walk-measure-select" label="Statistics measure" value={metric} onChange={value=>setMetric(value as typeof metric)} options={[{value:'count',label:'Completed walks'},{value:'meters',label:'Distance (km)'},{value:'seconds',label:'Time'}]}/></figcaption>
   <div className="walk-chart-scroll"><div className={`walk-chart-plot walk-chart-plot-${period}`}>
   <div className="walk-chart-grid" aria-hidden="true">{ticks.map(tick=><div key={tick} style={{bottom:`${tick/max*100}%`}}><span>{axisLabel(tick)}</span></div>)}</div>
   <div className={`walk-chart-bars ${period==='day'?'walk-chart-daily':''}`} style={period==='day'?undefined:{gridTemplateColumns:`repeat(${buckets.length}, minmax(0, 1fr))`}}>
