@@ -12,14 +12,13 @@ import { duration } from './gps'
 import { RouteMap } from './RouteMap'
 import { useWalks } from './WalkProvider'
 import { findDemoWalk } from './demo'
-import { presentationHistoryEnabled } from './history'
 import { DemoWalkDetail } from './DemoWalks'
 import { WalkStats } from './WalkActivityCard'
 function localInput(iso:string){const date=new Date(iso);return new Date(date.getTime()-date.getTimezoneOffset()*60000).toISOString().slice(0,23)}
 export function WalkDetailPage(){
  const {walkId}=useParams()
  useEffect(()=>{window.scrollTo(0,0)},[walkId])
- const demo=presentationHistoryEnabled()?findDemoWalk(walkId):undefined
+ const demo=findDemoWalk(walkId)
  if(demo&&walkId!==demo.id)return <Navigate to={`/walks/${demo.id}`} replace/>
  return demo?<DemoWalkDetail key={demo.id} walk={demo}/>:<SavedWalkDetailPage/>
 }

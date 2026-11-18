@@ -39,6 +39,18 @@ describe('Past adventures and displayed totals', () => {
   vi.stubEnv('DEV',true)
   expect(walkHistory([],presentationHistoryEnabled(),'u')).toHaveLength(3)
  })
+ it('allows explicit demo browsing in production without changing saved history or its statistics', () => {
+  vi.stubEnv('DEV',false)
+  const source = [saved('real')]
+  const before = structuredClone(source)
+  const examples = walkHistory([],true,'u')
+  expect(examples).toHaveLength(3)
+  expect(examples.every(entry => entry.demo && entry.points!.length > 1)).toBe(true)
+  const savedHistory = walkHistory(source,false,'u')
+  expect(savedHistory.map(entry => entry.id)).toEqual(['real'])
+  expect(summarizeHistory(savedHistory,'month','Europe/Lisbon',now)).toEqual({count:1,meters:700,seconds:600})
+  expect(source).toEqual(before)
+ })
  it('includes all three samples in monthly demo totals and keeps source data untouched', () => {
   const source = [saved('real'), saved('active', false), saved('deleted', true, true)]
   const before = structuredClone(source)

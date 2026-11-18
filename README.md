@@ -335,3 +335,11 @@ Confirm delete dialog. Deleted cards offer Restore walk. Showing retained GPS
 and summary data inside Deleted history also needs the reviewed, unapplied
 `20261117130000_deleted_walk_owner_preview.sql` policy migration; access remains
 limited to the author while deleted. No hosted application is claimed.
+
+### Explicit demo walk history (18 November 2026)
+
+Past Adventures now offers a **Demo walks** filter for the three read-only example
+routes, replay and sample summaries in production builds as well as development.
+Examples are separate from real household statistics and saved/deleted records.
+See [demo walk behaviour](docs/walks-demo.md). No migration is required; production
+release remains subject to teammate review.

@@ -11,7 +11,7 @@ import { duration, paceLabel, routeDistance, timeLabel } from './gps'
 import { RouteMap } from './RouteMap'
 import { walkNotifications } from './notifications'
 import { clearWalkStart, pendingWalkStart } from './nfc'
-import { walkHistory, summarizeHistory, presentationHistoryEnabled, type HistoryPeriod } from './history'
+import { walkHistory, summarizeHistory, type HistoryPeriod } from './history'
 import { kilometersLabel } from './mapGestures'
 import { WalkActivityCard } from './WalkActivityCard'
 import { WalkPeriodSelect } from './WalkPeriodSelect'
@@ -29,7 +29,7 @@ export function WalksPage() {
  const active=data.walks.find(w=>!w.ended_at&&!w.deleted_at),mine=active?.walker_id===session!.user.id
  const historyView=search.get('view')==='history'
  useEffect(()=>{window.scrollTo(0,0)},[historyView])
- const history=walkHistory(data.walks,presentationHistoryEnabled(),session!.user.id)
+ const history=walkHistory(data.walks,false,session!.user.id)
  const summaryNow=new Date(data.now)
  const summary=summarizeHistory(history,period,household!.timezone,summaryNow)
  const meters=mine?routeDistance(data.points):0
