@@ -343,3 +343,13 @@ routes, replay and sample summaries in production builds as well as development.
 Examples are separate from real household statistics and saved/deleted records.
 See [demo walk behaviour](docs/walks-demo.md). No migration is required; production
 release remains subject to teammate review.
+
+### Nearby dog places and journey timeline
+
+Walk maps can optionally show mapped vets, veterinary hospitals, dog parks and
+pet services as the recorded position moves. Nearby search explicitly shares an
+approximate map area with OpenStreetMap's Overpass service. The active view keeps
+the established PawShare design. Route milestones and GPS gaps form a timestamped
+timeline; final-only dog-waste records stay in the summary, outside that timeline.
+See [data, privacy and validation limits](docs/walks-nearby-timeline.md). No new
+database migration is needed. Teammate review is required before release.

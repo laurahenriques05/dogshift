@@ -1,3 +1,4 @@
+import { addDogPlaceTileLayers } from './dogPlaceLayers'
 import { useEffect, useRef, useState } from 'react'
 import type { Map as VectorMap, Marker, StyleSpecification } from 'maplibre-gl'
 import workerUrl from 'maplibre-gl/dist/maplibre-gl-worker.mjs?worker&url'
@@ -35,6 +36,7 @@ export default function StartLocationMap({ location }: { location: StartLocation
     instance.zoomTo(Math.max(instance.getMinZoom(), Math.min(instance.getMaxZoom(), instance.getZoom() + delta)), { around: instance.unproject([event.clientX - box.left, event.clientY - box.top]), duration: 0 })
    })
    element.addEventListener('wheel', onWheel, { passive: false })
+   instance.on('style.load',()=>{if(!disposed)addDogPlaceTileLayers(instance)})
    instance.on('load', () => { if (!disposed) { clearTimeout(timeout); setLoading(false); setError('') } })
    instance.on('error', () => { if (!disposed) { setLoading(false); setError('Some map details could not load. Check your connection or retry.') } })
    const resize = new ResizeObserver(() => instance.resize()); resize.observe(host.current)

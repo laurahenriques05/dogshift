@@ -34,3 +34,10 @@ export async function walkUsesGps(walk: string): Promise<boolean> {
  if (result.error) throw result.error
  return result.data?.track_gps ?? true
 }
+
+export function wastePanelVisible(mode: WasteMode | null, finished: boolean, ending: boolean) {
+ return mode !== 'off' && mode !== null && (mode !== 'end' || finished || ending)
+}
+export function canRecordWaste(mode: WasteMode | null, finished: boolean, ending: boolean, own: boolean, readOnly: boolean) {
+ return own && !readOnly && wastePanelVisible(mode,finished,ending)
+}
