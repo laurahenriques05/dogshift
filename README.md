@@ -340,7 +340,7 @@ limited to the author while deleted. No hosted application is claimed.
 
 Past appointments supports accent-insensitive search of title, location and notes, type filters and inclusive household-local date ranges; results remain newest first. Existing appointments are Uncategorised until edited. Vaccination visit is an appointment category; vaccination administration records remain in Vaccinations.
 
-Each past appointment has a Visit summary dialog: reason, veterinarian observations, prescribed treatment, next-visit date and links to existing household medication schedules and private health documents. This records the veterinarian's instructions and does not recommend treatment. A next-visit date in the summary is informational: add a normal appointment to schedule calendar/reminders. No duplicate notification system is created.
+Each past appointment has a Visit summary dialog: reason, veterinarian observations, prescribed treatment, next-visit date and links to private health documents. The Related medication selector has been removed; existing saved medication links are retained without displaying that section. This records the veterinarian's instructions and does not recommend treatment. A next-visit date in the summary is informational: add a normal appointment to schedule calendar/reminders. No duplicate notification system is created.
 
 Requires reviewed migration `20261118120000_appointment_summaries.sql` after existing Health appointments/medication/private documents migrations. It has **not** been applied to shared Supabase by this implementation. Coordinate with Laura/Maria before rollout. Existing appointment RLS/audit is preserved; summaries are shared-editable care records, limited to current members; linked medication/documents must belong to the same household. Deleting an appointment removes its summary. Private documents are downloaded using current membership, without public URLs. Deleted linked records are shown as unavailable and can be unlinked.
 
@@ -365,3 +365,9 @@ the established PawShare design. Route milestones and GPS gaps form a timestampe
 timeline; final-only dog-waste records stay in the summary, outside that timeline.
 See [data, privacy and validation limits](docs/walks-nearby-timeline.md). No new
 database migration is needed. Teammate review is required before release.
+
+### Documents within a visit
+
+The Health hub no longer shows a Treatments card; existing treatment history remains available from Past appointments → Treatment history. Documents remains the full household archive.
+
+Visit summary now starts Related documents with the same named folders used by Documents. Members can create a folder, open it, upload a validated private PDF/JPG/PNG/WebP (up to 10 MB), or select existing files. Uploads use existing immutable object names and folder metadata, so they appear in the archive without a second copy. Save summary persists the selected document links (up to 20). Folder creation/uploads persist immediately in the archive, including if the summary is closed without saving; the UI explains that saving is required to link the file to the visit. Existing download permissions and RLS are reused. No new migration is required for this UI change.
