@@ -379,3 +379,9 @@ Walk refinements keep map view selection on the map, limit dog-place controls to
 setup/recording and use a wider initial frame. Connection loss displays a centred
 alert while the existing durable queue waits to sync. See the latest verification
 notes in [walk map controls](docs/walks-map-controls.md).
+
+Pause now freezes the walk clock as well as GPS. The proposed
+`20261118223000_walk_paused_duration.sql` migration stores pause intervals for
+correct saved duration/pace and requires teammate/Laura review before hosted use.
+Finish confirmation includes the latest note and read-only during-walk waste
+totals. See [pause clock and finish summary](docs/walks-map-controls.md).

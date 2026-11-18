@@ -39,5 +39,5 @@ export function wastePanelVisible(mode: WasteMode | null, finished: boolean, end
  return mode !== 'off' && mode !== null && (mode !== 'end' || finished || ending)
 }
 export function canRecordWaste(mode: WasteMode | null, finished: boolean, ending: boolean, own: boolean, readOnly: boolean) {
- return own && !readOnly && wastePanelVisible(mode,finished,ending)
+ return own && !readOnly && wastePanelVisible(mode,finished,ending) && (mode==='during'?!finished&&!ending:true)
 }

@@ -31,7 +31,7 @@ export function WalkWastePanel({ walkId, own, finished, ending = false, readOnly
  return <section className="walk-waste" aria-label="Dog waste records"><h3>Dog waste</h3>
   {error && <Notice error>{error}<p><Button disabled={busy} className="secondary" onClick={() => pending.current ? void add() : setRetry(v => v + 1)}>Retry records</Button></p></Notice>}
   {data && <><p>{counts.pee} pee · {counts.poop} poop recorded</p>
-  {canRecord ? <div className="walk-actions"><Button className="secondary" disabled={busy || !!pending.current} onClick={() => void add('pee')}><PeeIcon/>Pee</Button><Button className="secondary" disabled={busy || !!pending.current} onClick={() => void add('poop')}><PoopIcon/>Poop</Button></div> : !finished && own && <p className="muted">You chose to record dog waste at the end of the walk.</p>}
+  {canRecord ? <div className="walk-actions"><Button className="secondary" disabled={busy || !!pending.current} onClick={() => void add('pee')}><PeeIcon/>Pee</Button><Button className="secondary" disabled={busy || !!pending.current} onClick={() => void add('poop')}><PoopIcon/>Poop</Button></div> : !finished && !ending && data.mode==='end' && own && <p className="muted">You chose to record dog waste at the end of the walk.</p>}
   {busy && <p role="status">Saving dog waste record…</p>}</>}
  </section>
 }

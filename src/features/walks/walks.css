@@ -124,3 +124,6 @@
 .walk-connection-dialog:focus{outline:none}.walk-connection-dialog .button:focus-visible{outline:2px solid #779866;outline-offset:3px}
 
 .walk-location-map-wrap .walk-location-recenter{left:auto;right:12px;top:auto;bottom:74px;background:#fffdf7!important;color:#244d3c;box-shadow:0 2px 8px #244d3c20}
+
+.walk-location-map-wrap .walk-location-recenter{left:12px;right:auto;bottom:78px;min-height:34px;padding:7px 10px}
+.walk-summary-card{position:relative;padding-top:35px}.walk-summary-card>h2{padding-right:25px}.walk-note-actions{display:flex;align-items:stretch;gap:10px;flex-wrap:wrap}.walk-note-actions>.button{flex:1;min-width:180px;margin:0;justify-content:center}.walk-note-actions .walk-note-open{width:auto}.walk-waste{border-top:0!important}.walk-finish-summary{margin:18px 0}.walk-finish-summary h3{margin:0 0 10px}.walk-finish-summary>.walk-waste{padding-top:0}
