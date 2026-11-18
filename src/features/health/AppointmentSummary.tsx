@@ -45,7 +45,7 @@ export function AppointmentSummary({ appointment, zone, onClose, onSaved }: { ap
     <Field label="Next visit (optional)" type="datetime-local" value={nextVisit} onChange={e => setNextVisit(e.target.value)} hint="Record the date supplied by your veterinarian. To schedule it and receive reminders, also add an appointment in Health."/>
     <VisitDocuments home={appointment.household_id} paths={paths} onChange={setPaths} busy={busy} onBusy={setBusy}/>
     {error && <Notice error>{error}</Notice>}
-    <div className="walk-actions"><Button type="submit" >{busy ? 'Saving…' : 'Save summary'}</Button><Button type="button" className="secondary" onClick={onClose}>Close</Button><Button type="button" className="secondary" onClick={() => setRetry(value => value + 1)}>Reload saved summary</Button></div>
+    <div className="walk-actions visit-summary-actions"><Button type="submit" >{busy ? 'Saving…' : 'Save summary'}</Button><Button type="button" className="secondary" onClick={onClose}>Close</Button><Button type="button" className="secondary" onClick={() => setRetry(value => value + 1)}>Reload saved summary</Button></div>
    </fieldset></form>}
    {loading && <Button className="secondary" onClick={onClose}>Close</Button>}
   </section>
