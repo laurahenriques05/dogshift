@@ -11,11 +11,10 @@ const GoogleRouteMap = lazy(() => import('./GoogleRouteMap'))
 export function RouteMap(props: { points: Point[]; compact?: boolean; live?: boolean }) {
  const [nearby,setNearby]=useState(false),[mode,setMode]=useState<MapViewMode>('standard'),[viewError,setViewError]=useState('')
  const point=props.points.at(-1)
- const results=useDogPlaces(point,nearby)
+ const results=useDogPlaces(point,!!props.live&&nearby)
  const Map=googleMapsConfigured()&&mode!=='3d'&&!nearby?GoogleRouteMap:VectorRouteMap
  const onModeError=()=>{setMode('standard');setViewError('Imagery unavailable. Standard map is shown.')}
- return <div className="walk-map-with-places"><Suspense fallback={<p role="status">Loading map…</p>}><Map {...props} places={nearby?results.places:[]} mode={mode} showDogPlaces={nearby} onModeError={onModeError}/></Suspense>
-  <details className="walk-places-info"><summary aria-label="Nearby places information">i</summary>{results.error&&<><p>Additional places could not load. Mapped places remain available.</p><button type="button" onClick={results.retry}>Retry search</button></>}<p>Additional search uses the approximate map area with <a href="https://overpass.private.coffee/" target="_blank" rel="noreferrer">Private.coffee’s Overpass service</a>.</p></details>
-  <MapPreferences mode={mode} onMode={value=>{setViewError('');setMode(value)}} dogs={nearby} onDogs={setNearby} error={viewError}/>
+ return <div className="walk-map-with-places"><Suspense fallback={<p role="status">Loading map…</p>}><Map {...props} places={props.live&&nearby?results.places:[]} mode={mode} showDogPlaces={!!props.live&&nearby} onModeError={onModeError}/></Suspense>
+  <MapPreferences showDogs={!!props.live} mode={mode} onMode={value=>{setViewError('');setMode(value)}} dogs={nearby} onDogs={setNearby} error={viewError}/>
  </div>
 }

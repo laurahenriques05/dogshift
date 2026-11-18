@@ -4,7 +4,7 @@ import {applyMapPresentation,motionDuration,MAP_APPROACH_MS,SATELLITE_TILES} fro
 import {recordingStatus} from '../features/walks/recordingStatus'
 it('keeps satellite lazy, preserves route sources and toggles actual dog layers and native POI filters',()=>{
  const sources=new Set(['openmaptiles']),layers=new Set(['pawshare-park-labels','dog-places-dot','dog-places-label','walk-dog-tile-dot','walk-dog-tile-label','walk-route-halo'])
- const map={getSource:(id:string)=>sources.has(id),getLayer:(id:string)=>layers.has(id)||id.startsWith('poi'),addSource:vi.fn((id:string)=>sources.add(id)),addLayer:vi.fn((layer:{id:string})=>layers.add(layer.id)),setLayoutProperty:vi.fn(),setFilter:vi.fn(),easeTo:vi.fn(),getBearing:()=>0,dragRotate:{enable:vi.fn(),disable:vi.fn()},touchZoomRotate:{enableRotation:vi.fn(),disableRotation:vi.fn()}} as unknown as VectorMap
+ const map={getSource:(id:string)=>sources.has(id),getLayer:(id:string)=>layers.has(id)||id.startsWith('poi'),addSource:vi.fn((id:string)=>sources.add(id)),addLayer:vi.fn((layer:{id:string})=>layers.add(layer.id)),setLayoutProperty:vi.fn(),setPaintProperty:vi.fn(),moveLayer:vi.fn(),setFilter:vi.fn(),easeTo:vi.fn(),getBearing:()=>0,dragRotate:{enable:vi.fn(),disable:vi.fn()},touchZoomRotate:{enableRotation:vi.fn(),disableRotation:vi.fn()}} as unknown as VectorMap
  applyMapPresentation(map,'standard',false)
  expect(map.addSource).not.toHaveBeenCalled()
  vi.mocked(map.easeTo).mockClear();applyMapPresentation(map,'standard',false,false);expect(map.easeTo).not.toHaveBeenCalled()
@@ -14,6 +14,8 @@ it('keeps satellite lazy, preserves route sources and toggles actual dog layers 
  expect(map.setLayoutProperty).toHaveBeenCalledWith('walk-dog-tile-dot','visibility','visible')
  expect(map.addLayer).toHaveBeenCalledWith(expect.objectContaining({id:'walk-buildings-3d'}),'walk-route-halo')
  applyMapPresentation(map,'satellite',false)
+ expect(map.setPaintProperty).toHaveBeenCalledWith('walk-dog-tile-label','text-halo-width',4)
+ expect(map.setLayoutProperty).toHaveBeenCalledWith('walk-dog-tile-label','text-size',15)
  expect(map.addSource).toHaveBeenCalledWith('walk-satellite',expect.objectContaining({tiles:[SATELLITE_TILES]}))
  expect(map.setLayoutProperty).not.toHaveBeenCalledWith('walk-route-halo','visibility','none')
 })

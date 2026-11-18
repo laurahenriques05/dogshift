@@ -50,10 +50,8 @@ export function OpenStreetRouteMap({ points, compact = false, places = [], live 
    if (disposed || !host.current) return
    const coordinates = mapCoordinates(latest.current)
    if (!coordinates.length) { setLoading(false); return }
-   instance = L.map(host.current, { scrollWheelZoom: false, touchZoom: true, doubleClickZoom: false, dragging: !window.matchMedia('(pointer: coarse)').matches, zoomSnap: .25, zoomDelta: .5, worldCopyJump: true, maxZoom: 19, minZoom: 0 })
+   instance = L.map(host.current, { scrollWheelZoom: false, touchZoom: true, doubleClickZoom: false, dragging: true, zoomSnap: .25, zoomDelta: .5, worldCopyJump: true, maxZoom: 19, minZoom: 0 })
    instance.attributionControl.setPrefix(false)
-   const credit=instance.attributionControl.getContainer()
-   if(credit){const info=document.createElement('details');info.className='walk-leaflet-credit-info leaflet-control';const summary=document.createElement('summary');summary.textContent='i';summary.setAttribute('aria-label','Map credits');credit.parentElement?.replaceChild(info,credit);info.append(summary,credit);L.DomEvent.disableClickPropagation(info)}
    const canvas = host.current
    const onWheel = createPinchZoomHandler((delta, event) => {
     if (!instance) return
@@ -65,7 +63,7 @@ export function OpenStreetRouteMap({ points, compact = false, places = [], live 
    let following=true
    instance.on('dragstart',()=>{following=false})
    let bounds = L.latLngBounds(coordinates)
-   const fitRoute = () => {following=true;const current=latest.current.at(-1);if(live&&current)instance?.setView([current.latitude,current.longitude],17,{animate:false});else instance?.fitBounds(bounds, { padding: [35, 35], maxZoom: 17, animate: false })}
+   const fitRoute = () => {following=true;const current=latest.current.at(-1);if(live&&current)instance?.setView([current.latitude,current.longitude],15.5,{animate:false});else instance?.fitBounds(bounds, { padding: [35, 35], maxZoom: 15.5, animate: false })}
    fit.current = fitRoute
    const tiles = L.tileLayer(mode==='satellite'?SATELLITE_TILES:'https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
     maxZoom: 19, referrerPolicy: 'origin',

@@ -374,3 +374,8 @@ Active walks have compact GPS/saving status, recoverable notes and Pause GPS.
 Pause/resume segmentation and cloud notes require the proposed, **unapplied**
 `20261118200000_walk_pause_and_notes.sql` migration, coordinated with Laura and
 reviewed before hosted application. See [verification and release limits](docs/walks-map-controls.md).
+
+Walk refinements keep map view selection on the map, limit dog-place controls to
+setup/recording and use a wider initial frame. Connection loss displays a centred
+alert while the existing durable queue waits to sync. See the latest verification
+notes in [walk map controls](docs/walks-map-controls.md).
