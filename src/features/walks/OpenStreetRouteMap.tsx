@@ -1,3 +1,4 @@
+import { SATELLITE_TILES, SATELLITE_CREDITS, type MapViewMode } from './mapPresentation'
 import type { DogPlace } from './dogPlaces'
 import { useEffect, useRef, useState } from 'react'
 import type { CircleMarker, Map as LeafletMap } from 'leaflet'
@@ -12,7 +13,7 @@ import { RouteMapControls } from './RouteMapControls'
 import './walks.css'
 
 /** Coordinates stay in the browser; only visible map tile areas go to OSM. */
-export function OpenStreetRouteMap({ points, compact = false, places = [], live = false }: { points: Point[]; compact?: boolean; places?: DogPlace[]; live?: boolean }) {
+export function OpenStreetRouteMap({ points, compact = false, places = [], live = false, mode = 'standard' }: { points: Point[]; compact?: boolean; places?: DogPlace[]; live?: boolean; mode?: MapViewMode; showDogPlaces?: boolean }) {
  const host = useRef<HTMLDivElement>(null)
  const drawPlaces=useRef<(places:DogPlace[])=>void>(()=>{})
  const fit = useRef<() => void>(() => {})
@@ -51,6 +52,8 @@ export function OpenStreetRouteMap({ points, compact = false, places = [], live 
    if (!coordinates.length) { setLoading(false); return }
    instance = L.map(host.current, { scrollWheelZoom: false, touchZoom: true, doubleClickZoom: false, dragging: !window.matchMedia('(pointer: coarse)').matches, zoomSnap: .25, zoomDelta: .5, worldCopyJump: true, maxZoom: 19, minZoom: 0 })
    instance.attributionControl.setPrefix(false)
+   const credit=instance.attributionControl.getContainer()
+   if(credit){const info=document.createElement('details');info.className='walk-leaflet-credit-info leaflet-control';const summary=document.createElement('summary');summary.textContent='i';summary.setAttribute('aria-label','Map credits');credit.parentElement?.replaceChild(info,credit);info.append(summary,credit);L.DomEvent.disableClickPropagation(info)}
    const canvas = host.current
    const onWheel = createPinchZoomHandler((delta, event) => {
     if (!instance) return
@@ -64,9 +67,9 @@ export function OpenStreetRouteMap({ points, compact = false, places = [], live 
    let bounds = L.latLngBounds(coordinates)
    const fitRoute = () => {following=true;const current=latest.current.at(-1);if(live&&current)instance?.setView([current.latitude,current.longitude],17,{animate:false});else instance?.fitBounds(bounds, { padding: [35, 35], maxZoom: 17, animate: false })}
    fit.current = fitRoute
-   const tiles = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+   const tiles = L.tileLayer(mode==='satellite'?SATELLITE_TILES:'https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
     maxZoom: 19, referrerPolicy: 'origin',
-    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+    attribution: mode==='satellite'?SATELLITE_CREDITS:'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
    })
    tiles.on('tileerror', () => { if (!disposed) { setError('Street map unavailable. The GPS trace remains visible. Check your connection and retry.'); setLoading(false) } })
    tiles.on('load', () => { if (!disposed) setLoading(false) })
@@ -101,7 +104,7 @@ export function OpenStreetRouteMap({ points, compact = false, places = [], live 
    resize.observe(host.current)
   }).catch(() => { if (!disposed) { setLoading(false); setError('The map could not load. Check your connection and retry.') } })
   return () => { disposed = true; resize?.disconnect(); removeWheel?.(); instance?.remove(); drawPlaces.current=()=>{}; fit.current = () => {}; draw.current = () => {}; renderFrame.current = () => {} }
- }, [visible, retry, live])
+ }, [visible, retry, live, mode])
  if (!valid.length) return <p className="walk-empty">{live?'Waiting for your first recorded GPS position…':'No GPS route recorded. Time-only walks are still included in summaries.'}</p>
  return <figure className={`walk-route-map${compact ? ' compact' : ''}`}>
   <div ref={host} className="walk-map-canvas" role="region" aria-label="Interactive walking route map. Pinch with two fingers to zoom. Normal scrolling leaves the map unchanged. Keyboard and zoom buttons are available."/>

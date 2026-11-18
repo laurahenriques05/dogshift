@@ -1,3 +1,5 @@
+import { recordingBreaksAvailable } from './recordingCapabilities'
+import type { GpsQuality } from './recordingStatus'
 import { startWalkWithWaste, walkUsesGps, type WasteMode } from './waste'
 import { locationTimestamp } from './locationTimestamp'
 import { createContext, useCallback, useContext, useEffect, useRef, useState, type ReactNode } from 'react'
@@ -11,8 +13,8 @@ import { acceptable, stationaryFix, stationaryTick, type Point, type Stationary 
 
 import { mergeBuffer, parseBuffer, type WalkBuffer as Buffer } from './buffer'
 type Value = {
- walks: Walk[]; ready: boolean; loading: boolean; error: string; busy: boolean; tracking: boolean; gpsEnabled: boolean; points: Point[]; pending: number; ending: boolean; now: number; warning: number | null; autoEnd: boolean; gpsMessage: string;
- reload: () => Promise<void>; start: (mode?: WasteMode, trackGps?: boolean) => Promise<void>; resume: () => Promise<void>; finish: () => Promise<void>; sync: () => Promise<void>; keepWalking: () => void; setAutoEnd: (value:boolean)=>void;
+ walks: Walk[]; ready: boolean; loading: boolean; error: string; busy: boolean; tracking: boolean; gpsEnabled: boolean; points: Point[]; pending: number; ending: boolean; now: number; warning: number | null; autoEnd: boolean; gpsMessage: string; paused:boolean; quality:GpsQuality; accuracy:number|null; saved:boolean; recovered:boolean;
+ pause:()=>Promise<void>; reload: () => Promise<void>; start: (mode?: WasteMode, trackGps?: boolean) => Promise<void>; resume: () => Promise<void>; finish: () => Promise<void>; sync: () => Promise<void>; keepWalking: () => void; setAutoEnd: (value:boolean)=>void;
 }
 const Context=createContext<Value>(null!)
 export const useWalks=()=>useContext(Context)
@@ -26,9 +28,11 @@ function Tracker({user,household,dog,children}:{user:string;household:string;dog
  const [walks,setWalks]=useState<Walk[]>([]),[loading,setLoading]=useState(true),[error,setError]=useState(''),[busy,setBusy]=useState(false)
  const gpsChoice=useRef(true)
  const [gpsEnabled,setGpsEnabled]=useState(true)
+ const [paused,setPaused]=useState(false),[quality,setQuality]=useState<GpsQuality>('waiting'),[accuracy,setAccuracy]=useState<number|null>(null),[saved,setSaved]=useState(false),[recovery,setRecovery]=useState(false)
  const [tracking,setTracking]=useState(false),[points,setPoints]=useState<Point[]>([]),[pending,setPending]=useState(0),[ending,setEnding]=useState(false),[loadError,setLoadError]=useState(''),[storageError,setStorageError]=useState(''),[now,setNow]=useState(Date.now())
  const [warning,setWarning]=useState<number|null>(null),[autoEnd,setAutoEndState]=useState(false),[gpsMessage,setGpsMessage]=useState('GPS is not recording.')
  const active=useRef<Walk|null>(null),buffer=useRef<Buffer|null>(null),route=useRef<Point[]>([]),watch=useRef<number|null>(null)
+ const watchVersion=useRef(0)
  const alive=useRef(true),operation=useRef(false),syncing=useRef<Promise<void>|null>(null),stationary=useRef<Stationary|null>(null),auto=useRef(false)
  const loadVersion=useRef(0)
  const lockRelease=useRef<(()=>void)|null>(null),booted=useRef(false)
@@ -48,7 +52,7 @@ function Tracker({user,household,dog,children}:{user:string;household:string;dog
    if(buffer.current)buffer.current=mergeBuffer(buffer.current,parseBuffer(localStorage.getItem(key),buffer.current.walk))
   }catch{/* Keep the in-memory queue if storage cannot be read. */}
  },[key])
- const stop=useCallback(()=>{if(watch.current!==null) navigator.geolocation.clearWatch(watch.current);watch.current=null;setTracking(false);stationary.current=null;setWarning(null);lockRelease.current?.();lockRelease.current=null},[])
+ const stop=useCallback(()=>{watchVersion.current++;if(watch.current!==null) navigator.geolocation.clearWatch(watch.current);watch.current=null;setTracking(false);stationary.current=null;setWarning(null);lockRelease.current?.();lockRelease.current=null},[])
  const persist=useCallback(()=>{
   if(!buffer.current) return
   setPending(buffer.current.points.length);setEnding(!!buffer.current.ending)
@@ -69,7 +73,7 @@ function Tracker({user,household,dog,children}:{user:string;household:string;dog
      const result=await db().rpc('append_walk_points',{p_walk:draft.walk,p_points:batch})
      if(result.error) throw result.error
      if(!alive.current) return
-     draft.points.splice(0,batch.length);persist()
+     draft.points.splice(0,batch.length);persist();setSaved(true)
     }
     if(draft.ending) {
      attempted=true
@@ -99,7 +103,7 @@ function Tracker({user,household,dog,children}:{user:string;household:string;dog
    setWalks(data)
    const own=data.find(w=>w.walker_id===user&&!w.ended_at&&!w.deleted_at)
    if(own && recovered.current!==own.id){
-    active.current=own
+    active.current=own;setRecovery(true)
     if(buffer.current?.walk!==own.id){
      let saved:Buffer|null=null
      try {
@@ -107,6 +111,7 @@ function Tracker({user,household,dog,children}:{user:string;household:string;dog
      }catch{setError('Could not recover the local GPS buffer. Check the saved route before continuing.')}
      buffer.current=saved||{walk:own.id,points:[],ending:null}
     }
+    setPaused(!!buffer.current?.paused)
     const usesGps=await walkUsesGps(own.id)
     if(!alive.current||request!==loadVersion.current)return
     gpsChoice.current=usesGps;setGpsEnabled(usesGps)
@@ -114,7 +119,7 @@ function Tracker({user,household,dog,children}:{user:string;household:string;dog
     if(!alive.current||request!==loadVersion.current)return
     const bySeq=new Map(remote.map(p=>[p.seq,p as Point]))
     for(const point of buffer.current!.points)bySeq.set(point.seq,point)
-    route.current=[...bySeq.values()].sort((a,b)=>a.seq-b.seq);setPoints(route.current);setPending(buffer.current!.points.length);setEnding(!!buffer.current!.ending)
+    route.current=[...bySeq.values()].sort((a,b)=>a.seq-b.seq);setPoints(route.current);setSaved(remote.length>0);setPending(buffer.current!.points.length);setEnding(!!buffer.current!.ending)
     setGpsMessage(!usesGps?'Time-only walk. GPS is not used.':buffer.current!.ending?'End requested. Reconnect and retry saving.':'An unfinished walk was recovered. Press Resume GPS to record again. Missing GPS cannot be recovered.')
     recovered.current=own.id
    } else if(!own && active.current){
@@ -173,6 +178,8 @@ function Tracker({user,household,dog,children}:{user:string;household:string;dog
   gpsChoice.current=enabled;setGpsEnabled(enabled)
   if(!enabled){setGpsMessage('Time-only walk. GPS is not used.');return}
   if(!window.isSecureContext||!navigator.geolocation)throw new Error('GPS requires HTTPS (or localhost) and browser location support.')
+  const supportsBreaks=await recordingBreaksAvailable()
+  if(!alive.current||!active.current)return
   await takeLock(active.current.id)
   readLatestBuffer()
   if(!alive.current){lockRelease.current?.();return}
@@ -182,24 +189,38 @@ function Tracker({user,household,dog,children}:{user:string;household:string;dog
    if(!alive.current){lockRelease.current?.();return}
    const merged=new Map(remote.map(p=>[p.seq,p as Point]));for(const p of buffer.current!.points)merged.set(p.seq,p)
    route.current=[...merged.values()].sort((a,b)=>a.seq-b.seq);setPoints(route.current);recovered.current=active.current!.id
-   setGpsMessage('Waiting for location permission and a fresh GPS position…')
+   let nextSegment=supportsBreaks&&route.current.length>0
+   setQuality('waiting');setGpsMessage('Waiting for location permission and a fresh GPS position…')
+   const version=++watchVersion.current
    watch.current=navigator.geolocation.watchPosition(position=>{
-    if(!alive.current||!active.current||buffer.current?.ending)return
+    if(!alive.current||version!==watchVersion.current||!active.current||buffer.current?.ending)return
     const timestamp=locationTimestamp(position.timestamp)
-    if(timestamp===null){setGpsMessage('Waiting for a fresh GPS position; the device returned an invalid or outdated timestamp.');return}
-    const point:Point={seq:(route.current.at(-1)?.seq??-1)+1,recorded_at:new Date(timestamp).toISOString(),latitude:position.coords.latitude,longitude:position.coords.longitude,accuracy:position.coords.accuracy}
-    if(Date.parse(point.recorded_at)<Date.parse(active.current.started_at)||!acceptable(point,route.current.at(-1))) {setGpsMessage('Waiting for a fresh, accurate GPS position (accuracy ≤50 m); noisy points are ignored.');return}
-    route.current=[...route.current,point];buffer.current!.points.push(point);setPoints(route.current);setPending(buffer.current!.points.length);setEnding(!!buffer.current!.ending)
+    if(timestamp===null){setQuality('waiting');setGpsMessage('Waiting for a fresh GPS position; the device returned an invalid or outdated timestamp.');return}
+    const point:Point={seq:(route.current.at(-1)?.seq??-1)+1,recorded_at:new Date(timestamp).toISOString(),latitude:position.coords.latitude,longitude:position.coords.longitude,accuracy:position.coords.accuracy,...(nextSegment?{segment_start:true}:{})}
+    if(Date.parse(point.recorded_at)<Date.parse(active.current.started_at)||!acceptable(point,route.current.at(-1))) {if(point.accuracy>50){setQuality('weak');setAccuracy(point.accuracy)}setGpsMessage('Waiting for a fresh, accurate GPS position (accuracy ≤50 m); noisy points are ignored.');return}
+    nextSegment=false;setQuality('good');setAccuracy(point.accuracy)
+    route.current=[...route.current,point];buffer.current!.points.push(point);persist();setPoints(route.current);setPending(buffer.current!.points.length);setEnding(!!buffer.current!.ending)
     setGpsMessage(`GPS recording · accuracy ±${Math.round(point.accuracy)} m`)
     const next=stationaryFix(stationary.current,point);stationary.current=next
     if(!next?.warnedAt)setWarning(null)
    },failure=>{
-    stationary.current=null;setWarning(null)
+    if(!alive.current||version!==watchVersion.current)return
+    stationary.current=null;setWarning(null);setQuality(failure.code===1?'denied':'unavailable')
     setGpsMessage(failure.code===1?'Location denied. Enable it in browser settings, then Resume GPS.':failure.code===2?'Location unavailable. Move outside and check device location settings.':'GPS timed out. Waiting for fresh positions; no stationary assumption is made.')
     if(failure.code===1)stop()
    },{enableHighAccuracy:true,maximumAge:0,timeout:20000})
-   setTracking(true)
+   if(buffer.current){buffer.current.paused=false;buffer.current.pauseUpdatedAt=Date.now();persist()}
+   setPaused(false);setRecovery(false);setTracking(true)
   } catch(e){stop();throw e}
+ }
+ async function pause(){
+  if(operation.current||watch.current===null||!buffer.current)return
+  operation.current=true;setBusy(true);setError('')
+  try{
+   if(!await recordingBreaksAvailable())throw new Error('GPS pause is not ready yet. Your route is still recording.')
+   if(!alive.current||!buffer.current)return
+   buffer.current.paused=true;buffer.current.pauseUpdatedAt=Date.now();persist();stop();setPaused(true);setGpsMessage('GPS paused. Your walk timer continues.');await sync()
+  }catch(e){if(alive.current)setError(errorMessage(e))}finally{operation.current=false;if(alive.current)setBusy(false)}
  }
  async function resume(){if(operation.current)return;operation.current=true;loadVersion.current++;setBusy(true);setError('');try{await record()}catch(e){setError(errorMessage(e))}finally{operation.current=false;if(alive.current)setBusy(false)}}
  async function start(mode:WasteMode='off',trackGps=true){
@@ -207,12 +228,12 @@ function Tracker({user,household,dog,children}:{user:string;household:string;dog
   try {
    const walk=await startWalkWithWaste(dog,mode,trackGps)
    if(!alive.current)return
-   active.current=walk;recovered.current=walk.id;upsert(walk)
+   active.current=walk;setPaused(false);setQuality('waiting');setAccuracy(null);setSaved(false);setRecovery(false);recovered.current=walk.id;upsert(walk)
    if(buffer.current?.walk!==walk.id){buffer.current={walk:walk.id,points:[],ending:null};route.current=[];setPoints([]);setPending(0);setEnding(false)}
    booted.current=true;setReady(true);await record()
   }catch(e){if(alive.current)setError(errorMessage(e))}finally{operation.current=false;if(alive.current)setBusy(false)}
  }
  function keepWalking(){stationary.current=null;setWarning(null)}
  function setAutoEnd(value:boolean){auto.current=value;setAutoEndState(value);keepWalking()}
- return <Context.Provider value={{walks,ready,loading,error:loadError||storageError||error,busy,tracking,gpsEnabled,points,pending,ending,now,warning,autoEnd,gpsMessage,reload,start,resume,finish:()=>end(),sync,keepWalking,setAutoEnd}}>{children}</Context.Provider>
+ return <Context.Provider value={{walks,ready,loading,error:loadError||storageError||error,busy,tracking,gpsEnabled,points,pending,ending,now,warning,autoEnd,gpsMessage,paused,quality,accuracy,saved,recovered:recovery,pause,reload,start,resume,finish:()=>end(),sync,keepWalking,setAutoEnd}}>{children}</Context.Provider>
 }
