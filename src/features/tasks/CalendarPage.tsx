@@ -22,7 +22,8 @@ export function CalendarPage(){
  const {count,padding}=monthDays(month)
  const monthLabel=new Intl.DateTimeFormat('en-GB',{month:'long',year:'numeric',timeZone:'UTC'}).format(new Date(`${month}-01T12:00:00Z`))
  function changeMonth(value:string){setMonth(value);setSelected(value===startMonth(today)?today:`${value}-01`)}
- return <div className="calendar-page"><PageTitle eyebrow="YOUR FAMILY" title="Shared calendar">Care plans in your household time zone · {zone}</PageTitle>
+ return <div className="calendar-page"><PageTitle eyebrow="YOUR FAMILY" title="Tasks and calendar">Plan care together in your household time zone · {zone}</PageTitle>
+  <nav className="task-hub-nav" aria-label="Tasks and calendar"><Link to="/tasks">Tasks</Link><Link className="is-active" to="/calendar" aria-current="page">Calendar</Link></nav>
   {error&&<Notice error>{error}</Notice>}
   <section className="card shared-calendar" aria-label="Shared household calendar">
    <div className="shared-calendar-toolbar"><button type="button" onClick={()=>changeMonth(startMonth(today))}>Today</button><div className="shared-calendar-links"><Link to="/tasks"><Plus size={15}/>Add a task</Link><Link to="/health/appointments"><Plus size={15}/>Add appointment</Link></div></div>

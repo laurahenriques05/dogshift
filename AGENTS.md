@@ -67,6 +67,22 @@ Walks should start immediately after required authentication, membership and loc
 
 Use Web NFC writing only when the browser supports it (compatible Android Chrome). iPhone browsers cannot write tags: an optional trusted writing app can configure the URL once; everyday tapping opens PawShare without that writer. Do not promise browser NFC support or background GPS that devices have not demonstrated.
 
+## Product UI and interaction language
+
+Treat the Feeding tab as the reference interaction for the whole product: calm, practical, quick to scan and easy to use with one hand. Preserve its green/cream visual language and compact controls when extending other features.
+
+- Give each screen one clear primary job and one prominent next action. Do not give several competing buttons equal visual weight.
+- Prefer direct, task-shaped labels such as `Feed dinner`, `Start walk`, `Confirm meal`, `Save routine` and `Try again`. Avoid generic labels such as `Submit`, `Continue` or `Action` when the result can be named.
+- Keep common actions in the first viewport and reachable by touch. Use compact cards, short forms and sensible grouping; avoid making users scroll to discover the control that completes the current task.
+- Make important information scannable: clear heading, short supporting line, status, then action. Left-align body copy and use consistent type sizes, spacing and line-icon weight.
+- Use cards and badges only when they clarify a state or group related actions. Avoid decorative gradients, heavy shadows, nested cards, oversized illustrations and repeated summaries of the same data.
+- Show immediate, specific feedback after every save, confirmation, retry or failure. Loading, empty and error states must say what is happening and what the user can do next.
+- Keep advanced options behind a compact `Edit`, `Alterar` or details control. The default path should show only the information needed to complete the task safely.
+- Design interactions for touch and keyboard: visible focus, adequate hit areas, Escape/cancel behaviour for dialogs, and no action that depends only on hover.
+- Reuse shared UI primitives and the existing Lucide-style icon set. Do not introduce emoji icons or a new visual system for an individual feature.
+- Use real saved data and honest states. Never fill an empty screen with invented activity just to make it look complete; use a useful empty-state explanation and a next step instead.
+- Check every changed flow at a narrow mobile width and desktop width. A user should understand the screen and complete its main action without a walkthrough.
+
 ## Handoff
 
 Update README and relevant docs when workflows/status change. Report exactly what changed, checks run, remaining limits, migration status, remote branch/PR and deployment state. Keep unfinished capabilities distinct from implemented and verified ones.
