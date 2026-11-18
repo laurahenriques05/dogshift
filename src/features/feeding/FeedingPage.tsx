@@ -35,7 +35,7 @@ function FeedingHousehold({ householdId, dogName, timezone }: { householdId: str
  const [editor, setEditor] = useState<Editor>(quick && !wrongTag ? { type: 'meal' } : null)
  const [routineOpen,setRoutineOpen]=useState(false)
  const [stockOpen,setStockOpen]=useState(false)
- const editorTitle=!editor?'':editor.type==='product'?(editor.product?'Edit food product':'Add food product'):editor.type==='purchase'?'Add a purchase':editor.event?'Correct meal':editor.single?'Record a treat':'Record meal'
+ const editorTitle=!editor?'':editor.type==='product'?(editor.product?'Edit food product':'Add food product'):editor.type==='purchase'?'Add a purchase':editor.event?'Correct meal':editor.single?'Record a treat':quick?'Confirm meal':'Record meal'
  const [busy, setBusy] = useState(false)
  const [error, setError] = useState('')
  const [message, setMessage] = useState('')

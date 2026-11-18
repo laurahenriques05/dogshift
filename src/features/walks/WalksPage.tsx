@@ -10,7 +10,6 @@ import { useHousehold } from '../household/HouseholdProvider'
 import { useWalks } from './WalkProvider'
 import { duration, paceLabel, routeDistance, timeLabel } from './gps'
 import { RouteMap } from './RouteMap'
-import { walkNotifications } from './notifications'
 import { clearWalkStart, pendingWalkStart } from './nfc'
 import { walkHistory, summarizeHistory, type HistoryPeriod } from './history'
 import { kilometersLabel } from './mapGestures'
@@ -26,7 +25,7 @@ export function WalksPage() {
  const [timelineRevision,setTimelineRevision]=useState(0)
  const [deleting, setDeleting] = useState<string | null>(null)
  const [showStatistics,setShowStatistics]=useState(false)
- const [notify,setNotify]=useState(''),[copied,setCopied]=useState('')
+ const [copied,setCopied]=useState('')
  const [finishingWalk,setFinishingWalk]=useState<string|null>(null)
  const active=data.walks.find(w=>!w.ended_at&&!w.deleted_at),mine=active?.walker_id===session!.user.id
  const historyView=search.get('view')==='history'
@@ -48,15 +47,6 @@ export function WalksPage() {
   dialog.current?.querySelector<HTMLButtonElement>('button')?.focus()
   return()=>previousFocus.current?.focus()
  },[confirm])
- useEffect(()=>{
-  if(!data.warning||!active)return
-  walkNotifications.show(active.id,()=>navigate('/walks'))
-  return()=>walkNotifications.cancel(active.id)
- },[data.warning,active?.id,navigate])
- async function notifications(){
-  if(typeof Notification==='undefined'){setNotify('This browser does not support system notifications. The in-app warning remains available.');return}
-  try {const permission=await Notification.requestPermission();setNotify(permission==='granted'?'Browser notifications enabled where supported. Keep the app visible for reliable GPS and the in-app warning.':'Notifications unavailable or denied. You can still use the in-app warning.')}catch{setNotify('System notifications need the shared mobile notification integration. Use the in-app warning for now.')}
- }
  if(historyView)return <WalkHistoryPage deletedHistory={walkHistory(data.walks,false,session!.user.id,true)} history={history} timezone={household!.timezone} loading={data.loading} ready={data.ready} error={data.error} onRetry={()=>data.reload()}/>
  return <div className="walk-page"><PageTitle eyebrow="A LITTLE FRESH AIR" title={`Out with ${dog!.name}.`}/>
   {data.error&&<Notice error>{data.error}<p><Button className="secondary" onClick={()=>{void data.reload();void data.sync()}}>Retry connection</Button></p></Notice>}
@@ -72,7 +62,7 @@ export function WalksPage() {
       {data.tracking&&data.points.length>0&&data.now-Date.parse(data.points.at(-1)!.recorded_at)>30000&&<Notice>GPS is interrupted. Distance may be incomplete. Missing GPS does not trigger automatic ending.</Notice>}
       {data.gpsEnabled&&<Notice>Keep the app visible and the screen unlocked for GPS. Refreshing stops recording: return here and press Resume GPS. Offline points are kept on this device until saved.</Notice>}
       <div className="walk-actions">{data.gpsEnabled&&!data.tracking&&!data.ending&&<Button disabled={data.busy} onClick={()=>void data.resume()}>Resume GPS</Button>}<Button className="secondary" disabled={data.busy||data.ending} onClick={()=>setConfirm('end')}>End walk</Button><Button className="secondary" disabled={data.busy} onClick={()=>void data.sync()}>Sync now</Button></div>
-      {data.gpsEnabled&&<details><summary>Optional stationary reminder</summary><p>Experimental, foreground only: after 10 minutes within approximately 30 m, show a warning. After another 2 minutes of uninterrupted GPS, end at the current time. GPS accuracy must be ≤25 m. Movement, missing GPS, or hiding the app cancels the countdown.</p><label className="walk-check"><input type="checkbox" checked={data.autoEnd} onChange={e=>data.setAutoEnd(e.target.checked)}/>Enable reminder and automatic ending for this session</label><Button className="secondary" onClick={()=>void notifications()}>Enable browser notifications</Button>{notify&&<p role="status">{notify}</p>}</details>}
+      {data.gpsEnabled&&<details><summary>Optional stationary reminder</summary><p>Experimental, foreground only: after 10 minutes within approximately 30 m, show an in-app warning. After another 2 minutes of uninterrupted GPS, end at the current time. GPS accuracy must be ≤25 m. Movement, missing GPS, or hiding the app cancels the countdown.</p><label className="walk-check"><input type="checkbox" checked={data.autoEnd} onChange={e=>data.setAutoEnd(e.target.checked)}/>Enable the in-app reminder and automatic ending for this session</label></details>}
       {data.warning&&<Notice>Still walking? Ending in approximately {Math.max(0,Math.ceil((120000-(data.now-data.warning))/1000))} seconds if GPS stays available.<p><Button onClick={data.keepWalking}>Keep walking</Button></p></Notice>}
       {data.ending&&<Notice><p role="status">The walk is waiting to finish saving. Keep this device and retry when connected to save the completed summary.</p></Notice>}
       </div></div>
