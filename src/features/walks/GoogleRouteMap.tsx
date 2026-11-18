@@ -1,3 +1,4 @@
+import type { DogPlace } from './dogPlaces'
 import { useEffect, useRef, useState } from 'react'
 import { Button } from '../../components/ui'
 import type { Point } from './gps'
@@ -8,8 +9,9 @@ import { useRouteReplay } from './useRouteReplay'
 import { RouteMapControls } from './RouteMapControls'
 import './walks.css'
 
-export default function GoogleRouteMap({ points, compact = false }: { points: Point[]; compact?: boolean }) {
+export default function GoogleRouteMap({ points, compact = false, places = [], live = false }: { points: Point[]; compact?: boolean; places?: DogPlace[]; live?: boolean }) {
  const host = useRef<HTMLDivElement>(null)
+ const placesLayer=useRef<google.maps.Data|null>(null)
  const latest = useRef(points)
  const replay = useRouteReplay(points)
  const renderFrame = useRef<(frame: ReplayFrame, playing: boolean) => void>(() => {})
@@ -22,6 +24,7 @@ export default function GoogleRouteMap({ points, compact = false }: { points: Po
  const [loading, setLoading] = useState(true)
  const [error, setError] = useState('')
  const [retry, setRetry] = useState(0)
+ useEffect(()=>{const layer=placesLayer.current;if(!layer)return;layer.forEach(feature=>layer.remove(feature));layer.addGeoJson({type:'FeatureCollection',features:places.map(place=>({type:'Feature',properties:{name:place.name,kind:place.kind},geometry:{type:'Point',coordinates:[place.longitude,place.latitude]}}))})},[places,ready])
  const hasPoints = mapCoordinates(points).length > 0
  useEffect(() => { latest.current = points; draw.current(points) }, [points])
  useEffect(() => {
@@ -54,8 +57,16 @@ export default function GoogleRouteMap({ points, compact = false }: { points: Po
     fullscreenControl: true, keyboardShortcuts: true,
    })
    const map = instance
+   const poi=new google.maps.Data({map});placesLayer.current=poi
+   poi.setStyle(feature=>({title:`${feature.getProperty('name')} · ${feature.getProperty('kind')}`,icon:{path:core!.SymbolPath.CIRCLE,scale:7,fillColor:'#244d3c',fillOpacity:1,strokeColor:'#fffdf7',strokeWeight:2}}))
+   const info=new maps.InfoWindow()
+   poi.addListener('click',(event:google.maps.Data.MouseEvent)=>{const content=document.createElement('div');content.textContent=`${event.feature.getProperty('name')} · ${event.feature.getProperty('kind')}`;info.setContent(content);if(event.latLng)info.setPosition(event.latLng);info.open({map})})
+   let following=true
+   map.addListener('dragstart',()=>{following=false})
    let bounds = new core.LatLngBounds()
    const fitRoute = () => {
+    following=true
+    const position=latest.current.at(-1);if(live&&position){map.panTo({lat:position.latitude,lng:position.longitude});map.setZoom(17);return}
     map.fitBounds(bounds, 36)
     core!.event.addListenerOnce(map, 'idle', () => { if ((map.getZoom() || 0) > 17) map.setZoom(17) })
    }
@@ -80,6 +91,7 @@ export default function GoogleRouteMap({ points, compact = false }: { points: Po
      new core!.LatLng(north, east, true),
     )
     const [start, end] = [coords[0], coords.at(-1)!]
+    if(live&&following)map.panTo({lat:end[0],lng:end[1]})
     map.data.addGeoJson({ type: 'FeatureCollection', features: [start, end].map(([lat, lng], index) => ({
      type: 'Feature', properties: { kind: index ? 'finish' : 'start' }, geometry: { type: 'Point', coordinates: [lng, lat] },
     })) })
@@ -101,17 +113,18 @@ export default function GoogleRouteMap({ points, compact = false }: { points: Po
   return () => {
    disposed = true; window.clearTimeout(timeout); window.removeEventListener(GOOGLE_MAP_ERROR, fail); resize?.disconnect()
    paths.forEach(path => path.setMap(null))
+   placesLayer.current?.setMap(null);placesLayer.current=null
    if (instance && core) { core.event.clearInstanceListeners(instance); instance.data.setMap(null) }
    fit.current = () => {}; draw.current = () => {}; renderFrame.current = () => {}
    element.replaceChildren()
   }
- }, [visible, hasPoints, retry])
- if (!hasPoints) return <p className="walk-empty">No GPS route recorded. Time-only walks are still included in summaries.</p>
+ }, [visible, hasPoints, retry, live])
+ if (!hasPoints) return <p className="walk-empty">{live?'Waiting for your first recorded GPS position…':'No GPS route recorded. Time-only walks are still included in summaries.'}</p>
  return <figure className={`walk-route-map${compact ? ' compact' : ''}`}>
   <div ref={host} className="walk-map-canvas" role="region" aria-label="Google Maps walking route. Pinch with two fingers to zoom. Normal scrolling leaves the map unchanged."/>
   {visible && loading && <p className="walk-map-status" role="status">Loading Google Maps…</p>}
   {error && <p className="walk-map-status" role="alert">{error} <Button className="secondary" onClick={() => setRetry(value => value + 1)}>Retry map</Button></p>}
-  <RouteMapControls playing={replay.playing} disabled={!ready || !replay.canReplay} status={replay.status} onFit={() => fit.current()} onReplay={() => { if (!replay.playing) fit.current(); replay.toggle() }}/>
+  <RouteMapControls live={live} playing={replay.playing} disabled={!ready || !replay.canReplay} status={replay.status} onFit={() => fit.current()} onReplay={() => { if (!replay.playing) fit.current(); replay.toggle() }}/>
 
  </figure>
 }

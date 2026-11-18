@@ -1,5 +1,33 @@
 # Start Walk location confirmation
 
+## Current flow — device location only (18 November 2026)
+
+GPS walks now require a location delivered by the recording device. The start
+sheet no longer offers address search, another location or map-pin selection.
+“Confirm location” starts the existing authenticated flow after a valid device
+fix. “Retry search again” is always available: it immediately clears the previous
+fix, disables confirmation, stops the old watcher and starts a fresh request with
+maximumAge=0. Late callbacks from the old watcher are ignored. The old marker is
+removed while searching; the next fix recentres the map. Pan, pinch, zoom and
+Recenter remain available, but moving the map never changes the device position.
+Time-only walks still bypass location access. Both idle and active hero headings
+use the same icon/title layout. No database migration or shared API change.
+
+The sections below describe earlier iterations and are historical where they
+mention manual locations or place search. Real-device GPS acquisition and
+background recording still require phone validation. This source change requires
+review by another team member before merging or production deployment.
+
+Validation: all 195 isolated tests pass, including a retry regression that checks
+that a new watcher starts without the rejected fix and that old callbacks are
+ignored. Typecheck and production build pass. A temporary isolated browser harness
+rendered the real StartWalkDialog: GPS selection opened the map with only Confirm
+location / Retry search again; retry kept confirmation disabled while awaiting a
+fix. This browser check did not obtain a real position, create a walk or write to
+the hosted database. The harness was removed after verification.
+
+## Earlier implementation history
+
 Start Walk and the existing `/walks?action=start` entry open a confirmation sheet.
 It watches browser geolocation only while open, shows the fix and its accuracy,
 and offers another location by explicit place/address search or a map click.

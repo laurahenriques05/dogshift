@@ -1,3 +1,4 @@
+import type { DogPlace } from './dogPlaces'
 import { useEffect, useRef, useState } from 'react'
 import type { CircleMarker, Map as LeafletMap } from 'leaflet'
 import { Button } from '../../components/ui'
@@ -11,8 +12,9 @@ import { RouteMapControls } from './RouteMapControls'
 import './walks.css'
 
 /** Coordinates stay in the browser; only visible map tile areas go to OSM. */
-export function OpenStreetRouteMap({ points, compact = false }: { points: Point[]; compact?: boolean }) {
+export function OpenStreetRouteMap({ points, compact = false, places = [], live = false }: { points: Point[]; compact?: boolean; places?: DogPlace[]; live?: boolean }) {
  const host = useRef<HTMLDivElement>(null)
+ const drawPlaces=useRef<(places:DogPlace[])=>void>(()=>{})
  const fit = useRef<() => void>(() => {})
  const draw = useRef<(points: Point[]) => void>(() => {})
  const latest = useRef(points)
@@ -26,6 +28,7 @@ export function OpenStreetRouteMap({ points, compact = false }: { points: Point[
  const [loading, setLoading] = useState(true)
  const [error, setError] = useState('')
  const [retry, setRetry] = useState(0)
+ useEffect(()=>drawPlaces.current(places),[places,ready])
  const valid = mapCoordinates(points)
  useEffect(() => {
   if (!host.current) return
@@ -56,8 +59,10 @@ export function OpenStreetRouteMap({ points, compact = false }: { points: Point[
    })
    canvas.addEventListener('wheel', onWheel, { passive: false })
    removeWheel = () => canvas.removeEventListener('wheel', onWheel)
+   let following=true
+   instance.on('dragstart',()=>{following=false})
    let bounds = L.latLngBounds(coordinates)
-   const fitRoute = () => instance?.fitBounds(bounds, { padding: [35, 35], maxZoom: 17, animate: false })
+   const fitRoute = () => {following=true;const current=latest.current.at(-1);if(live&&current)instance?.setView([current.latitude,current.longitude],17,{animate:false});else instance?.fitBounds(bounds, { padding: [35, 35], maxZoom: 17, animate: false })}
    fit.current = fitRoute
    const tiles = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
     maxZoom: 19, referrerPolicy: 'origin',
@@ -66,6 +71,8 @@ export function OpenStreetRouteMap({ points, compact = false }: { points: Point[
    tiles.on('tileerror', () => { if (!disposed) { setError('Street map unavailable. The GPS trace remains visible. Check your connection and retry.'); setLoading(false) } })
    tiles.on('load', () => { if (!disposed) setLoading(false) })
    tiles.addTo(instance)
+   const nearbyLayer=L.layerGroup().addTo(instance)
+   drawPlaces.current=next=>{nearbyLayer.clearLayers();for(const place of next){const label=document.createElement('span');label.textContent=`${place.name} · ${place.kind}`;L.circleMarker([place.latitude,place.longitude],{radius:7,color:'#fffdf7',weight:2,fillColor:'#244d3c',fillOpacity:1}).bindTooltip(label).addTo(nearbyLayer)}}
    const routeLayer = L.layerGroup().addTo(instance)
    const lines = L.layerGroup().addTo(instance)
    let finishMarker: CircleMarker | undefined
@@ -82,6 +89,7 @@ export function OpenStreetRouteMap({ points, compact = false }: { points: Point[
     const current = mapCoordinates(next)
     if (!current.length) return
     bounds = L.latLngBounds(current)
+    if(live&&following)instance?.panTo(current.at(-1)!,{animate:false})
     L.circleMarker(current[0], { radius: 6, color: '#425c39', weight: 3, fillColor: '#fffdf7', fillOpacity: 1 }).bindTooltip('Start').addTo(routeLayer)
     finishMarker = L.circleMarker(current.at(-1)!, { radius: 5, color: '#fffdf7', weight: 2, fillColor: '#425c39', fillOpacity: 1 }).bindTooltip('Finish')
     renderFrame.current(latestFrame.current.frame, latestFrame.current.playing)
@@ -92,14 +100,14 @@ export function OpenStreetRouteMap({ points, compact = false }: { points: Point[
    resize = new ResizeObserver(() => instance?.invalidateSize({ animate: false }))
    resize.observe(host.current)
   }).catch(() => { if (!disposed) { setLoading(false); setError('The map could not load. Check your connection and retry.') } })
-  return () => { disposed = true; resize?.disconnect(); removeWheel?.(); instance?.remove(); fit.current = () => {}; draw.current = () => {}; renderFrame.current = () => {} }
- }, [visible, retry])
- if (!valid.length) return <p className="walk-empty">No GPS route recorded. Time-only walks are still included in summaries.</p>
+  return () => { disposed = true; resize?.disconnect(); removeWheel?.(); instance?.remove(); drawPlaces.current=()=>{}; fit.current = () => {}; draw.current = () => {}; renderFrame.current = () => {} }
+ }, [visible, retry, live])
+ if (!valid.length) return <p className="walk-empty">{live?'Waiting for your first recorded GPS position…':'No GPS route recorded. Time-only walks are still included in summaries.'}</p>
  return <figure className={`walk-route-map${compact ? ' compact' : ''}`}>
   <div ref={host} className="walk-map-canvas" role="region" aria-label="Interactive walking route map. Pinch with two fingers to zoom. Normal scrolling leaves the map unchanged. Keyboard and zoom buttons are available."/>
   {visible && loading && <p className="walk-map-status" role="status">Loading street map…</p>}
   {error && <p className="walk-map-status" role="alert">{error} <Button className="secondary" onClick={() => setRetry(n => n + 1)}>Retry map</Button></p>}
-  <RouteMapControls playing={replay.playing} disabled={!ready || !replay.canReplay} status={replay.status} onFit={() => fit.current()} onReplay={() => { if (!replay.playing) fit.current(); replay.toggle() }}/>
+  <RouteMapControls live={live} playing={replay.playing} disabled={!ready || !replay.canReplay} status={replay.status} onFit={() => fit.current()} onReplay={() => { if (!replay.playing) fit.current(); replay.toggle() }}/>
 
  </figure>
 }

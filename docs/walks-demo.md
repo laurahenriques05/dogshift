@@ -1,3 +1,32 @@
+# Demo walks — current behaviour (18 November 2026)
+
+The three presentation routes are available explicitly through Past Adventures →
+Demo walks, including production builds, and through
+`/walks?view=history&status=examples`. Their read-only detail pages retain route
+replay and the existing sample dog-waste summaries. English display titles are
+Morning adventure, Afternoon adventure and Weekend adventure. The filter and
+DEMO WALK detail eyebrow identify the examples without extra fixture paragraphs.
+
+Examples never enter real household statistics, Last Adventure, saved/deleted
+walk lists or Supabase. They cannot be deleted, restored or edited as real
+records. Selecting Demo walks can show the fixtures even while saved history is
+unavailable; saved/deleted history retains its loading and error states. Demo
+period filters still use the fixtures' original dates in November 2026.
+
+This supersedes the local-only/unlabelled presentation behaviour below. No schema
+migration or hosted-data creation is needed. Release requires another team
+member's review before merge; this document does not claim production deployment.
+
+Validation: 196 isolated tests, typecheck and production build pass. The new
+production-mode regression checks explicit demo browsing while saved history and
+its totals remain unchanged. An isolated browser harness rendered the real history
+and detail components: all three examples appeared despite saved history being
+unavailable, View walk opened Morning adventure with its route and 3 pee / 1 poop
+summary, and Reproduce route entered playback. No hosted records were created.
+The temporary harness was removed after verification.
+
+## Earlier implementation history
+
 # Local presentation history
 
 The local Vite development app includes three presentation records in Past
