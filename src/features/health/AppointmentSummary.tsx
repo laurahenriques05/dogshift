@@ -42,7 +42,7 @@ export function AppointmentSummary({ appointment, zone, onClose, onSaved }: { ap
     <Field label="Reason for visit" maxLength={2000} value={reason} onChange={e => setReason(e.target.value)}/>
     <label className="field">Veterinarian’s observations<textarea rows={4} maxLength={4000} value={observations} onChange={e => setObservations(e.target.value)}/></label>
     <label className="field">Prescribed treatment / medication<textarea rows={4} maxLength={4000} value={treatment} onChange={e => setTreatment(e.target.value)}/></label>
-    <Field label="Next visit (optional)" type="datetime-local" value={nextVisit} onChange={e => setNextVisit(e.target.value)} hint="Record the date supplied by your veterinarian. To schedule it and receive reminders, also add an appointment in Health."/>
+    <Field label="Next visit (optional)" type="datetime-local" value={nextVisit} onChange={e => setNextVisit(e.target.value)}/>
     <VisitDocuments home={appointment.household_id} paths={paths} onChange={setPaths} busy={busy} onBusy={setBusy}/>
     {error && <Notice error>{error}</Notice>}
     <div className="walk-actions visit-summary-actions"><Button type="submit" >{busy ? 'Saving…' : 'Save summary'}</Button><Button type="button" className="secondary" onClick={onClose}>Close</Button><Button type="button" className="secondary" onClick={() => setRetry(value => value + 1)}>Reload saved summary</Button></div>
