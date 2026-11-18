@@ -8,13 +8,13 @@ function newMeal(index: number, count: number, products: FoodProduct[]): Planned
  const hour = (8+index*24/count)%24
  return { id: crypto.randomUUID(), name: count===2 ? ['Breakfast','Dinner'][index] : `Meal ${index+1}`, time: `${String(Math.floor(hour)).padStart(2,'0')}:${String(Math.round((hour%1)*60)).padStart(2,'0')}`, notes: '', items: [{product_id:products[0]?.id || '',quantity_grams:Number(products[0]?.portion_grams || 100)}] }
 }
-export function FeedingRoutineForm({ householdId, products, plan, count, warningHours, timezone, onSaved }: { householdId:string; products:FoodProduct[]; plan:PlannedMeal[]; count:number; warningHours:number|null; timezone:string; onSaved:()=>void }) {
+export function FeedingRoutineForm({ householdId, products, plan, count, warningHours, timezone, onSaved, startEditing=false, onCancel }: { householdId:string; products:FoodProduct[]; plan:PlannedMeal[]; count:number; warningHours:number|null; timezone:string; onSaved:()=>void; startEditing?:boolean; onCancel?:()=>void }) {
  const [meals,setMeals]=useState<PlannedMeal[]>(()=>plan.length ? structuredClone(plan) : Array.from({length:count},(_,i)=>newMeal(i,count,products)))
- const [editing,setEditing]=useState(false)
+ const [editing,setEditing]=useState(startEditing)
  const [busy,setBusy]=useState(false)
  const [error,setError]=useState('')
  function openEditor() { setMeals(plan.length ? structuredClone(plan) : Array.from({length:count},(_,i)=>newMeal(i,count,products)));setError('');setEditing(true) }
- function cancel() { setEditing(false);setError('') }
+ function cancel() { setEditing(false);setError('');onCancel?.() }
  function patch(index:number, change:Partial<PlannedMeal>) { setMeals(previous=>previous.map((meal,i)=>i===index?{...meal,...change}:meal)) }
  function resize(value:number) {
   if (!Number.isInteger(value) || value<1 || value>12) return

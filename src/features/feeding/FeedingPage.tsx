@@ -1,4 +1,4 @@
-import { AlertTriangle, Check, Clock3, PackageOpen } from 'lucide-react'
+import { AlertTriangle, Check, Clock3, PackageOpen, X } from 'lucide-react'
 import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { Button, Notice, PageTitle, errorMessage } from '../../components/ui'
@@ -33,8 +33,8 @@ function FeedingHousehold({ householdId, dogName, timezone }: { householdId: str
  const targetHousehold = query.get('household')
  const wrongTag = !!targetHousehold && targetHousehold !== householdId
  const [editor, setEditor] = useState<Editor>(quick && !wrongTag ? { type: 'meal' } : null)
- const editorRef=useRef<HTMLElement>(null)
- useEffect(()=>{if(editor&&!data.loading)editorRef.current?.focus()},[editor,data.loading])
+ const [routineOpen,setRoutineOpen]=useState(false)
+ const editorTitle=!editor?'':editor.type==='product'?(editor.product?'Edit food product':'Add food product'):editor.type==='purchase'?'Add a purchase':editor.event?'Correct meal':editor.single?'Record a treat':'Record meal'
  const [busy, setBusy] = useState(false)
  const [error, setError] = useState('')
  const [message, setMessage] = useState('')
@@ -74,9 +74,10 @@ function FeedingHousehold({ householdId, dogName, timezone }: { householdId: str
   {wrongTag && <Notice error>This feeding tag belongs to another household. Switch to that household before using its tag.</Notice>}
   {error && <Notice error>{error}</Notice>}{message && <Notice>{message}</Notice>}
   {!setupComplete&&<section className="card feeding-setup" aria-labelledby="feeding-setup-title"><p className="eyebrow">QUICK SETUP</p><h2 id="feeding-setup-title">Get ready for daily feeding</h2><p className="muted">Set this up once. Afterwards, recording the right bowl takes only a few seconds.</p><ol><li className={data.products.length?'is-complete':''}><span>{data.products.length?<Check size={16} aria-hidden="true"/>:'1'}</span><div><strong>Add the food you use</strong><small>Enter the current pack or container.</small></div>{!data.products.length&&<Button className="secondary" onClick={()=>setEditor({type:'product'})}>Add food</Button>}</li><li className={data.plan.length?'is-complete':''}><span>{data.plan.length?<Check size={16} aria-hidden="true"/>:'2'}</span><div><strong>Save the usual meals</strong><small>Add times, foods and portions.</small></div>{data.products.length>0&&!data.plan.length&&<a className="text-link" href="#feeding-routine">Set routine</a>}</li><li><span>3</span><div><strong>Feed from Today’s meals</strong><small>Confirm the saved bowl; stock updates automatically.</small></div></li></ol></section>}
-  <FeedingDailyOverview dogName={dogName} next={next} recent={recent} correctable={correctable} products={data.products} entries={data.entries} names={names} timezone={timezone} wrongTag={wrongTag} onFeed={()=>{setEditor({type:'meal',mealId:next?.meal.id});setMessage('')}} onPurchase={()=>setEditor({type:'purchase'})} onTreat={()=>{setEditor({type:'meal',single:true});setMessage('')}} onCorrect={()=>correctable&&editMeal(correctable)}/>
+  <FeedingDailyOverview dogName={dogName} next={next} recent={recent} correctable={correctable} products={data.products} entries={data.entries} names={names} timezone={timezone} wrongTag={wrongTag} onFeed={()=>{setEditor({type:'meal',mealId:next?.meal.id});setMessage('')}} onPurchase={()=>setEditor({type:'purchase'})} onTreat={()=>{setEditor({type:'meal',single:true});setMessage('')}} onCorrect={()=>correctable&&editMeal(correctable)} onEditRoutine={()=>setRoutineOpen(true)}/>
   {(overdue.length>0||lowStock.length>0)&&<section className="card feeding-alerts" aria-labelledby="feeding-attention"><div className="feeding-alert-heading"><AlertTriangle size={20} aria-hidden="true"/><div><h2 id="feeding-attention">Action required</h2></div></div><ul>{overdue.map(row=><li key={row.meal.id}><strong>{row.meal.name} overdue</strong><span>Scheduled for {row.meal.time}</span><Button className="secondary" onClick={()=>setEditor({type:'meal',mealId:row.meal.id})}>Record</Button></li>)}{lowStock.map(({product,forecast})=><li key={product.id}><strong>{product.name}: {forecast.remaining<=0?'out of stock':'low stock'}</strong><span>{forecast.days===null?formatGrams(forecast.remaining):`${Number(forecast.days.toFixed(1))} days remaining`}</span><Button className="secondary" onClick={()=>setEditor({type:'purchase'})}>Restock</Button></li>)}</ul></section>}
-  {editor && <section className="card feeding-editor" ref={editorRef} tabIndex={-1}>{editor.type === 'product' ? <ProductForm key={editor.product?.id || 'new-product'} householdId={householdId} product={editor.product} onSaved={saved} onCancel={close}/> : data.products.length && !wrongTag ? editor.type==='meal'&&!editor.entry ? <PlannedMealForm key={editor.event?.id||editor.mealId||(editor.single?'single':'new-meal')} householdId={householdId} products={data.products} plan={data.plan} initialMealId={editor.mealId||next?.meal.id} startSingle={editor.single} event={editor.event} entries={data.entries} source={quick?'nfc':'app'} onSaved={saved} onCancel={close}/> : <EntryForm key={editor.entry?.id || editor.type} householdId={householdId} products={data.products} entries={data.entries} kind={editor.type} entry={editor.entry} source={quick ? 'nfc' : 'app'} names={names} timezone={timezone} onSaved={saved} onCancel={close}/> : <><Notice>Add your first food product before recording a meal.</Notice><Button onClick={() => setEditor({ type: 'product' })}>Add product</Button><Button className="secondary" onClick={close}>Cancel</Button></>}</section>}
+  {editor && <FeedingModal title={editorTitle} onClose={close}>{editor.type === 'product' ? <ProductForm key={editor.product?.id || 'new-product'} householdId={householdId} product={editor.product} onSaved={saved} onCancel={close}/> : data.products.length && !wrongTag ? editor.type==='meal'&&!editor.entry ? <PlannedMealForm key={editor.event?.id||editor.mealId||(editor.single?'single':'new-meal')} householdId={householdId} products={data.products} plan={data.plan} initialMealId={editor.mealId||next?.meal.id} startSingle={editor.single} event={editor.event} entries={data.entries} source={quick?'nfc':'app'} onSaved={saved} onCancel={close}/> : <EntryForm key={editor.entry?.id || editor.type} householdId={householdId} products={data.products} entries={data.entries} kind={editor.type} entry={editor.entry} source={quick ? 'nfc' : 'app'} names={names} timezone={timezone} onSaved={saved} onCancel={close}/> : <><Notice>Add your first food product before recording a meal.</Notice><Button onClick={() => setEditor({ type: 'product' })}>Add product</Button><Button className="secondary" onClick={close}>Cancel</Button></>}</FeedingModal>}
+  {routineOpen&&<FeedingModal title="Edit feeding routine" onClose={()=>setRoutineOpen(false)}><FeedingRoutineForm householdId={householdId} products={data.products} plan={data.plan} count={data.mealsPerDay} warningHours={data.warningHours} timezone={timezone} startEditing onCancel={()=>setRoutineOpen(false)} onSaved={()=>{setRoutineOpen(false);saved()}}/></FeedingModal>}
   <MealChecklist plan={data.plan} events={data.events} products={data.products} timezone={timezone} names={names} userId={session!.user.id} now={now} onFeed={mealId=>{setEditor({type:'meal',mealId});setMessage('')}} onEdit={editMeal} disabled={wrongTag}/>
   <div id="feeding-routine"><FeedDisclosure title="Usual meal routine" summary={data.plan.length?`${data.plan.length} planned meals · ${timezone}`:'Set times, foods and portions'}><FeedingRoutineForm householdId={householdId} products={data.products} plan={data.plan} count={data.mealsPerDay} warningHours={data.warningHours} timezone={timezone} onSaved={saved}/></FeedDisclosure></div>
   <p className="eyebrow feeding-more-label">MORE FEEDING OPTIONS</p>
@@ -91,4 +92,15 @@ function FeedingHousehold({ householdId, dogName, timezone }: { householdId: str
 
 function FeedDisclosure({title,summary,children}:{title:string;summary:string;children:ReactNode}) {
  return <details className="feeding-disclosure"><summary><span>{title}</span><small>{summary}</small></summary><div className="feeding-disclosure-body">{children}</div></details>
+}
+
+function FeedingModal({title,onClose,children}:{title:string;onClose:()=>void;children:ReactNode}) {
+ const dialog=useRef<HTMLDialogElement>(null)
+ useEffect(()=>{const element=dialog.current;if(element&&!element.open)element.showModal()},[])
+ return <dialog ref={dialog} className="feeding-modal" aria-labelledby="feeding-modal-title" onCancel={event=>{event.preventDefault();onClose()}} onClick={event=>{if(event.target===event.currentTarget)onClose()}}>
+  <div className="feeding-modal-panel">
+   <header><div><p className="eyebrow">QUICK ACTION</p><h2 id="feeding-modal-title">{title}</h2></div><button type="button" className="feeding-modal-close" aria-label="Close" onClick={onClose}><X aria-hidden="true"/></button></header>
+   <div className="feeding-modal-body">{children}</div>
+  </div>
+ </dialog>
 }
