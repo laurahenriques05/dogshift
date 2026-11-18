@@ -107,6 +107,17 @@ it('isolates folder metadata and private files by current household, with authen
  await sql.query('select public.permanently_delete_health_folder($1,$2)',[home,folder])
  expect((await sql.query('select * from storage.objects')).rows).toHaveLength(0)
  await sql.exec('reset role')
+ // An old client must not silently archive a folder after this migration.
+ await sql.exec(readFileSync('supabase/migrations/20261118231500_disable_legacy_folder_soft_delete.sql','utf8'))
+ await asUser(a)
+ const legacy=(await sql.query<{id:string}>("insert into public.health_document_folders(household_id,name) values($1,'Active folder') returning id",[home])).rows[0].id
+ await expect(sql.query("select public.manage_health_document_folder($1,$2,'delete',null)",[home,legacy])).rejects.toThrow('outdated')
+ expect((await sql.query<{deleted_at:string|null}>('select deleted_at from public.health_document_folders where id=$1',[legacy])).rows[0].deleted_at).toBeNull()
+ await sql.query("select public.manage_health_document_folder($1,$2,'rename','Renamed folder')",[home,legacy])
+ await sql.query('select * from public.prepare_health_folder_deletion($1,$2)',[home,legacy])
+ await sql.query('select public.permanently_delete_health_folder($1,$2)',[home,legacy])
+ expect((await sql.query<{purged_at:string|null}>('select purged_at from public.health_document_folders where id=$1',[legacy])).rows[0].purged_at).not.toBeNull()
+ await sql.exec('reset role')
  const other=(await sql.query<{id:string}>("insert into public.households(name,timezone,created_by) values('Other','UTC',$1) returning id",[a])).rows[0].id
  await asUser(c)
  await expect(sql.query("select public.manage_health_document_folder($1,$2,'delete',null)",[other,folder])).rejects.toThrow()
