@@ -1,5 +1,5 @@
 export type AppointmentSummaryRecord = {appointment_id:string;reason:string;observations:string;treatment:string;next_visit_at:string|null;medication_ids:string[];document_paths:string[];updated_by:string|null;updated_at:string}
-export type HealthDocumentFolder = {is_default:boolean;id:string;household_id:string;name:string;created_by:string|null;created_at:string}
+export type HealthDocumentFolder = {purged_at?:string|null;deleted_at?:string|null;is_default:boolean;id:string;household_id:string;name:string;created_by:string|null;created_at:string}
 export type HealthAudit = { id:string;household_id:string;created_by:string|null;updated_by:string|null;created_at:string;updated_at:string }
 export type Treatment = HealthAudit & {title:string;occurred_on:string;veterinarian:string;notes:string}
 export type VetContact = HealthAudit & {name:string;phone:string;email:string;address:string;notes:string}
@@ -62,6 +62,9 @@ export type Database = { public: { Tables: {
  invitations: Table<Invitation & { token_hash: string }, never>;
  dogs: Table<Dog, Omit<Dog,'id'|'created_at'>>;
 }; Views: { [_ in never]: never }; Functions: {
+ prepare_health_folder_deletion: {Args:{p_household:string;p_folder:string|null};Returns:{folder_id:string;document_paths:string[]}[]};
+ permanently_delete_health_folder: {Args:{p_household:string;p_folder:string};Returns:string};
+ manage_health_document_folder: {Args:{p_household:string;p_folder:string|null;p_action:string;p_name:string|null};Returns:string};
  save_medication_schedule: { Args:{p_household:string;p_schedule:string|null;p_name:string;p_instructions:string;p_times:string[]}; Returns:string };
  reschedule_medication_dose: { Args:{p_dose:string;p_time:string}; Returns:undefined };
  undo_medication_dose: { Args:{p_dose:string;p_updated_at:string}; Returns:undefined };

@@ -340,7 +340,7 @@ limited to the author while deleted. No hosted application is claimed.
 
 Past appointments supports accent-insensitive search of title, location and notes, type filters and inclusive household-local date ranges; results remain newest first. Existing appointments are Uncategorised until edited. Vaccination visit is an appointment category; vaccination administration records remain in Vaccinations.
 
-Each past appointment has a Visit summary dialog: reason, veterinarian observations, prescribed treatment, next-visit date and links to existing household medication schedules and private health documents. This records the veterinarian's instructions and does not recommend treatment. A next-visit date in the summary is informational: add a normal appointment to schedule calendar/reminders. No duplicate notification system is created.
+Each past appointment has a Visit summary dialog: reason, veterinarian observations, prescribed treatment, next-visit date and links to private health documents. The Related medication selector has been removed; existing saved medication links are retained without displaying that section. This records the veterinarian's instructions and does not recommend treatment. A next-visit date in the summary is informational: add a normal appointment to schedule calendar/reminders. No duplicate notification system is created.
 
 Requires reviewed migration `20261118120000_appointment_summaries.sql` after existing Health appointments/medication/private documents migrations. It has **not** been applied to shared Supabase by this implementation. Coordinate with Laura/Maria before rollout. Existing appointment RLS/audit is preserved; summaries are shared-editable care records, limited to current members; linked medication/documents must belong to the same household. Deleting an appointment removes its summary. Private documents are downloaded using current membership, without public URLs. Deleted linked records are shown as unavailable and can be unlinked.
 
@@ -366,6 +366,17 @@ timeline; final-only dog-waste records stay in the summary, outside that timelin
 See [data, privacy and validation limits](docs/walks-nearby-timeline.md). No new
 database migration is needed. Teammate review is required before release.
 
+### Documents within a visit
+
+The Health hub keeps Documents as the full household archive. Existing treatment history remains available from Past appointments → Treatment history. Related documents in Visit summary shows only that appointment’s linked files, grouped by archive folder. The destination selector includes existing folders and New folder; newly created folders appear in Documents immediately. Uploads persist in private Storage immediately; Save summary persists the visit links (up to 20). Closing without saving does not link the uploaded file to that visit.
+
+### Folder actions and permanent deletion
+
+Documents uses compact three-dot actions and confirmation dialogs. Delete now removes the folder and its documents permanently after explicit confirmation. The server checks membership and existing document-delete permissions before preparing deletion; the browser deletes objects through the private Storage API and finalizes only once the folder is empty. Interrupted operations show an error and can be retried. Only the owner can delete a folder containing another member’s uploads. Existing archived folders remain accessible through Deleted folders. Visit links to removed documents use the unavailable-document state.
+
+Requires folder-management migration `20261118203000_health_folder_management.sql` and subsequent migrations `20261118211000_health_folder_permanent_deletion.sql` and `20261118212500_health_folder_delete_contents.sql`, after the default-folder prerequisite. Beni reported successful manual application on 18 November; this has not been independently audited. Do not rerun applied migrations on the shared project. See [Health integration notes](docs/health-calendar-links.md) for details and validation limits.
+
+
 ### Walk map controls, pause and notes (18 November 2026)
 
 Walks retains its green/cream design with free map panning, a slower location
@@ -379,3 +390,4 @@ Walk refinements keep map view selection on the map, limit dog-place controls to
 setup/recording and use a wider initial frame. Connection loss displays a centred
 alert while the existing durable queue waits to sync. See the latest verification
 notes in [walk map controls](docs/walks-map-controls.md).
+
