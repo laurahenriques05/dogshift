@@ -4,10 +4,10 @@ import { db } from '../../lib/supabase/client'
 import { categories,localDateTime } from './model'
 import type { FeedingEntry,FoodProduct,PlannedMeal,MealEvent,MealOutcome } from './types'
 type Line={product_id:string;quantity_grams:number;eaten_grams:number}
-export function PlannedMealForm({householdId,products,plan,source,initialMealId,event,entries=[],onSaved,onCancel}:{householdId:string;products:FoodProduct[];plan:PlannedMeal[];source:'app'|'nfc';initialMealId?:string;event?:MealEvent;entries?:FeedingEntry[];onSaved:()=>void;onCancel:()=>void}) {
+export function PlannedMealForm({householdId,products,plan,source,initialMealId,startSingle=false,event,entries=[],onSaved,onCancel}:{householdId:string;products:FoodProduct[];plan:PlannedMeal[];source:'app'|'nfc';initialMealId?:string;startSingle?:boolean;event?:MealEvent;entries?:FeedingEntry[];onSaved:()=>void;onCancel:()=>void}) {
  const [id]=useState(()=>event?.id||crypto.randomUUID())
- const first=plan.find(p=>p.id===(event?.routine_meal_id||initialMealId))||plan[0]
- const [selected,setSelected]=useState(event?.routine_meal_id||first?.id||'')
+ const first=startSingle?undefined:plan.find(p=>p.id===(event?.routine_meal_id||initialMealId))||plan[0]
+ const [selected,setSelected]=useState(event?.routine_meal_id||(startSingle?'':first?.id)||'')
  const [items,setItems]=useState<Line[]>(()=>event&&event.outcome!=='skipped'?entries.filter(e=>e.event_id===event.id&&!e.deleted_at).map(e=>({product_id:e.product_id,quantity_grams:Number(e.quantity_grams),eaten_grams:Number(e.eaten_grams??e.quantity_grams)})):(first?.items||[{product_id:products[0]?.id||'',quantity_grams:Number(products[0]?.portion_grams||100)}]).map(i=>({...i,eaten_grams:Number(i.quantity_grams)})))
  const [outcome,setOutcome]=useState<MealOutcome>(event?.outcome||'given')
  const [busy,setBusy]=useState(false),[error,setError]=useState(''),[duplicate,setDuplicate]=useState(false),[removing,setRemoving]=useState(false)

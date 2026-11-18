@@ -1,4 +1,4 @@
-import { AlertTriangle, Check, Clock3, PackageOpen, Utensils } from 'lucide-react'
+import { AlertTriangle, Check, Clock3, PackageOpen } from 'lucide-react'
 import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { Button, Notice, PageTitle, errorMessage } from '../../components/ui'
@@ -6,19 +6,20 @@ import { db } from '../../lib/supabase/client'
 import { useAuth } from '../auth/AuthProvider'
 import { useHousehold } from '../household/HouseholdProvider'
 import { useFeeding } from './useFeeding'
-import { countMealEvents, dayKey, formatGrams, regularMeals, stockForecast } from './model'
+import { formatGrams, regularMeals, stockForecast } from './model'
 import { MealChecklist } from './MealChecklist'
 import { MealHistory } from './MealHistory'
-import { todayChecklist, outcomeLabels } from './checklist'
+import { todayChecklist } from './checklist'
 import { FeedingRoutineForm } from './FeedingRoutineForm'
 import { PlannedMealForm } from './PlannedMealForm'
 import { FeedingTagSetup } from './FeedingTagSetup'
 import { FoodProductCard } from './FoodProductCard'
 import { ProductForm } from './ProductForm'
 import { EntryForm } from './EntryForm'
+import { FeedingDailyOverview } from './FeedingDailyOverview'
 import type { FeedingEntry, FoodProduct, MealEvent } from './types'
 
-type Editor = { type: 'product'; product?: FoodProduct } | { type: 'meal' | 'purchase'; entry?: FeedingEntry; mealId?:string; event?:MealEvent } | null
+type Editor = { type: 'product'; product?: FoodProduct } | { type: 'meal' | 'purchase'; entry?: FeedingEntry; mealId?:string; event?:MealEvent; single?:boolean } | null
 type HistoryFilter = 'all'|'meals'|'purchases'|'nfc'
 export function FeedingPage() {
  const { household, dog } = useHousehold()
@@ -45,13 +46,12 @@ function FeedingHousehold({ householdId, dogName, timezone }: { householdId: str
  const checklist=todayChecklist(data.plan,data.events,timezone,now)
  const next=checklist.find(row=>!row.event)
  const recent=[...data.events].filter(e=>e.outcome!=='skipped').sort((a,b)=>b.occurred_at.localeCompare(a.occurred_at))[0]
+ const correctable=[...data.events].filter(event=>event.created_by===session?.user.id).sort((a,b)=>b.occurred_at.localeCompare(a.occurred_at))[0]
  const overdue=checklist.filter(row=>!row.event&&row.minutesLate>=60)
  const lowStock=data.products.map(product=>({product,forecast:stockForecast(product,data.entries)})).filter(item=>item.forecast.low||item.forecast.remaining<=0)
- const recorded=data.plan.length?checklist.filter(row=>row.event).length:countMealEvents(regularMeals(data.entries,data.products).filter(e=>dayKey(e.occurred_at,timezone)===dayKey(now,timezone)))
  function editMeal(event:MealEvent){setEditor({type:'meal',event});setMessage('')}
  const names = new Map(data.members.map(m => [m.user_id, m.display_name]))
  const meals = regularMeals(data.entries, data.products)
- const today = meals.filter(e => dayKey(e.occurred_at, timezone) === dayKey(new Date(), timezone))
  const live = data.entries.filter(e => !e.deleted_at&&!e.event_id).sort((a,b) => b.occurred_at.localeCompare(a.occurred_at))
  const filteredEvents=data.events.filter(event=>historyFilter==='all'||historyFilter==='meals'||(historyFilter==='nfc'&&event.source==='nfc')).sort((a,b)=>b.occurred_at.localeCompare(a.occurred_at))
  const filteredLive=live.filter(entry=>historyFilter==='all'||(historyFilter==='purchases'&&entry.kind==='purchase')||(historyFilter==='meals'&&entry.kind==='meal')||(historyFilter==='nfc'&&entry.source==='nfc'))
@@ -70,13 +70,13 @@ function FeedingHousehold({ householdId, dogName, timezone }: { householdId: str
  }
  if (data.loading) return <p role="status">Loading feeding and food stock…</p>
  if (data.error) return <><PageTitle eyebrow="YOUR EVERYDAY" title="Feeding"/><Notice error>{data.error}</Notice><Button onClick={data.refresh}>Retry</Button></>
- return <div className="feeding-page"><PageTitle eyebrow="FEEDING" title={`${dogName}’s meals`}>See what is due and record a meal in seconds.</PageTitle>
+ return <div className="feeding-page"><PageTitle eyebrow="TODAY’S FEEDING" title={`Meals for ${dogName}.`}>Shared with your family, updated as meals are recorded.</PageTitle>
   {wrongTag && <Notice error>This feeding tag belongs to another household. Switch to that household before using its tag.</Notice>}
   {error && <Notice error>{error}</Notice>}{message && <Notice>{message}</Notice>}
   {!setupComplete&&<section className="card feeding-setup" aria-labelledby="feeding-setup-title"><p className="eyebrow">QUICK SETUP</p><h2 id="feeding-setup-title">Get ready for daily feeding</h2><p className="muted">Set this up once. Afterwards, recording the right bowl takes only a few seconds.</p><ol><li className={data.products.length?'is-complete':''}><span>{data.products.length?<Check size={16} aria-hidden="true"/>:'1'}</span><div><strong>Add the food you use</strong><small>Enter the current pack or container.</small></div>{!data.products.length&&<Button className="secondary" onClick={()=>setEditor({type:'product'})}>Add food</Button>}</li><li className={data.plan.length?'is-complete':''}><span>{data.plan.length?<Check size={16} aria-hidden="true"/>:'2'}</span><div><strong>Save the usual meals</strong><small>Add times, foods and portions.</small></div>{data.products.length>0&&!data.plan.length&&<a className="text-link" href="#feeding-routine">Set routine</a>}</li><li><span>3</span><div><strong>Feed from Today’s meals</strong><small>Confirm the saved bowl; stock updates automatically.</small></div></li></ol></section>}
-  <section className="card feeding-overview"><div className="feeding-overview-main"><p className="eyebrow feeding-overview-label"><Utensils size={15} aria-hidden="true"/>TODAY</p><h2>{next?`${next.status==='Due'?'Due now':'Next'}: ${next.meal.name} at ${next.meal.time}`:data.plan.length?'All planned meals recorded':'Set up the feeding routine'}</h2>{next&&<p className="feeding-next-bowl">{next.meal.items.map(item=>`${formatGrams(Number(item.quantity_grams))} ${data.products.find(product=>product.id===item.product_id)?.name||'food'}`).join(' + ')}</p>}<div className="feeding-today-metrics"><div><strong>{recorded}/{data.mealsPerDay}</strong><span>Meals</span></div><div><strong>{formatGrams(today.reduce((sum,e) => sum+Number(e.quantity_grams),0))}</strong><span>Food served</span></div><div><strong>{lowStock.length}</strong><span>Stock warnings</span></div></div><p className="muted">{recent ? `Last: ${recent.meal_name} · ${outcomeLabels[recent.outcome]} by ${names.get(recent.created_by||'')||'family member'} at ${new Date(recent.occurred_at).toLocaleTimeString(undefined,{timeZone:timezone,hour:'2-digit',minute:'2-digit',hour12:false})}` : meals[0] ? `Last feeding: ${new Date(meals[0].occurred_at).toLocaleString(undefined,{timeZone:timezone,hour12:false})}` : 'No feeding recorded yet.'}</p></div><div className="feeding-actions"><Button disabled={!data.products.length || wrongTag} onClick={() => { setEditor({ type: 'meal',mealId:next?.meal.id }); setMessage('') }}>{next?`Feed ${next.meal.name}`:'Record a meal'}</Button><small>Review the saved bowl, then confirm.</small></div></section>
+  <FeedingDailyOverview dogName={dogName} next={next} recent={recent} correctable={correctable} products={data.products} entries={data.entries} names={names} timezone={timezone} wrongTag={wrongTag} onFeed={()=>{setEditor({type:'meal',mealId:next?.meal.id});setMessage('')}} onPurchase={()=>setEditor({type:'purchase'})} onTreat={()=>{setEditor({type:'meal',single:true});setMessage('')}} onCorrect={()=>correctable&&editMeal(correctable)}/>
   {(overdue.length>0||lowStock.length>0)&&<section className="card feeding-alerts" aria-labelledby="feeding-attention"><div className="feeding-alert-heading"><AlertTriangle size={20} aria-hidden="true"/><div><h2 id="feeding-attention">Action required</h2></div></div><ul>{overdue.map(row=><li key={row.meal.id}><strong>{row.meal.name} overdue</strong><span>Scheduled for {row.meal.time}</span><Button className="secondary" onClick={()=>setEditor({type:'meal',mealId:row.meal.id})}>Record</Button></li>)}{lowStock.map(({product,forecast})=><li key={product.id}><strong>{product.name}: {forecast.remaining<=0?'out of stock':'low stock'}</strong><span>{forecast.days===null?formatGrams(forecast.remaining):`${Number(forecast.days.toFixed(1))} days remaining`}</span><Button className="secondary" onClick={()=>setEditor({type:'purchase'})}>Restock</Button></li>)}</ul></section>}
-  {editor && <section className="card feeding-editor" ref={editorRef} tabIndex={-1}>{editor.type === 'product' ? <ProductForm key={editor.product?.id || 'new-product'} householdId={householdId} product={editor.product} onSaved={saved} onCancel={close}/> : data.products.length && !wrongTag ? editor.type==='meal'&&!editor.entry ? <PlannedMealForm key={editor.event?.id||editor.mealId||'new-meal'} householdId={householdId} products={data.products} plan={data.plan} initialMealId={editor.mealId||next?.meal.id} event={editor.event} entries={data.entries} source={quick?'nfc':'app'} onSaved={saved} onCancel={close}/> : <EntryForm key={editor.entry?.id || editor.type} householdId={householdId} products={data.products} entries={data.entries} kind={editor.type} entry={editor.entry} source={quick ? 'nfc' : 'app'} names={names} timezone={timezone} onSaved={saved} onCancel={close}/> : <><Notice>Add your first food product before recording a meal.</Notice><Button onClick={() => setEditor({ type: 'product' })}>Add product</Button><Button className="secondary" onClick={close}>Cancel</Button></>}</section>}
+  {editor && <section className="card feeding-editor" ref={editorRef} tabIndex={-1}>{editor.type === 'product' ? <ProductForm key={editor.product?.id || 'new-product'} householdId={householdId} product={editor.product} onSaved={saved} onCancel={close}/> : data.products.length && !wrongTag ? editor.type==='meal'&&!editor.entry ? <PlannedMealForm key={editor.event?.id||editor.mealId||(editor.single?'single':'new-meal')} householdId={householdId} products={data.products} plan={data.plan} initialMealId={editor.mealId||next?.meal.id} startSingle={editor.single} event={editor.event} entries={data.entries} source={quick?'nfc':'app'} onSaved={saved} onCancel={close}/> : <EntryForm key={editor.entry?.id || editor.type} householdId={householdId} products={data.products} entries={data.entries} kind={editor.type} entry={editor.entry} source={quick ? 'nfc' : 'app'} names={names} timezone={timezone} onSaved={saved} onCancel={close}/> : <><Notice>Add your first food product before recording a meal.</Notice><Button onClick={() => setEditor({ type: 'product' })}>Add product</Button><Button className="secondary" onClick={close}>Cancel</Button></>}</section>}
   <MealChecklist plan={data.plan} events={data.events} products={data.products} timezone={timezone} names={names} userId={session!.user.id} now={now} onFeed={mealId=>{setEditor({type:'meal',mealId});setMessage('')}} onEdit={editMeal} disabled={wrongTag}/>
   <div id="feeding-routine"><FeedDisclosure title="Usual meal routine" summary={data.plan.length?`${data.plan.length} planned meals · ${timezone}`:'Set times, foods and portions'}><FeedingRoutineForm householdId={householdId} products={data.products} plan={data.plan} count={data.mealsPerDay} warningHours={data.warningHours} timezone={timezone} onSaved={saved}/></FeedDisclosure></div>
   <p className="eyebrow feeding-more-label">MORE FEEDING OPTIONS</p>
@@ -85,7 +85,7 @@ function FeedingHousehold({ householdId, dogName, timezone }: { householdId: str
    {!filteredLive.length ? !filteredEvents.length&&<p className="muted">No records match this filter.</p> : <ul className="invitation-list">{filteredLive.slice(0,historyLimit).map(entry => <li key={entry.id}><div><strong>{entry.kind === 'meal' ? 'Fed' : 'Purchased'} · {data.products.find(p => p.id === entry.product_id)?.name}</strong><small>{formatGrams(Number(entry.quantity_grams))}{entry.kind === 'purchase' ? ` · ${entry.packages} × ${formatGrams(Number(entry.package_grams))}` : ''} · {names.get(entry.created_by||'') || 'Former family member'} · {new Date(entry.occurred_at).toLocaleString(undefined, { timeZone: timezone, hour12: false })}{entry.source === 'nfc' ? ' · NFC' : ''}</small></div>{(entry.kind === 'purchase' || entry.created_by === session?.user.id) && <div className="feeding-actions"><Button className="secondary" onClick={() => setEditor({ type: entry.kind, entry })}>Edit</Button><Button className="secondary" onClick={() => setRemove(entry)}>Remove</Button></div>}</li>)}</ul>}{(filteredLive.length>historyLimit||filteredEvents.length>historyLimit) && <Button className="secondary" onClick={() => setHistoryLimit(n => n+20)}>Show more</Button>}
    {remove && <div className="feeding-editor"><Notice>Remove this {remove.kind === 'meal' ? 'feeding' : 'purchase'} record? Stock will be recalculated. Removing a purchase is blocked if it would leave negative stock.</Notice><div className="feeding-actions"><Button disabled={busy} onClick={() => void deleteEntry(remove)}>Confirm removal</Button><Button className="secondary" disabled={busy} onClick={() => setRemove(null)}>Cancel</Button></div></div>}
   </section></FeedDisclosure>
-  <FeedDisclosure title="NFC tag" summary="Configure or replace the household feeding tag"><FeedingTagSetup householdId={householdId}/></FeedDisclosure>
+  <div id="feeding-nfc"><FeedDisclosure title="NFC tag" summary="Configure or replace the household feeding tag"><FeedingTagSetup householdId={householdId}/></FeedDisclosure></div>
  </div>
 }
 
