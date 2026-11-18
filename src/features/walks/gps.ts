@@ -1,3 +1,4 @@
+import { pausedSeconds, validPauses, type WalkPause } from './pauseClock'
 import type { Walk, WalkPoint } from '../../lib/supabase/database.types'
 export type Point = Omit<WalkPoint, 'walk_id'> & { segment_start?: boolean }
 export const GPS_POLICY = { accuracy: 50, maxGap: 60_000, maxSpeed: 5, minInterval: 5000, stationaryRadius: 30, stationaryMs: 600_000, warningMs: 120_000 }
@@ -32,7 +33,7 @@ export function stationaryTick(state:Stationary|null,now:number,enabled:boolean,
  if(state.warnedAt!==null&&now-state.warnedAt>=GPS_POLICY.warningMs)return {state,action:'end'}
  return {state,action:'none'}
 }
-export function duration(walk: Pick<Walk,'started_at'|'ended_at'>,now=Date.now()) { return Math.max(0,((walk.ended_at ? Date.parse(walk.ended_at) : now)-Date.parse(walk.started_at))/1000) }
+export function duration(walk: Pick<Walk,'started_at'|'ended_at'>,now=Date.now(),localPauses?:WalkPause[]) { const start=Date.parse(walk.started_at),end=walk.ended_at?Date.parse(walk.ended_at):now;const saved=(walk as typeof walk&{pause_intervals?:unknown}).pause_intervals;const pauses=localPauses??(validPauses(saved)?saved:[]);return Math.max(0,(end-start)/1000-pausedSeconds(pauses,start,end)) }
 export function timeLabel(seconds: number) { const mins=Math.floor(seconds/60); return `${Math.floor(mins/60)}h ${mins%60}m` }
 export function paceLabel(meters: number, seconds: number) { if(meters<10 || seconds<=0) return '—'; const pace=Math.round(seconds/(meters/1000)); return `${Math.floor(pace/60)}:${String(pace%60).padStart(2,'0')} min/km` }
 export function localDay(iso: string,timezone: string) { return new Intl.DateTimeFormat('en-CA',{timeZone:timezone,year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date(iso)) }

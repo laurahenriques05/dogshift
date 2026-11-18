@@ -29,7 +29,7 @@ be dismissed without ending GPS. Browser offline/online events and actual networ
 errors drive the alert; schema/permission/sequence errors are not misclassified. Pee/Poop use line icons; final-only recording
 hides those controls and excludes those records from the route timeline.
 
-Pause GPS keeps elapsed time running and flushes accepted points. Resume starts a
+Pause GPS now freezes elapsed time, distance and recording, then flushes accepted points. Resume starts a
 new segment so distance and the drawn route do not bridge the pause. Late callbacks
 from an old watcher are ignored. Each accepted point and pause intent is persisted
 on this device immediately. Reopening an active walk recovers queued points and
@@ -93,3 +93,45 @@ satellite tiles displayed Centro Veterinário Berna and Kiwoko with stronger lab
 then hid both when disabled. The centred alert was captured and dismissed without
 ending the preview. Test fixture removed after use. No additional migration or
 hosted data change was performed for these visual/connection refinements.
+
+## Pause clock and finish summary refinement
+
+Pause stops the watcher and freezes the elapsed clock at the pause instant. Resume
+closes that interval when recording restarts; missing movement is never bridged.
+Pending finish intent freezes the clock at its recorded end time even offline.
+Pause intervals and draft notes are stored in the original device buffer. Each
+interval is recovered after reopening; the latest timestamp wins across tabs.
+
+`20261118223000_walk_paused_duration.sql` is an **unapplied proposal** following
+the pause/notes migration. Coordinate ordering and shared contract review with
+Laura before hosted application. It stores pause intervals on the finished walk
+and adds an author/member-checked, idempotent `finish_walk_with_pauses` RPC. Invalid,
+overlapping, out-of-range and conflicting finished intervals are rejected. Saved
+duration, history totals and pace exclude paused time; existing walks without
+intervals keep their previous duration. Shared generated types are not changed.
+The client gates Pause until both segment and timing schema support are present.
+Active pause recovery is on the original device; cross-device transfer of a
+not-yet-finished pause journal is not implemented.
+
+Finish confirmation shows the latest note, including the in-memory/device draft.
+During-mode waste totals are read-only in that confirmation and after completion;
+end-mode controls remain available as intended. A changed draft is saved with
+expected-note conflict protection before finish acknowledgement, so failed notes
+keep completion pending and recoverable rather than silently dropping text.
+Replayed note writes are idempotent. Server-saved notes remain in the final summary.
+
+Completed summaries use the existing author-only top-right delete cross and
+centred delete confirmation. Add/Edit note and Edit timeline and notes sit on one
+row (wrapping on narrow screens). Walk Timeline has no duplicate internal heading.
+Dog waste has no top divider. Recenter sits at the starting map’s bottom-left,
+clear of provider credits. Satellite labels now use smaller white text with a
+soft dark-green halo instead of thick white backing.
+
+The Internet Connection Failure button reads Reconnect and invokes sync. Failed
+reconnection keeps the alert open; no operating-system network change is implied.
+An isolated browser fixture verified that behaviour, aligned note/edit buttons,
+Recenter placement and a typed-but-unsaved note in the finish summary alongside
+2 pee / 1 poop totals and no recording controls. Real map tiles verified the
+softer satellite labels. No real account data was written; the fixture is removed.
+Isolated database tests validate ownership, invalid intervals, finish retries and
+paused duration. No hosted migration or production deployment was performed.

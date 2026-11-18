@@ -27,14 +27,15 @@ export function applyMapPresentation(map:VectorMap,mode:MapViewMode,dogs:boolean
  for(const id of ['walk-dog-tile-dot','walk-dog-tile-label','dog-places-dot','dog-places-label'])if(map.getLayer(id))map.setLayoutProperty(id,'visibility',dogs?'visible':'none')
  // White-backed, larger place labels stay legible against photographic imagery.
  for(const id of ['walk-dog-tile-dot','dog-places-dot'])if(map.getLayer(id)){
-  map.setPaintProperty(id,'circle-radius',mode==='satellite'?8:5)
+  map.setPaintProperty(id,'circle-radius',mode==='satellite'?7:5)
   map.setPaintProperty(id,'circle-stroke-width',mode==='satellite'?3:2)
  }
  for(const id of ['walk-dog-tile-label','dog-places-label'])if(map.getLayer(id)){
-  map.setLayoutProperty(id,'text-size',mode==='satellite'?15:12)
-  map.setPaintProperty(id,'text-color',mode==='satellite'?'#153d2d':'#244d3c')
-  map.setPaintProperty(id,'text-halo-width',mode==='satellite'?4:2)
-  map.setPaintProperty(id,'text-halo-blur',mode==='satellite'?.5:0)
+  map.setLayoutProperty(id,'text-size',mode==='satellite'?13:12)
+  map.setPaintProperty(id,'text-color',mode==='satellite'?'#fffdf7':'#244d3c')
+  map.setPaintProperty(id,'text-halo-color',mode==='satellite'?'#244d3c':'#fffdf7')
+  map.setPaintProperty(id,'text-halo-width',mode==='satellite'?1.8:2)
+  map.setPaintProperty(id,'text-halo-blur',mode==='satellite'?1:0)
   map.moveLayer(id)
  }
  if(mode==='3d'){map.dragRotate.enable();map.touchZoomRotate.enableRotation()}else{map.dragRotate.disable();map.touchZoomRotate.disableRotation()}

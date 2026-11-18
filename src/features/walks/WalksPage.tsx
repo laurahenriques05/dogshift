@@ -1,3 +1,5 @@
+import { WalkFinishSummary } from './WalkFinishSummary'
+import type { NoteDraft } from './noteDraft'
 import { WalkConnectionAlert } from './WalkConnectionAlert'
 import { WalkNotes } from './WalkNotes'
 import { WalkRecordingStatus } from './WalkRecordingStatus'
@@ -11,7 +13,7 @@ import { Button, Notice, PageTitle, isSchemaUnavailable } from '../../components
 import { useAuth } from '../auth/AuthProvider'
 import { useHousehold } from '../household/HouseholdProvider'
 import { useWalks } from './WalkProvider'
-import { duration, paceLabel, routeDistance, timeLabel } from './gps'
+import { paceLabel, routeDistance, timeLabel } from './gps'
 import { RouteMap } from './RouteMap'
 import { clearWalkStart, pendingWalkStart } from './nfc'
 import { walkHistory, summarizeHistory, type HistoryPeriod } from './history'
@@ -25,6 +27,7 @@ import { StartWalkDialog } from './StartWalkDialog'
 export function WalksPage() {
  const {session}=useAuth(),{household,dog}=useHousehold(),data=useWalks(),navigate=useNavigate()
  const [search,setSearch]=useSearchParams(),[confirm,setConfirm]=useState<'start'|'end'|null>(null),[period,setPeriod]=useState<HistoryPeriod>('month')
+ const [noteDraft,setNoteDraft]=useState<{walk:string;draft:NoteDraft}|null>(null)
  const [timelineRevision,setTimelineRevision]=useState(0)
  const [deleting, setDeleting] = useState<string | null>(null)
  const [showStatistics,setShowStatistics]=useState(false)
@@ -56,12 +59,12 @@ export function WalksPage() {
   {data.loading?<p role="status">Loading walks…</p>:!data.ready?<section className="card"><h2>Your walking diary is getting ready</h2><p>Walks and summaries will appear here once the connection is ready. GPS diagnostics and the walking lesson are available below.</p></section>:<>
    <section className="card walk-hero"><div className="walk-hero-header"><div className="walk-heading"><span className="icon-tile"><Footprints size={28} aria-hidden="true"/></span><div><p className="eyebrow">{active?'OUT EXPLORING':'READY WHEN YOU ARE'}</p><h2>{active?(mine?'Your walk is in progress':'Your dog is on a walk'):'A new adventure awaits'}</h2></div></div>{!active&&<Button disabled={data.busy} onClick={()=>setConfirm('start')}>Start walk</Button>}</div>
     {active?<><p>Started {new Date(active.started_at).toLocaleString()}. {!mine&&'The summary becomes available after the walker finishes.'}</p>
-     {mine&&<><div className="walk-metrics"><div><strong>{timeLabel(duration(active,data.now))}</strong><span>Elapsed time</span></div>{data.gpsEnabled&&<><div><strong>{(meters/1000).toFixed(2)} km</strong><span>Recorded distance</span></div><div><strong>{paceLabel(meters,duration(active,data.now))}</strong><span>Average pace</span></div></>}</div>
+     {mine&&<><div className="walk-metrics"><div><strong>{timeLabel(data.elapsedSeconds)}</strong><span>Elapsed time</span></div>{data.gpsEnabled&&<><div><strong>{(meters/1000).toFixed(2)} km</strong><span>Recorded distance</span></div><div><strong>{paceLabel(meters,data.elapsedSeconds)}</strong><span>Average pace</span></div></>}</div>
       <div className={`walk-live-layout${!data.gpsEnabled?' time-only':''}`}>
       {data.gpsEnabled&&<div className="walk-live-map"><RouteMap points={data.points} live/></div>}
       <div className="walk-live-side"><WalkWastePanel key={active.id} walkId={active.id} own={mine} finished={false} onRecorded={()=>setTimelineRevision(value=>value+1)}/>
       <WalkTimeline walk={active} points={data.gpsEnabled?data.points:[]} timezone={household!.timezone} revision={timelineRevision}/>
-      <WalkNotes key={`note-${active.id}`} walkId={active.id} user={session!.user.id} notes={active.notes} onSaved={()=>void data.reload()}/>
+      <WalkNotes key={`note-${active.id}`} walkId={active.id} user={session!.user.id} notes={active.notes} disabled={data.ending} onDraftChange={draft=>setNoteDraft({walk:active.id,draft})} onSaved={()=>void data.reload()}/>
       <div className="walk-actions walk-recording-actions">{data.gpsEnabled&&(data.tracking?<Button className="secondary" disabled={data.busy||data.ending} onClick={()=>void data.pause()}><Pause size={18} aria-hidden="true"/>Pause GPS</Button>:<Button className="secondary" disabled={data.busy||data.ending} onClick={()=>void data.resume()}><Play size={18} aria-hidden="true"/>Resume GPS</Button>)}<Button className="walk-end-button" disabled={data.busy||data.ending} onClick={()=>setConfirm('end')}>End walk</Button></div>
       <WalkRecordingStatus gps={data.gpsEnabled} tracking={data.tracking} paused={data.paused} quality={data.quality} accuracy={data.accuracy} lastFix={data.points.length?Date.parse(data.points.at(-1)!.recorded_at):null} pending={data.pending} ending={data.ending} online={navigator.onLine} saved={data.saved} now={data.now} recovered={data.recovered}/>
       {data.warning&&<Notice>Still walking? Ending in approximately {Math.max(0,Math.ceil((120000-(data.now-data.warning))/1000))} seconds if GPS stays available.<p><Button onClick={data.keepWalking}>Keep walking</Button></p></Notice>}
@@ -74,9 +77,9 @@ export function WalksPage() {
    <section className="card"><div className="walk-heading walk-history-heading"><h2>Last Adventure</h2><Link className="walk-show-more" to="/walks?view=history">Show more</Link></div>{!history.length?<p className="walk-empty">Your first completed walk will appear here.</p>:<div className="walk-activity-list">{history.slice(0,1).map(w=><WalkActivityCard key={w.id} {...w} loadRoute={!w.demo} onDelete={w.own && !w.demo ? () => setDeleting(w.id) : undefined}/>)}</div>}</section>
   </>}
   <section className="card"><h2>A shortcut on the leash</h2><p>Tap the NFC tag on the leash to open PawShare. Your phone records the GPS route while you carry it on the walk. Configure the tag once with this link. It opens the Start Walk confirmation for the signed-in user’s selected family. Opening a link never starts a walk automatically.</p><code className="walk-url">{window.location.origin}/walks?action=start</code><p><Button className="secondary" onClick={async()=>{try{await navigator.clipboard.writeText(`${window.location.origin}/walks?action=start`);setCopied('Link copied.')}catch{setCopied('Copy the link shown above manually.')}}}>Copy NFC link</Button></p>{copied&&<p role="status">{copied}</p>}<Link to="/walks/gps-test">Open GPS diagnostics</Link></section>
-  <WalkConnectionAlert active={!!active&&mine} failed={data.connectionFailed}/>
+  <WalkConnectionAlert active={!!active&&mine} failed={data.connectionFailed} onReconnect={()=>data.reconnect()}/>
   {deleting&&<RestoreWalkDialog action="delete" walkId={deleting} onCancel={()=>setDeleting(null)} onRestored={async()=>{await data.reload();setDeleting(null)}}/>}
   {confirm==='start'&&<StartWalkDialog dogName={dog!.name} busy={data.busy} blocked={active?(mine?'You already have an active walk. Close this window and resume GPS.':'Another family member is already walking your dog. Wait until they finish.'):''} onCancel={()=>setConfirm(null)} onConfirm={(mode,trackGps)=>{setConfirm(null);void data.start(mode,trackGps)}}/>}
-  {confirm==='end'&&<div className="walk-dialog-backdrop"><div ref={dialog} className="card walk-dialog" role="dialog" aria-modal="true" aria-labelledby="walk-confirm-title" onKeyDown={e=>{if(e.key==='Escape')setConfirm(null);if(e.key==='Tab'){const buttons=dialog.current!.querySelectorAll<HTMLButtonElement>('button');if(e.shiftKey&&document.activeElement===buttons[0]){e.preventDefault();buttons[buttons.length-1].focus()}else if(!e.shiftKey&&document.activeElement===buttons[buttons.length-1]){e.preventDefault();buttons[0].focus()}}}}><h2 id="walk-confirm-title">Finish this walk?</h2><>{active&&mine&&<WalkWastePanel key={active.id} walkId={active.id} own finished={false} ending/>}</><div className="walk-actions"><Button className="secondary" onClick={()=>setConfirm(null)}>Cancel</Button><Button disabled={data.busy||!data.ready} onClick={()=>{setConfirm(null);if(active){setFinishingWalk(active.id);void data.finish()}}}>Confirm end</Button></div></div></div>}
+  {confirm==='end'&&<div className="walk-dialog-backdrop"><div ref={dialog} className="card walk-dialog" role="dialog" aria-modal="true" aria-labelledby="walk-confirm-title" onKeyDown={e=>{if(e.key==='Escape')setConfirm(null);if(e.key==='Tab'){const buttons=dialog.current!.querySelectorAll<HTMLButtonElement>('button');if(e.shiftKey&&document.activeElement===buttons[0]){e.preventDefault();buttons[buttons.length-1].focus()}else if(!e.shiftKey&&document.activeElement===buttons[buttons.length-1]){e.preventDefault();buttons[0].focus()}}}}><h2 id="walk-confirm-title">Finish this walk?</h2><>{active&&mine&&<WalkFinishSummary walk={active} user={session!.user.id} draft={noteDraft?.walk===active.id?noteDraft.draft:undefined}/>}</><div className="walk-actions"><Button className="secondary" onClick={()=>setConfirm(null)}>Cancel</Button><Button disabled={data.busy||!data.ready} onClick={()=>{setConfirm(null);if(active){setFinishingWalk(active.id);void data.finish(noteDraft?.walk===active.id?noteDraft.draft:undefined)}}}>Confirm end</Button></div></div></div>}
  </div>
 }

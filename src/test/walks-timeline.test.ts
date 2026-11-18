@@ -12,6 +12,8 @@ describe('honest walk timeline and final-only waste',()=>{
   expect(canRecordWaste('end',false,true,true,false)).toBe(true)
   expect(canRecordWaste('end',true,false,true,false)).toBe(true)
   expect(canRecordWaste('during',false,false,true,false)).toBe(true)
+  expect(canRecordWaste('during',false,true,true,false)).toBe(false)
+  expect(canRecordWaste('during',true,false,true,false)).toBe(false)
   expect(canRecordWaste('during',false,false,false,false)).toBe(false)
   expect(canRecordWaste('during',false,false,true,true)).toBe(false)
   expect(canRecordWaste('off',true,true,true,false)).toBe(false)
