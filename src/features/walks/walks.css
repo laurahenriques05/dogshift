@@ -67,7 +67,7 @@
 @media(prefers-reduced-motion:reduce){.walk-filter-switch-track,.walk-filter-switch-track::after{transition:none}}
 .walk-hero .walk-heading>.icon-tile{width:60px;height:60px;border-radius:17px;display:grid;place-items:center;transform:translateY(5px)}
 .walk-hero .walk-heading>.icon-tile>svg{width:28px;height:28px}
-.walk-hero .walk-heading{gap:14px;align-items:center}
+.walk-hero .walk-heading{display:grid;grid-template-columns:60px minmax(0,1fr);gap:14px;align-items:center}
 .walk-hero .walk-heading>div{display:flex;flex-direction:column;justify-content:center;gap:4px;min-width:0}
 .walk-hero .walk-heading .eyebrow,.walk-hero .walk-heading h2{margin:0}
 .walk-hero .walk-heading .eyebrow{line-height:1.45}
