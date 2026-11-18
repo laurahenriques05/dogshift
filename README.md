@@ -21,7 +21,7 @@ Feature owners implement their own UI, rules, migrations and tests. Coordinate s
 
 - Email/password registration, sign-in, sign-out, confirmation return and password recovery through Supabase Auth. Email delivery depends on the project's Auth/SMTP configuration.
 - Private household creation and one-dog onboarding, without needing invitations; dog profile editing and private photo upload displayed beside the dog's name on Home.
-- Family roster, owner-only discreet family rename, email-bound invitation codes created by household members, invitation acceptance, and household departure. An owner must select another existing member before leaving; a sole owner cannot currently leave. After leaving, onboarding offers creating a household or joining an existing family.
+- Family roster, owner-only discreet family rename, email-bound invitation codes created by household members, invitation acceptance, and household departure. An owner with other members must select the next owner before leaving. A sole owner can leave without a transfer: the family becomes inactive, preserving its dog, records and private files, and is recoverable by that same account. After leaving, onboarding offers creating a household or joining an existing family.
 - Feeding and stock: multiple dry/wet/treat products, opening stock, package purchases, stock forecasts and in-app restocking notices.
 - Saved daily meal routines with explicit Edit/Save/Cancel, meal times, mixed foods/quantities and notes; today's meal checklist and quick recording; Given, Partially eaten, Refused and Skipped outcomes.
 - Stock decreases by food served, including discarded portions, rather than food eaten. Own feeding corrections/removal, shared purchase/product editing, atomic writes, retry protection and audit history.
@@ -78,7 +78,7 @@ Enable email/password sign-in. If email confirmation is enabled, configure depen
 
 In **More → Family**, enter the recipient's email, create an invitation code, and share it privately. Codes expire after seven days; replacing one for the same email invalidates the previous code. PawShare does not automatically email invitation codes. The recipient signs in with the invited email and uses **Join an existing family** on household onboarding to enter and accept the code. Email verification requirements still apply. Legacy `/invite/:token` routes remain supported.
 
-Join-another-family controls belong on onboarding after leaving the current family, not on the active family page. Owners transfer ownership to an existing member when leaving. Sole-owner departure/deletion and full account deletion remain unfinished; do not delete auth users directly to bypass ownership/history constraints.
+Join-another-family controls belong on onboarding after leaving the current family, not on the active family page. Owners transfer ownership to an existing member when other members remain. Sole-owner departure uses the preserving inactive-family flow; restore it from onboarding or Account settings. Explicit permanent deletion remains a separate action; do not delete auth users directly to bypass ownership/history constraints.
 
 ## Feeding and NFC
 
@@ -340,7 +340,7 @@ limited to the author while deleted. No hosted application is claimed.
 
 Past appointments supports accent-insensitive search of title, location and notes, type filters and inclusive household-local date ranges; results remain newest first. Existing appointments are Uncategorised until edited. Vaccination visit is an appointment category; vaccination administration records remain in Vaccinations.
 
-Each past appointment has a Visit summary dialog: reason, veterinarian observations, prescribed treatment, next-visit date and links to existing household medication schedules and private health documents. This records the veterinarian's instructions and does not recommend treatment. A next-visit date in the summary is informational: add a normal appointment to schedule calendar/reminders. No duplicate notification system is created.
+Each past appointment has a Visit summary dialog: reason, veterinarian observations, prescribed treatment, next-visit date and links to private health documents. The Related medication selector has been removed; existing saved medication links are retained without displaying that section. This records the veterinarian's instructions and does not recommend treatment. A next-visit date in the summary is informational: add a normal appointment to schedule calendar/reminders. No duplicate notification system is created.
 
 Requires reviewed migration `20261118120000_appointment_summaries.sql` after existing Health appointments/medication/private documents migrations. It has **not** been applied to shared Supabase by this implementation. Coordinate with Laura/Maria before rollout. Existing appointment RLS/audit is preserved; summaries are shared-editable care records, limited to current members; linked medication/documents must belong to the same household. Deleting an appointment removes its summary. Private documents are downloaded using current membership, without public URLs. Deleted linked records are shown as unavailable and can be unlinked.
 
@@ -366,6 +366,17 @@ timeline; final-only dog-waste records stay in the summary, outside that timelin
 See [data, privacy and validation limits](docs/walks-nearby-timeline.md). No new
 database migration is needed. Teammate review is required before release.
 
+### Documents within a visit
+
+The Health hub keeps Documents as the full household archive. Existing treatment history remains available from Past appointments → Treatment history. Related documents in Visit summary shows only that appointment’s linked files, grouped by archive folder. The destination selector includes existing folders and New folder; newly created folders appear in Documents immediately. Uploads persist in private Storage immediately; Save summary persists the visit links (up to 20). Closing without saving does not link the uploaded file to that visit.
+
+### Folder actions and permanent deletion
+
+Documents uses compact three-dot actions and confirmation dialogs. Delete now removes the folder and its documents permanently after explicit confirmation. The server checks membership and existing document-delete permissions before preparing deletion; the browser deletes objects through the private Storage API and finalizes only once the folder is empty. Interrupted operations show an error and can be retried. Only the owner can delete a folder containing another member’s uploads. Existing archived folders remain accessible through Deleted folders. Visit links to removed documents use the unavailable-document state.
+
+Requires folder-management migration `20261118203000_health_folder_management.sql` and subsequent migrations `20261118211000_health_folder_permanent_deletion.sql` and `20261118212500_health_folder_delete_contents.sql`, after the default-folder prerequisite. Beni reported successful manual application on 18 November; this has not been independently audited. Do not rerun applied migrations on the shared project. See [Health integration notes](docs/health-calendar-links.md) for details and validation limits.
+
+
 ### Walk map controls, pause and notes (18 November 2026)
 
 Walks retains its green/cream design with free map panning, a slower location
@@ -385,3 +396,9 @@ Pause now freezes the walk clock as well as GPS. The proposed
 correct saved duration/pace and requires teammate/Laura review before hosted use.
 Finish confirmation includes the latest note and read-only during-walk waste
 totals. See [pause clock and finish summary](docs/walks-map-controls.md).
+
+### Last-member departure without data loss
+
+Requires `20261118224500_preserve_sole_member_household.sql` (not applied to hosted Supabase by this change), after the existing deletion/membership migrations. The authenticated sole owner may leave without naming a successor. No dog, care record or Storage object is deleted; membership is removed, outstanding/accepted invitations are revoked, and a private recovery record ties the inactive family to the departing account. Only that account can list/restore it, including while belonging to another family. A guarded membership insert blocks joining an inactive family through a previously checked invite. Multi-member departures still use the existing transfer RPC. The Family page waits for a verified member list before enabling departure.
+
+Validated with disposable PGlite data: preserved dog/treatment/file rows, private recovery visibility, owner restoration, creation of another family, invalid invites, anonymous/outsider rejection and multi-member transfer. Existing invitation and explicit deletion tests passed; production schema and browser recovery are unverified. No hosted family or file was changed.
