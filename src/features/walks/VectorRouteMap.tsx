@@ -1,5 +1,5 @@
 import { addCompactMapCredits } from './compactMapCredits'
-import { applyMapPresentation, MAP_APPROACH_MS, motionDuration, type MapViewMode } from './mapPresentation'
+import { applyMapPresentation, type MapViewMode } from './mapPresentation'
 import { addDogPlaceTileLayers } from './dogPlaceLayers'
 import type { DogPlace } from './dogPlaces'
 import { useEffect, useRef, useState } from 'react'
@@ -80,10 +80,10 @@ export default function VectorRouteMap({ points, compact = false, places = [], l
     for (const [lat, lng] of coordinates) { south = Math.min(south, lat); north = Math.max(north, lat); west = Math.min(west, lng); east = Math.max(east, lng) }
     bounds = new M.LngLatBounds([west, south], [east, north])
     const [start, end] = [coordinates[0], coordinates.at(-1)!]
-    if(live&&following)map.easeTo({center:[end[1],end[0]],duration:matchMedia('(prefers-reduced-motion: reduce)').matches?0:300})
+    if(live&&following)map.jumpTo({center:[end[1],end[0]]})
     void (map.getSource('walk-ends') as GeoJSONSource | undefined)?.setData({ type: 'FeatureCollection', features: [start, end].map(([lat, lng], i) => ({ type: 'Feature', properties: { kind: i ? 'finish' : 'start' }, geometry: { type: 'Point', coordinates: [lng, lat] } })) }).catch(() => {})
    }
-   fit.current = () => {following=true;const current=latest.current.at(-1);if(live&&current)map.flyTo({center:[current.longitude,current.latitude],zoom:17,pitch:presentation.current.mode==='3d'?55:0,duration:motionDuration(MAP_APPROACH_MS),essential:false});else map.fitBounds(bounds, { padding: 35, maxZoom: 17, duration: 0,pitch:presentation.current.mode==='3d'?55:0 })}
+   fit.current = () => {following=true;const current=latest.current.at(-1);if(live&&current)map.jumpTo({center:[current.longitude,current.latitude],zoom:15.5,pitch:presentation.current.mode==='3d'?55:0});else map.fitBounds(bounds, { padding: 35, maxZoom: 15.5, duration: 0,pitch:presentation.current.mode==='3d'?55:0 })}
    const onWheel = createPinchZoomHandler((delta, event) => {
     following=false
     const box = element.getBoundingClientRect()

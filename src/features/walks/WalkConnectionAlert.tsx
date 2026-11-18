@@ -1,0 +1,14 @@
+import { useEffect, useRef, useState } from 'react'
+import { WifiOff } from 'lucide-react'
+
+export function WalkConnectionAlert({active,failed=false}:{active:boolean;failed?:boolean}){
+ const [online,setOnline]=useState(()=>navigator.onLine),[dismissed,setDismissed]=useState(false)
+ const button=useRef<HTMLButtonElement>(null),dialog=useRef<HTMLElement>(null)
+ const disconnected=active&&(!online||failed)
+ useEffect(()=>{const update=()=>setOnline(navigator.onLine);window.addEventListener('online',update);window.addEventListener('offline',update);return()=>{window.removeEventListener('online',update);window.removeEventListener('offline',update)}},[])
+ useEffect(()=>{if(!disconnected)setDismissed(false)},[disconnected])
+ const open=disconnected&&!dismissed
+ useEffect(()=>{if(!open)return;const previous=document.activeElement as HTMLElement|null;dialog.current?.focus();return()=>previous?.focus()},[open])
+ if(!open)return null
+ return <div className="walk-dialog-backdrop walk-connection-backdrop"><section ref={dialog} tabIndex={-1} className="walk-connection-dialog" role="alertdialog" aria-modal="true" aria-labelledby="walk-connection-title" onKeyDown={event=>{if(event.key==='Escape')setDismissed(true);if(event.key==='Tab'){event.preventDefault();button.current?.focus()}}}><span className="walk-connection-symbol"><WifiOff size={36} strokeWidth={1.7} aria-hidden="true"/></span><h2 id="walk-connection-title">Internet Connection Failure</h2><button type="button" className="button" ref={button} onClick={()=>setDismissed(true)}>Continue walk</button></section></div>
+}

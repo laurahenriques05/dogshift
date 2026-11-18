@@ -25,6 +25,18 @@ export function applyMapPresentation(map:VectorMap,mode:MapViewMode,dogs:boolean
  if(mode==='3d'&&!map.getLayer('walk-buildings-3d')&&map.getSource('openmaptiles'))map.addLayer({id:'walk-buildings-3d',type:'fill-extrusion',source:'openmaptiles','source-layer':'building',minzoom:14,paint:{'fill-extrusion-color':'#b6c0b0','fill-extrusion-height':['coalesce',['get','render_height'],['get','height'],0],'fill-extrusion-base':['coalesce',['get','render_min_height'],0],'fill-extrusion-opacity':.75}},map.getLayer('walk-route-halo')?'walk-route-halo':undefined)
  if(map.getLayer('walk-buildings-3d'))map.setLayoutProperty('walk-buildings-3d','visibility',mode==='3d'?'visible':'none')
  for(const id of ['walk-dog-tile-dot','walk-dog-tile-label','dog-places-dot','dog-places-label'])if(map.getLayer(id))map.setLayoutProperty(id,'visibility',dogs?'visible':'none')
+ // White-backed, larger place labels stay legible against photographic imagery.
+ for(const id of ['walk-dog-tile-dot','dog-places-dot'])if(map.getLayer(id)){
+  map.setPaintProperty(id,'circle-radius',mode==='satellite'?8:5)
+  map.setPaintProperty(id,'circle-stroke-width',mode==='satellite'?3:2)
+ }
+ for(const id of ['walk-dog-tile-label','dog-places-label'])if(map.getLayer(id)){
+  map.setLayoutProperty(id,'text-size',mode==='satellite'?15:12)
+  map.setPaintProperty(id,'text-color',mode==='satellite'?'#153d2d':'#244d3c')
+  map.setPaintProperty(id,'text-halo-width',mode==='satellite'?4:2)
+  map.setPaintProperty(id,'text-halo-blur',mode==='satellite'?.5:0)
+  map.moveLayer(id)
+ }
  if(mode==='3d'){map.dragRotate.enable();map.touchZoomRotate.enableRotation()}else{map.dragRotate.disable();map.touchZoomRotate.disableRotation()}
  if(changeCamera)map.easeTo({pitch:mode==='3d'?55:0,bearing:mode==='3d'?map.getBearing():0,duration:motionDuration(650)})
 }

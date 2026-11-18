@@ -1,3 +1,4 @@
+import { isNetworkFailure } from './networkFailure'
 import { recordingBreaksAvailable } from './recordingCapabilities'
 import type { GpsQuality } from './recordingStatus'
 import { startWalkWithWaste, walkUsesGps, type WasteMode } from './waste'
@@ -13,7 +14,7 @@ import { acceptable, stationaryFix, stationaryTick, type Point, type Stationary 
 
 import { mergeBuffer, parseBuffer, type WalkBuffer as Buffer } from './buffer'
 type Value = {
- walks: Walk[]; ready: boolean; loading: boolean; error: string; busy: boolean; tracking: boolean; gpsEnabled: boolean; points: Point[]; pending: number; ending: boolean; now: number; warning: number | null; autoEnd: boolean; gpsMessage: string; paused:boolean; quality:GpsQuality; accuracy:number|null; saved:boolean; recovered:boolean;
+ walks: Walk[]; ready: boolean; loading: boolean; error: string; busy: boolean; tracking: boolean; gpsEnabled: boolean; points: Point[]; pending: number; ending: boolean; now: number; warning: number | null; autoEnd: boolean; gpsMessage: string; paused:boolean; quality:GpsQuality; accuracy:number|null; saved:boolean; recovered:boolean; connectionFailed:boolean;
  pause:()=>Promise<void>; reload: () => Promise<void>; start: (mode?: WasteMode, trackGps?: boolean) => Promise<void>; resume: () => Promise<void>; finish: () => Promise<void>; sync: () => Promise<void>; keepWalking: () => void; setAutoEnd: (value:boolean)=>void;
 }
 const Context=createContext<Value>(null!)
@@ -26,6 +27,7 @@ function Tracker({user,household,dog,children}:{user:string;household:string;dog
  const key=`pawshare.walk-buffer.v1.${user}.${household}`
  const [ready,setReady]=useState(false)
  const [walks,setWalks]=useState<Walk[]>([]),[loading,setLoading]=useState(true),[error,setError]=useState(''),[busy,setBusy]=useState(false)
+ const [connectionFailed,setConnectionFailed]=useState(false)
  const gpsChoice=useRef(true)
  const [gpsEnabled,setGpsEnabled]=useState(true)
  const [paused,setPaused]=useState(false),[quality,setQuality]=useState<GpsQuality>('waiting'),[accuracy,setAccuracy]=useState<number|null>(null),[saved,setSaved]=useState(false),[recovery,setRecovery]=useState(false)
@@ -83,8 +85,8 @@ function Tracker({user,household,dog,children}:{user:string;household:string;dog
      loadVersion.current++;upsert(result.data);active.current=null;buffer.current=null;setPending(0);setEnding(false)
      try {localStorage.removeItem(key)} catch { /* Server has the completed walk. */ }
     }
-    if(alive.current&&attempted)setError('')
-   } catch(e) {if(alive.current) setError(`Could not save walk: ${errorMessage(e)}. Your unsaved points remain on this device. Reconnect and retry; use the original recording device if there is a sequence conflict.`)}
+    if(alive.current&&attempted){setError('');setConnectionFailed(false)}
+   } catch(e) {if(alive.current){if(isNetworkFailure(e))setConnectionFailed(true);setError(`Could not save walk: ${errorMessage(e)}. Your unsaved points remain on this device. Reconnect and retry; use the original recording device if there is a sequence conflict.`)}}
   }
   // A passive tab must never flush or overwrite the recording tab's device buffer.
   const job=buffer.current&&navigator.locks&&!lockRelease.current
@@ -139,11 +141,12 @@ function Tracker({user,household,dog,children}:{user:string;household:string;dog
  useEffect(()=>{
   const timer=setInterval(()=>{setNow(Date.now());if(booted.current)void sync()},5000)
   const poll=setInterval(()=>{if(!document.hidden&&booted.current)void reload()},30000)
-  const online=()=>{void sync()}
+  const online=()=>{setConnectionFailed(false);void sync()}
+  const offline=()=>setConnectionFailed(true)
   const visibility=()=>{stationary.current=null;setWarning(null);if(!gpsChoice.current){setGpsMessage('Time-only walk. GPS is not used.');return}if(document.hidden)setGpsMessage('App hidden. GPS may pause; automatic ending is suspended.');else if(watch.current!==null)setGpsMessage('App visible. Waiting for fresh GPS; any interruption remains a gap.')}
   const unload=(event:BeforeUnloadEvent)=>{if(active.current){event.preventDefault();event.returnValue=''}}
-  window.addEventListener('online',online);document.addEventListener('visibilitychange',visibility);window.addEventListener('beforeunload',unload)
-  return()=>{clearInterval(timer);clearInterval(poll);window.removeEventListener('online',online);document.removeEventListener('visibilitychange',visibility);window.removeEventListener('beforeunload',unload)}
+  window.addEventListener('online',online);window.addEventListener('offline',offline);document.addEventListener('visibilitychange',visibility);window.addEventListener('beforeunload',unload)
+  return()=>{clearInterval(timer);clearInterval(poll);window.removeEventListener('online',online);window.removeEventListener('offline',offline);document.removeEventListener('visibilitychange',visibility);window.removeEventListener('beforeunload',unload)}
  },[reload,sync])
  const end=useCallback(async(reason:'manual'|'stationary'='manual')=>{
   if(!buffer.current || !active.current || operation.current)return
@@ -235,5 +238,5 @@ function Tracker({user,household,dog,children}:{user:string;household:string;dog
  }
  function keepWalking(){stationary.current=null;setWarning(null)}
  function setAutoEnd(value:boolean){auto.current=value;setAutoEndState(value);keepWalking()}
- return <Context.Provider value={{walks,ready,loading,error:loadError||storageError||error,busy,tracking,gpsEnabled,points,pending,ending,now,warning,autoEnd,gpsMessage,paused,quality,accuracy,saved,recovered:recovery,pause,reload,start,resume,finish:()=>end(),sync,keepWalking,setAutoEnd}}>{children}</Context.Provider>
+ return <Context.Provider value={{walks,ready,loading,error:loadError||storageError||error,busy,tracking,gpsEnabled,points,pending,ending,now,warning,autoEnd,gpsMessage,connectionFailed,paused,quality,accuracy,saved,recovered:recovery,pause,reload,start,resume,finish:()=>end(),sync,keepWalking,setAutoEnd}}>{children}</Context.Provider>
 }

@@ -70,9 +70,9 @@ export default function GoogleRouteMap({ points, compact = false, places = [], l
    let bounds = new core.LatLngBounds()
    const fitRoute = () => {
     following=true
-    const position=latest.current.at(-1);if(live&&position){map.panTo({lat:position.latitude,lng:position.longitude});map.setZoom(17);return}
+    const position=latest.current.at(-1);if(live&&position){map.setCenter({lat:position.latitude,lng:position.longitude});map.setZoom(15.5);return}
     map.fitBounds(bounds, 36)
-    core!.event.addListenerOnce(map, 'idle', () => { if ((map.getZoom() || 0) > 17) map.setZoom(17) })
+    core!.event.addListenerOnce(map, 'idle', () => { if ((map.getZoom() || 0) > 15.5) map.setZoom(15.5) })
    }
    fit.current = fitRoute
    const endpointStyle: google.maps.Data.StylingFunction = feature => ({
@@ -95,7 +95,7 @@ export default function GoogleRouteMap({ points, compact = false, places = [], l
      new core!.LatLng(north, east, true),
     )
     const [start, end] = [coords[0], coords.at(-1)!]
-    if(live&&following)map.panTo({lat:end[0],lng:end[1]})
+    if(live&&following)map.setCenter({lat:end[0],lng:end[1]})
     map.data.addGeoJson({ type: 'FeatureCollection', features: [start, end].map(([lat, lng], index) => ({
      type: 'Feature', properties: { kind: index ? 'finish' : 'start' }, geometry: { type: 'Point', coordinates: [lng, lat] },
     })) })
