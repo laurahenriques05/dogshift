@@ -45,7 +45,7 @@ export function FeedingDailyOverview({dogName,next,recent,correctable,products,e
     <path className="feeding-nfc-outline" d="M75 105h177c-4 58-36 91-88 91s-84-33-89-91zM94 196h139"/>
     <text className="feeding-nfc-dog-name" x="106" y="144">{dogName.slice(0,8).toUpperCase()}</text>
     <circle className="feeding-nfc-sticker" cx="231" cy="157" r="35"/>
-    <path className="feeding-nfc-mark" d="M218 165c10-8 10-25 0-33M228 171c18-14 18-45 0-59M238 177c26-20 26-65 0-85"/>
+    <path className="feeding-nfc-mark" d="M218 165c9-7 9-20 0-27M226 172c15-11 15-30 0-40M234 178c18-13 18-37 0-50"/>
     <rect className="feeding-nfc-outline" x="316" y="61" width="58" height="111" rx="12"/>
     <circle className="feeding-nfc-phone-dot" cx="345" cy="155" r="3"/>
     <path className="feeding-nfc-phone-signal" d="M283 111c9 9 9 24 0 33M292 102c15 15 15 36 0 51"/>
