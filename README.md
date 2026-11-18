@@ -21,7 +21,7 @@ Feature owners implement their own UI, rules, migrations and tests. Coordinate s
 
 - Email/password registration, sign-in, sign-out, confirmation return and password recovery through Supabase Auth. Email delivery depends on the project's Auth/SMTP configuration.
 - Private household creation and one-dog onboarding, without needing invitations; dog profile editing and private photo upload displayed beside the dog's name on Home.
-- Family roster, owner-only discreet family rename, email-bound invitation codes created by household members, invitation acceptance, and household departure. An owner must select another existing member before leaving; a sole owner cannot currently leave. After leaving, onboarding offers creating a household or joining an existing family.
+- Family roster, owner-only discreet family rename, email-bound invitation codes created by household members, invitation acceptance, and household departure. An owner with other members must select the next owner before leaving. A sole owner can leave without a transfer: the family becomes inactive, preserving its dog, records and private files, and is recoverable by that same account. After leaving, onboarding offers creating a household or joining an existing family.
 - Feeding and stock: multiple dry/wet/treat products, opening stock, package purchases, stock forecasts and in-app restocking notices.
 - Saved daily meal routines with explicit Edit/Save/Cancel, meal times, mixed foods/quantities and notes; today's meal checklist and quick recording; Given, Partially eaten, Refused and Skipped outcomes.
 - Stock decreases by food served, including discarded portions, rather than food eaten. Own feeding corrections/removal, shared purchase/product editing, atomic writes, retry protection and audit history.
@@ -78,7 +78,7 @@ Enable email/password sign-in. If email confirmation is enabled, configure depen
 
 In **More → Family**, enter the recipient's email, create an invitation code, and share it privately. Codes expire after seven days; replacing one for the same email invalidates the previous code. PawShare does not automatically email invitation codes. The recipient signs in with the invited email and uses **Join an existing family** on household onboarding to enter and accept the code. Email verification requirements still apply. Legacy `/invite/:token` routes remain supported.
 
-Join-another-family controls belong on onboarding after leaving the current family, not on the active family page. Owners transfer ownership to an existing member when leaving. Sole-owner departure/deletion and full account deletion remain unfinished; do not delete auth users directly to bypass ownership/history constraints.
+Join-another-family controls belong on onboarding after leaving the current family, not on the active family page. Owners transfer ownership to an existing member when other members remain. Sole-owner departure uses the preserving inactive-family flow; restore it from onboarding or Account settings. Explicit permanent deletion remains a separate action; do not delete auth users directly to bypass ownership/history constraints.
 
 ## Feeding and NFC
 
@@ -391,3 +391,9 @@ setup/recording and use a wider initial frame. Connection loss displays a centre
 alert while the existing durable queue waits to sync. See the latest verification
 notes in [walk map controls](docs/walks-map-controls.md).
 
+
+### Last-member departure without data loss
+
+Requires `20261118224500_preserve_sole_member_household.sql` (not applied to hosted Supabase by this change), after the existing deletion/membership migrations. The authenticated sole owner may leave without naming a successor. No dog, care record or Storage object is deleted; membership is removed, outstanding/accepted invitations are revoked, and a private recovery record ties the inactive family to the departing account. Only that account can list/restore it, including while belonging to another family. A guarded membership insert blocks joining an inactive family through a previously checked invite. Multi-member departures still use the existing transfer RPC. The Family page waits for a verified member list before enabling departure.
+
+Validated with disposable PGlite data: preserved dog/treatment/file rows, private recovery visibility, owner restoration, creation of another family, invalid invites, anonymous/outsider rejection and multi-member transfer. Existing invitation and explicit deletion tests passed; production schema and browser recovery are unverified. No hosted family or file was changed.

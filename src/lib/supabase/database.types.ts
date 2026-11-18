@@ -62,6 +62,9 @@ export type Database = { public: { Tables: {
  invitations: Table<Invitation & { token_hash: string }, never>;
  dogs: Table<Dog, Omit<Dog,'id'|'created_at'>>;
 }; Views: { [_ in never]: never }; Functions: {
+ leave_sole_household: {Args:{p_household:string};Returns:undefined};
+ get_inactive_households: {Args:Record<string,never>;Returns:{id:string;name:string;left_at:string}[]};
+ restore_inactive_household: {Args:{p_household:string};Returns:undefined};
  prepare_health_folder_deletion: {Args:{p_household:string;p_folder:string|null};Returns:{folder_id:string;document_paths:string[]}[]};
  permanently_delete_health_folder: {Args:{p_household:string;p_folder:string};Returns:string};
  manage_health_document_folder: {Args:{p_household:string;p_folder:string|null;p_action:string;p_name:string|null};Returns:string};
