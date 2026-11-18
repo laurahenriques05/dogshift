@@ -73,6 +73,10 @@ task and Academy actions keep their existing RPCs.
 
 ## Validation and limits
 
+- Final integrated suite: 236 tests passed in 52 files with one worker.
+- TypeScript and production build passed; existing dependency annotation and
+  bundle-size warnings remain. `git diff --check` passed.
+
 - Isolated SQL tests cover assignment permissions, stale edits, completion
   protection, occurrence-only changes and pending-recipient consistency.
 - Presentation/model tests cover household-local Today grouping, no invented
