@@ -91,6 +91,7 @@ export type Database = { public: { Tables: {
  get_household_members: { Args: { p_household: string }; Returns: FamilyMember[] };
  save_household_task: { Args:{p_household:string;p_id:string|null;p_title:string;p_details:string;p_assigned_to:string|null;p_first_due_at:string;p_recurrence:string;p_recurrence_every:number;p_ends_on:string|null}; Returns:string };
  generate_task_occurrences: { Args:{p_household:string;p_from:string;p_until:string}; Returns:number };
+ assign_household_task_occurrence: {Args:{p_occurrence:string;p_assigned_to:string|null;p_expected_assignee:string|null};Returns:undefined};
  complete_household_task: { Args:{p_occurrence:string;p_completed:boolean}; Returns:undefined };
  archive_household_task: { Args:{p_household:string;p_task:string}; Returns:undefined };
  save_academy_practice: { Args:{p_household:string;p_id:string|null;p_dog:string;p_module:string;p_checklist:Record<string,boolean>;p_performance:string;p_completed:boolean;p_delete?:boolean}; Returns:string };
