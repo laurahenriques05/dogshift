@@ -7,7 +7,7 @@ export function Modal({title,description,children,onClose,busy=false}:{title:str
  useEffect(()=>{
   const previous=document.activeElement
   const dialog=ref.current
-  if(dialog&&!dialog.open)dialog.showModal()
+  if(dialog&&!dialog.open){dialog.showModal();dialog.querySelector<HTMLInputElement|HTMLSelectElement|HTMLTextAreaElement>('input,select,textarea')?.focus()}
   return()=>{dialog?.close();if(previous instanceof HTMLElement&&previous.isConnected)previous.focus()}
  },[])
  return <dialog ref={ref} className="care-modal" aria-labelledby={`${id}-title`} aria-describedby={description?`${id}-description`:undefined} onCancel={event=>{event.preventDefault();if(!busy)onClose()}}>

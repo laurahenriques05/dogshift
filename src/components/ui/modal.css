@@ -6,3 +6,4 @@
 .care-modal-close{display:grid;place-items:center;border:0;background:#f0f3eb;border-radius:50%;color:#3c5744;min-width:40px;min-height:40px}
 .care-modal-close:disabled{opacity:.5}
 @media(max-width:600px){.care-modal{padding:20px;max-height:calc(100dvh - 24px)}.care-modal-heading h2{font-size:21px}}
+.care-modal{position:fixed;inset:0;margin:auto}
