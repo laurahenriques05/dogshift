@@ -1,10 +1,13 @@
+import { WalkConnectionAlert } from './WalkConnectionAlert'
+import { WalkNotes } from './WalkNotes'
+import { WalkRecordingStatus } from './WalkRecordingStatus'
 import { WalkTimeline } from './WalkTimeline'
 import { RestoreWalkDialog } from './RestoreWalkDialog'
 import { WalkWastePanel } from './WalkWastePanel'
 import { useEffect, useRef, useState } from 'react'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
-import { Footprints } from 'lucide-react'
-import { Button, Notice, PageTitle } from '../../components/ui'
+import { Footprints, Pause, Play } from 'lucide-react'
+import { Button, Notice, PageTitle, isSchemaUnavailable } from '../../components/ui'
 import { useAuth } from '../auth/AuthProvider'
 import { useHousehold } from '../household/HouseholdProvider'
 import { useWalks } from './WalkProvider'
@@ -49,22 +52,20 @@ export function WalksPage() {
  },[confirm])
  if(historyView)return <WalkHistoryPage deletedHistory={walkHistory(data.walks,false,session!.user.id,true)} history={history} timezone={household!.timezone} loading={data.loading} ready={data.ready} error={data.error} onRetry={()=>data.reload()}/>
  return <div className="walk-page"><PageTitle eyebrow="A LITTLE FRESH AIR" title={`Out with ${dog!.name}.`}/>
-  {data.error&&<Notice error>{data.error}<p><Button className="secondary" onClick={()=>{void data.reload();void data.sync()}}>Retry connection</Button></p></Notice>}
+  {data.error&&<Notice error>{isSchemaUnavailable(data.error)?'Walks is not ready yet. Please retry shortly.':data.error}<p><Button className="secondary" onClick={()=>{void data.reload();void data.sync()}}>Retry connection</Button></p></Notice>}
   {data.loading?<p role="status">Loading walks…</p>:!data.ready?<section className="card"><h2>Your walking diary is getting ready</h2><p>Walks and summaries will appear here once the connection is ready. GPS diagnostics and the walking lesson are available below.</p></section>:<>
    <section className="card walk-hero"><div className="walk-hero-header"><div className="walk-heading"><span className="icon-tile"><Footprints size={28} aria-hidden="true"/></span><div><p className="eyebrow">{active?'OUT EXPLORING':'READY WHEN YOU ARE'}</p><h2>{active?(mine?'Your walk is in progress':'Your dog is on a walk'):'A new adventure awaits'}</h2></div></div>{!active&&<Button disabled={data.busy} onClick={()=>setConfirm('start')}>Start walk</Button>}</div>
-    {active?<><p>Started {new Date(active.started_at).toLocaleString()}. {mine?(data.gpsEnabled?'Your route stays private until you end the walk.':'Time-only walk. No GPS route is recorded.'):'The summary becomes available after the walker finishes.'}</p>
+    {active?<><p>Started {new Date(active.started_at).toLocaleString()}. {!mine&&'The summary becomes available after the walker finishes.'}</p>
      {mine&&<><div className="walk-metrics"><div><strong>{timeLabel(duration(active,data.now))}</strong><span>Elapsed time</span></div>{data.gpsEnabled&&<><div><strong>{(meters/1000).toFixed(2)} km</strong><span>Recorded distance</span></div><div><strong>{paceLabel(meters,duration(active,data.now))}</strong><span>Average pace</span></div></>}</div>
       <div className={`walk-live-layout${!data.gpsEnabled?' time-only':''}`}>
       {data.gpsEnabled&&<div className="walk-live-map"><RouteMap points={data.points} live/></div>}
       <div className="walk-live-side"><WalkWastePanel key={active.id} walkId={active.id} own={mine} finished={false} onRecorded={()=>setTimelineRevision(value=>value+1)}/>
       <WalkTimeline walk={active} points={data.gpsEnabled?data.points:[]} timezone={household!.timezone} revision={timelineRevision}/>
-      <p role="status">{data.gpsMessage} {data.pending>0&&`${data.pending} GPS points waiting to sync.`}</p>
-      {data.tracking&&data.points.length>0&&data.now-Date.parse(data.points.at(-1)!.recorded_at)>30000&&<Notice>GPS is interrupted. Distance may be incomplete. Missing GPS does not trigger automatic ending.</Notice>}
-      {data.gpsEnabled&&<Notice>Keep the app visible and the screen unlocked for GPS. Refreshing stops recording: return here and press Resume GPS. Offline points are kept on this device until saved.</Notice>}
-      <div className="walk-actions">{data.gpsEnabled&&!data.tracking&&!data.ending&&<Button disabled={data.busy} onClick={()=>void data.resume()}>Resume GPS</Button>}<Button className="secondary" disabled={data.busy||data.ending} onClick={()=>setConfirm('end')}>End walk</Button><Button className="secondary" disabled={data.busy} onClick={()=>void data.sync()}>Sync now</Button></div>
-      {data.gpsEnabled&&<details><summary>Optional stationary reminder</summary><p>Experimental, foreground only: after 10 minutes within approximately 30 m, show an in-app warning. After another 2 minutes of uninterrupted GPS, end at the current time. GPS accuracy must be ≤25 m. Movement, missing GPS, or hiding the app cancels the countdown.</p><label className="walk-check"><input type="checkbox" checked={data.autoEnd} onChange={e=>data.setAutoEnd(e.target.checked)}/>Enable the in-app reminder and automatic ending for this session</label></details>}
+      <WalkNotes key={`note-${active.id}`} walkId={active.id} user={session!.user.id} notes={active.notes} onSaved={()=>void data.reload()}/>
+      <div className="walk-actions walk-recording-actions">{data.gpsEnabled&&(data.tracking?<Button className="secondary" disabled={data.busy||data.ending} onClick={()=>void data.pause()}><Pause size={18} aria-hidden="true"/>Pause GPS</Button>:<Button className="secondary" disabled={data.busy||data.ending} onClick={()=>void data.resume()}><Play size={18} aria-hidden="true"/>Resume GPS</Button>)}<Button className="walk-end-button" disabled={data.busy||data.ending} onClick={()=>setConfirm('end')}>End walk</Button></div>
+      <WalkRecordingStatus gps={data.gpsEnabled} tracking={data.tracking} paused={data.paused} quality={data.quality} accuracy={data.accuracy} lastFix={data.points.length?Date.parse(data.points.at(-1)!.recorded_at):null} pending={data.pending} ending={data.ending} online={navigator.onLine} saved={data.saved} now={data.now} recovered={data.recovered}/>
       {data.warning&&<Notice>Still walking? Ending in approximately {Math.max(0,Math.ceil((120000-(data.now-data.warning))/1000))} seconds if GPS stays available.<p><Button onClick={data.keepWalking}>Keep walking</Button></p></Notice>}
-      {data.ending&&<Notice><p role="status">The walk is waiting to finish saving. Keep this device and retry when connected to save the completed summary.</p></Notice>}
+      {data.ending&&<Notice><p role="status">Finishing your walk. Reconnect if saving is interrupted.</p></Notice>}
       </div></div>
      </>}
     </>:<><p className="walk-hero-description">Every walk has a story. Record the little moments along the way.</p></>}
@@ -73,8 +74,9 @@ export function WalksPage() {
    <section className="card"><div className="walk-heading walk-history-heading"><h2>Last Adventure</h2><Link className="walk-show-more" to="/walks?view=history">Show more</Link></div>{!history.length?<p className="walk-empty">Your first completed walk will appear here.</p>:<div className="walk-activity-list">{history.slice(0,1).map(w=><WalkActivityCard key={w.id} {...w} loadRoute={!w.demo} onDelete={w.own && !w.demo ? () => setDeleting(w.id) : undefined}/>)}</div>}</section>
   </>}
   <section className="card"><h2>A shortcut on the leash</h2><p>Tap the NFC tag on the leash to open PawShare. Your phone records the GPS route while you carry it on the walk. Configure the tag once with this link. It opens the Start Walk confirmation for the signed-in user’s selected family. Opening a link never starts a walk automatically.</p><code className="walk-url">{window.location.origin}/walks?action=start</code><p><Button className="secondary" onClick={async()=>{try{await navigator.clipboard.writeText(`${window.location.origin}/walks?action=start`);setCopied('Link copied.')}catch{setCopied('Copy the link shown above manually.')}}}>Copy NFC link</Button></p>{copied&&<p role="status">{copied}</p>}<Link to="/walks/gps-test">Open GPS diagnostics</Link></section>
+  <WalkConnectionAlert active={!!active&&mine} failed={data.connectionFailed}/>
   {deleting&&<RestoreWalkDialog action="delete" walkId={deleting} onCancel={()=>setDeleting(null)} onRestored={async()=>{await data.reload();setDeleting(null)}}/>}
   {confirm==='start'&&<StartWalkDialog dogName={dog!.name} busy={data.busy} blocked={active?(mine?'You already have an active walk. Close this window and resume GPS.':'Another family member is already walking your dog. Wait until they finish.'):''} onCancel={()=>setConfirm(null)} onConfirm={(mode,trackGps)=>{setConfirm(null);void data.start(mode,trackGps)}}/>}
-  {confirm==='end'&&<div className="walk-dialog-backdrop"><div ref={dialog} className="card walk-dialog" role="dialog" aria-modal="true" aria-labelledby="walk-confirm-title" onKeyDown={e=>{if(e.key==='Escape')setConfirm(null);if(e.key==='Tab'){const buttons=dialog.current!.querySelectorAll<HTMLButtonElement>('button');if(e.shiftKey&&document.activeElement===buttons[0]){e.preventDefault();buttons[buttons.length-1].focus()}else if(!e.shiftKey&&document.activeElement===buttons[buttons.length-1]){e.preventDefault();buttons[0].focus()}}}}><h2 id="walk-confirm-title">Finish this walk?</h2><p>{data.gpsEnabled?'GPS recording stops now. All available points will sync before the completed route becomes visible to your family. Offline? Keep this device and retry when connected.':'Finish the timer and save your walk summary.'}</p><>{active&&mine&&<WalkWastePanel key={active.id} walkId={active.id} own finished={false} ending/>}</><div className="walk-actions"><Button className="secondary" onClick={()=>setConfirm(null)}>Cancel</Button><Button disabled={data.busy||!data.ready} onClick={()=>{setConfirm(null);if(active){setFinishingWalk(active.id);void data.finish()}}}>Confirm end</Button></div></div></div>}
+  {confirm==='end'&&<div className="walk-dialog-backdrop"><div ref={dialog} className="card walk-dialog" role="dialog" aria-modal="true" aria-labelledby="walk-confirm-title" onKeyDown={e=>{if(e.key==='Escape')setConfirm(null);if(e.key==='Tab'){const buttons=dialog.current!.querySelectorAll<HTMLButtonElement>('button');if(e.shiftKey&&document.activeElement===buttons[0]){e.preventDefault();buttons[buttons.length-1].focus()}else if(!e.shiftKey&&document.activeElement===buttons[buttons.length-1]){e.preventDefault();buttons[0].focus()}}}}><h2 id="walk-confirm-title">Finish this walk?</h2><>{active&&mine&&<WalkWastePanel key={active.id} walkId={active.id} own finished={false} ending/>}</><div className="walk-actions"><Button className="secondary" onClick={()=>setConfirm(null)}>Cancel</Button><Button disabled={data.busy||!data.ready} onClick={()=>{setConfirm(null);if(active){setFinishingWalk(active.id);void data.finish()}}}>Confirm end</Button></div></div></div>}
  </div>
 }

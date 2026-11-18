@@ -10,7 +10,8 @@ export function walkTimeline(walk: Pick<Walk,'started_at'|'ended_at'>, points: P
  ordered.forEach((point,index)=>{
   if(!index){entries.push({id:'gps-start',at:point.recorded_at,label:'First GPS position recorded'});return}
   const previous=ordered[index-1]
-  if(Date.parse(point.recorded_at)-Date.parse(previous.recorded_at)>GPS_POLICY.maxGap)entries.push({id:`gap-${point.seq}`,at:point.recorded_at,label:'GPS positions resumed after a recording gap'})
+  if(point.segment_start)entries.push({id:`resume-${point.seq}`,at:point.recorded_at,label:'GPS resumed'})
+  else if(Date.parse(point.recorded_at)-Date.parse(previous.recorded_at)>GPS_POLICY.maxGap)entries.push({id:`gap-${point.seq}`,at:point.recorded_at,label:'GPS positions resumed after a recording gap'})
   meters+=segment(previous,point)
   if(meters>=next){entries.push({id:`distance-${next}`,at:point.recorded_at,label:`${(next/1000).toLocaleString('en',{maximumFractionDigits:1})} km recorded`});next+=500}
  })

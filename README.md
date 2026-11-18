@@ -368,12 +368,26 @@ database migration is needed. Teammate review is required before release.
 
 ### Documents within a visit
 
-The Health hub no longer shows a Treatments card; existing treatment history remains available from Past appointments → Treatment history. Documents remains the full household archive.
+The Health hub keeps Documents as the full household archive. Existing treatment history remains available from Past appointments → Treatment history. Related documents in Visit summary shows only that appointment’s linked files, grouped by archive folder. The destination selector includes existing folders and New folder; newly created folders appear in Documents immediately. Uploads persist in private Storage immediately; Save summary persists the visit links (up to 20). Closing without saving does not link the uploaded file to that visit.
 
-Visit summary now starts Related documents with the same named folders used by Documents. Members can create a folder, open it, upload a validated private PDF/JPG/PNG/WebP (up to 10 MB), or select existing files. Uploads use existing immutable object names and folder metadata, so they appear in the archive without a second copy. Save summary persists the selected document links (up to 20). Folder creation/uploads persist immediately in the archive, including if the summary is closed without saving; the UI explains that saving is required to link the file to the visit. Existing download permissions and RLS are reused. No new migration is required for this UI change.
+### Folder actions and permanent deletion
 
-### Consistent folder actions and recoverable deletion
+Documents uses compact three-dot actions and confirmation dialogs. Delete now removes the folder and its documents permanently after explicit confirmation. The server checks membership and existing document-delete permissions before preparing deletion; the browser deletes objects through the private Storage API and finalizes only once the folder is empty. Interrupted operations show an error and can be retried. Only the owner can delete a folder containing another member’s uploads. Existing archived folders remain accessible through Deleted folders. Visit links to removed documents use the unavailable-document state.
 
-All folders, including General, have the same three-dot menu in Documents and Visit summary. Current household members may rename or recoverably delete shared folders. Deleted folders remain available under Deleted folders with Restore; Storage objects and appointment document paths are never removed or moved. Existing private file upload/download/delete permissions are unchanged. Adding files to a deleted folder is disabled in these screens until restoration.
+Requires folder-management migration `20261118203000_health_folder_management.sql` and subsequent migrations `20261118211000_health_folder_permanent_deletion.sql` and `20261118212500_health_folder_delete_contents.sql`, after the default-folder prerequisite. Beni reported successful manual application on 18 November; this has not been independently audited. Do not rerun applied migrations on the shared project. See [Health integration notes](docs/health-calendar-links.md) for details and validation limits.
 
-Requires **reviewed, unapplied** migration `20261118203000_health_folder_management.sql`, after `20261117130000_health_default_folder_name.sql` and earlier folder migrations. This adds `deleted_at` and a membership-checked RPC, serializes the virtual General metadata creation, and retains the existing no-direct-delete/no-identity-edit grants. It does not grant public access. Coordinate with the team before applying to shared Supabase. Until installed, folder actions display an honest error rather than pretending to save.
+
+### Walk map controls, pause and notes (18 November 2026)
+
+Walks retains its green/cream design with free map panning, a slower location
+approach and Standard / 3D / Satellite views. Dog-place layers are opt-in.
+Active walks have compact GPS/saving status, recoverable notes and Pause GPS.
+Pause/resume segmentation and cloud notes require the proposed, **unapplied**
+`20261118200000_walk_pause_and_notes.sql` migration, coordinated with Laura and
+reviewed before hosted application. See [verification and release limits](docs/walks-map-controls.md).
+
+Walk refinements keep map view selection on the map, limit dog-place controls to
+setup/recording and use a wider initial frame. Connection loss displays a centred
+alert while the existing durable queue waits to sync. See the latest verification
+notes in [walk map controls](docs/walks-map-controls.md).
+

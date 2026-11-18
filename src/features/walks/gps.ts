@@ -1,5 +1,5 @@
 import type { Walk, WalkPoint } from '../../lib/supabase/database.types'
-export type Point = Omit<WalkPoint, 'walk_id'>
+export type Point = Omit<WalkPoint, 'walk_id'> & { segment_start?: boolean }
 export const GPS_POLICY = { accuracy: 50, maxGap: 60_000, maxSpeed: 5, minInterval: 5000, stationaryRadius: 30, stationaryMs: 600_000, warningMs: 120_000 }
 const rad = (n: number) => n * Math.PI / 180
 export function distance(a: Pick<Point, 'latitude' | 'longitude'>, b: Pick<Point, 'latitude' | 'longitude'>) {
@@ -9,14 +9,14 @@ export function distance(a: Pick<Point, 'latitude' | 'longitude'>, b: Pick<Point
 export function segment(a: Point, b: Point) {
  const dt = Date.parse(b.recorded_at)-Date.parse(a.recorded_at)
  const meters = distance(a,b)
- return dt>0 && dt<=GPS_POLICY.maxGap && meters>Math.max(3,(a.accuracy+b.accuracy)/2) && meters/(dt/1000)<=GPS_POLICY.maxSpeed ? meters : 0
+ return !b.segment_start && dt>0 && dt<=GPS_POLICY.maxGap && meters>Math.max(3,(a.accuracy+b.accuracy)/2) && meters/(dt/1000)<=GPS_POLICY.maxSpeed ? meters : 0
 }
 export function routeDistance(points: Point[]) { return points.reduce((total,p,i)=>total+(i ? segment(points[i-1],p) : 0),0) }
 export function acceptable(point: Point, previous?: Point, now=Date.now()) {
  if (![point.latitude,point.longitude,point.accuracy,Date.parse(point.recorded_at)].every(Number.isFinite) || Math.abs(point.latitude)>90 || Math.abs(point.longitude)>180 || point.accuracy<0 || point.accuracy>GPS_POLICY.accuracy || Math.abs(now-Date.parse(point.recorded_at))>30_000) return false
  if (!previous) return true
  const dt=Date.parse(point.recorded_at)-Date.parse(previous.recorded_at)
- return dt>=GPS_POLICY.minInterval && (dt>GPS_POLICY.maxGap || distance(previous,point)/(dt/1000)<=GPS_POLICY.maxSpeed)
+ return dt>=GPS_POLICY.minInterval && (point.segment_start || dt>GPS_POLICY.maxGap || distance(previous,point)/(dt/1000)<=GPS_POLICY.maxSpeed)
 }
 // Only continuous, fresh, reasonably accurate fixes can establish stationarity.
 export type Stationary = { anchor: Point; since: number; last: number; warnedAt: number | null }

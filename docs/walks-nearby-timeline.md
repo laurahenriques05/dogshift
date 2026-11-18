@@ -2,7 +2,7 @@
 
 The active walk keeps PawShare's existing green/cream cards, typography and
 buttons. A responsive map/timeline layout is inspired by the requested reference,
-without adding its unrelated goal, note or pause features. Live maps label the
+without adding its unrelated goal features. Notes and GPS pause are now described in [map controls](walks-map-controls.md). Live maps label the
 moving endpoint Current position, hide route replay, follow new samples until the
 user pans and offer Recenter to resume following. Completed routes retain replay.
 
@@ -15,7 +15,7 @@ search service or transmit anything beyond the existing tile view. Google/Leafle
 retain their provider basemaps as well as the optional search overlay.
 
 Route maps also offer an explicit, session-only Search nearby dog places checkbox. Before it
-is enabled, no places request is made. The accompanying text explains that the
+is enabled, no places request is made. The adjacent information disclosure explains that the
 approximate map area is shared with Private.coffee’s public Overpass service. The browser
 sends a bounded public query to https://overpass.private.coffee/api/interpreter, rounding
 its centre to 0.01 degrees and searching within 2 km; it never sends a route,
@@ -76,7 +76,7 @@ advanced nearby-search success path must therefore be distinguished from fixture
 marker tests. Existing-tile dog POIs and GPS rendering remain independent of that
 service. Provider availability is not a verified integration guarantee.
 
-Browser evidence: the real visible vector-tile data exposed Vet Planet and
+Earlier browser evidence (before the opt-in display change): the real visible vector-tile data exposed Vet Planet and
 FishPlanet in the example area with additional search disabled. The isolated
 search response then displayed a labelled example veterinary hospital and dog
 park at their computed distances. End mode hid both controls and a simulated
@@ -87,3 +87,5 @@ fixture response is committed or used in the product. Google and Leaflet overlay
 code passed typecheck, but their runtime paths were not browser-verified here.
 
 Final checks: all 207 isolated tests, npm run typecheck, npm run build and git diff --check passed. Existing dependency annotation and chunk-size build warnings remain. No migration or production deployment was performed.
+
+Current map controls supersede the earlier always-visible tile POIs: dog-related layers and labels are hidden while the checkbox is off. Provider credits remain accessible through a compact information control. See [current verification](walks-map-controls.md).
