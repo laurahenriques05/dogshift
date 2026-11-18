@@ -335,3 +335,11 @@ Confirm delete dialog. Deleted cards offer Restore walk. Showing retained GPS
 and summary data inside Deleted history also needs the reviewed, unapplied
 `20261117130000_deleted_walk_owner_preview.sql` policy migration; access remains
 limited to the author while deleted. No hosted application is claimed.
+
+## Visit summaries and appointment history filters
+
+Past appointments supports accent-insensitive search of title, location and notes, type filters and inclusive household-local date ranges; results remain newest first. Existing appointments are Uncategorised until edited. Vaccination visit is an appointment category; vaccination administration records remain in Vaccinations.
+
+Each past appointment has a Visit summary dialog: reason, veterinarian observations, prescribed treatment, next-visit date and links to existing household medication schedules and private health documents. This records the veterinarian's instructions and does not recommend treatment. A next-visit date in the summary is informational: add a normal appointment to schedule calendar/reminders. No duplicate notification system is created.
+
+Requires reviewed migration `20261118120000_appointment_summaries.sql` after existing Health appointments/medication/private documents migrations. It has **not** been applied to shared Supabase by this implementation. Coordinate with Laura/Maria before rollout. Existing appointment RLS/audit is preserved; summaries are shared-editable care records, limited to current members; linked medication/documents must belong to the same household. Deleting an appointment removes its summary. Private documents are downloaded using current membership, without public URLs. Deleted linked records are shown as unavailable and can be unlinked.

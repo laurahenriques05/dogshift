@@ -1,3 +1,4 @@
+export type AppointmentSummaryRecord = {appointment_id:string;reason:string;observations:string;treatment:string;next_visit_at:string|null;medication_ids:string[];document_paths:string[];updated_by:string|null;updated_at:string}
 export type HealthDocumentFolder = {is_default:boolean;id:string;household_id:string;name:string;created_by:string|null;created_at:string}
 export type HealthAudit = { id:string;household_id:string;created_by:string|null;updated_by:string|null;created_at:string;updated_at:string }
 export type Treatment = HealthAudit & {title:string;occurred_on:string;veterinarian:string;notes:string}
@@ -6,7 +7,8 @@ export type WeightMeasurement = HealthAudit & {weight_kg:number;measured_at:stri
 export type Vaccination = { id:string; household_id:string; name:string; given_on:string; next_due_on:string|null; veterinarian:string; batch_number:string; notes:string; created_by:string|null; updated_by:string|null; created_at:string; updated_at:string }
 export type MedicationSchedule = { id:string; household_id:string; name:string; instructions:string; created_by:string|null; updated_by:string|null; created_at:string; updated_at:string }
 export type MedicationDose = { id:string; schedule_id:string; scheduled_at:string; status:'scheduled'|'given'|'skipped'; administered_at:string|null; recorded_by:string|null; recorded_at:string|null; updated_at:string; notes:string }
-export type VetAppointment = { id: string; household_id: string; title: string; starts_at: string; location: string; notes: string; created_by: string|null; updated_by: string|null; created_at: string; updated_at: string }
+export type AppointmentType = 'uncategorised'|'consultation'|'vaccination'|'examination'|'surgery'|'other'
+export type VetAppointment = { appointment_type: AppointmentType; id: string; household_id: string; title: string; starts_at: string; location: string; notes: string; created_by: string|null; updated_by: string|null; created_at: string; updated_at: string }
 export type TaskSeries = { id:string;household_id:string;title:string;details:string;assigned_to:string|null;first_due_at:string;recurrence:'none'|'daily'|'weekly'|'monthly';recurrence_every:number;ends_on:string|null;archived_at:string|null;created_by:string|null;updated_by:string|null;created_at:string;updated_at:string }
 export type TaskOccurrence = { id:string;household_id:string;series_id:string;title:string;details:string;assigned_to:string|null;recurrence:'none'|'daily'|'weekly'|'monthly';recurrence_every:number;due_at:string;completed_at:string|null;completed_by:string|null;created_at:string }
 export type AcademyPractice = { id:string;household_id:string;dog_id:string;module_id:string;user_id:string|null;practiced_at:string;checklist:Record<string,boolean>;performance:string;completed:boolean;deleted_at:string|null;updated_at:string }
@@ -29,6 +31,7 @@ export type Walk = { id: string; household_id: string; dog_id: string; walker_id
 export type WalkPoint = { walk_id: string; seq: number; recorded_at: string; latitude: number; longitude: number; accuracy: number }
 type Table<R, I> = { Row: R; Insert: I; Update: Partial<I>; Relationships: [] }
 export type Database = { public: { Tables: {
+ appointment_summaries: Table<AppointmentSummaryRecord,Omit<AppointmentSummaryRecord,'updated_by'|'updated_at'>>;
  health_document_folders: Table<HealthDocumentFolder,Pick<HealthDocumentFolder,'household_id'|'name'> & {is_default?:boolean}>;
  treatments: Table<Treatment,Pick<Treatment,'household_id'|'title'|'occurred_on'|'veterinarian'|'notes'>>;
  vet_contacts: Table<VetContact,Pick<VetContact,'household_id'|'name'|'phone'|'email'|'address'|'notes'>>;
@@ -36,7 +39,7 @@ export type Database = { public: { Tables: {
  vaccinations: Table<Vaccination,Pick<Vaccination,'household_id'|'name'|'given_on'|'next_due_on'|'veterinarian'|'batch_number'|'notes'>>;
  medication_schedules: Table<MedicationSchedule,never>;
  medication_doses: Table<MedicationDose,never>;
- vet_appointments: Table<VetAppointment, Pick<VetAppointment,'household_id'|'title'|'starts_at'|'location'|'notes'>>;
+ vet_appointments: Table<VetAppointment, Pick<VetAppointment,'household_id'|'title'|'starts_at'|'location'|'notes'> & {appointment_type?:AppointmentType}>;
  task_series: Table<TaskSeries, Pick<TaskSeries,'household_id'|'title'|'details'|'assigned_to'|'first_due_at'|'recurrence'|'recurrence_every'|'ends_on'>>;
  task_occurrences: Table<TaskOccurrence, never>;
  academy_practice: Table<AcademyPractice, Pick<AcademyPractice,'household_id'|'dog_id'|'module_id'|'checklist'|'performance'|'completed'>>;
