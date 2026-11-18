@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { CheckCircle2, Copy, Nfc, Smartphone } from 'lucide-react'
 import { Button, Notice, errorMessage } from '../../components/ui'
 import { appUrl } from '../../lib/supabase/client'
 
@@ -41,11 +42,16 @@ export function FeedingTagSetup({ householdId }: { householdId: string }) {
    setMessage('Copy the link below, then paste it into a Custom URL/URI record in NFC Tools.')
   }
  }
- return <section className="card feeding-routine"><h2>Set up your feeding NFC tag</h2>
-  {supported ? <><p className="muted">Set up the tag here in PawShare. Turn on NFC, tap the button, allow access, and hold a writable NFC tag against your phone.</p><label className="feeding-check"><input type="checkbox" checked={replace} disabled={busy} onChange={event => setReplace(event.target.checked)}/>Replace an existing tag’s contents with this household’s feeding action.</label><div className="feeding-actions"><Button type="button" disabled={busy} onClick={() => void writeTag()}>{busy ? 'Waiting for your tag…' : 'Set up feeding tag'}</Button>{busy && <Button type="button" className="secondary" onClick={() => controller.current?.abort()}>Cancel</Button>}</div></> : <Notice>This browser cannot write NFC tags. In-app tag setup is supported in compatible Chrome browsers on NFC-enabled Android phones. Writing a tag on iPhone requires a native PawShare app; adding this website to the Home Screen does not enable tag writing.</Notice>}
+ return <section className="card feeding-routine feeding-tag-setup"><h2>Set up your feeding NFC tag</h2>
+  <div className="feeding-tag-guide" aria-labelledby="feeding-tag-guide-title"><h3 id="feeding-tag-guide-title">Three simple steps</h3><ol>
+   <li><span><Copy aria-hidden="true"/></span><div><strong>{supported?'Start setup':'Copy the PawShare link'}</strong><small>{supported?'Tap “Set up feeding tag” below.':'Use the button below.'}</small></div></li>
+   <li><span><Nfc aria-hidden="true"/></span><div><strong>{supported?'Hold the tag to your phone':'Write it with NFC Tools'}</strong><small>{supported?'Keep it still until PawShare confirms.':'Write → Add a record → Custom URL → paste → Write.'}</small></div></li>
+   <li><span><Smartphone aria-hidden="true"/></span><div><strong>Tap when you feed</strong><small>Check the meal, then confirm it.</small></div><CheckCircle2 className="feeding-tag-done" aria-hidden="true"/></li>
+  </ol></div>
+  {supported ? <><label className="feeding-check"><input type="checkbox" checked={replace} disabled={busy} onChange={event => setReplace(event.target.checked)}/>Replace an existing tag’s contents with this household’s feeding action.</label><div className="feeding-actions"><Button type="button" disabled={busy} onClick={() => void writeTag()}>{busy ? 'Waiting for your tag…' : 'Set up feeding tag'}</Button>{busy && <Button type="button" className="secondary" onClick={() => controller.current?.abort()}>Cancel</Button>}</div></> : <Notice>Your browser cannot write the tag directly. Use NFC Tools once with the button below.</Notice>}
   {!supported && <div className="feeding-actions"><Button type="button" onClick={() => void copyTagLink()}>Copy link for NFC Tools</Button></div>}
   {message && <Notice>{message}</Notice>}{error && <Notice error>{error}</Notice>}
   {!supported && message.startsWith('Copy the link below') && <code className="walk-url">{feedingUrl}</code>}
-  <p className="photo-hint">A configured tag opens quick feeding and still asks you to confirm the meal. Tag setup never records food, and tags are not permanently locked. Once configured, a supported iPhone can open its website link without a separate NFC app. If sign-in interrupts the action, tap again after signing in.</p>
+  <p className="feeding-tag-safety"><CheckCircle2 aria-hidden="true"/>Tapping only opens the meal. Nothing is recorded until you confirm.</p>
  </section>
 }
