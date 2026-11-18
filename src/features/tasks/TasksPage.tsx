@@ -60,7 +60,7 @@ export function TasksPage(){
  const now=Date.now()
  return <div className="task-page">
   <PageTitle eyebrow="YOUR FAMILY" title="Tasks and calendar">Share the little jobs that keep your dog’s days happy.</PageTitle>
-  <div className="task-shortcuts"><Link className="text-link" to="/calendar">Open shared calendar <ChevronRight size={16}/></Link><Link className="text-link" to="/academy">Open Academy <ChevronRight size={16}/></Link></div>
+  <div className="task-shortcuts"><Link className="text-link" to="/calendar">Open shared calendar <ChevronRight size={16}/></Link></div>
   {error&&<Notice error>{error}</Notice>}{message&&<Notice>{message}</Notice>}
   <section className="card task-form-card"><div className="task-title-row"><span className="icon-tile peach"><Plus size={19}/></span><div><h2>{editing?'Edit task':'Add a family task'}</h2><p className="muted">All family members can edit shared tasks. Completion is attributed to the person who marks it done.</p></div></div>
    <form className="form-stack task-form" onSubmit={save}><div className="task-form-grid"><Field label="Task title" required maxLength={100} value={form.title} onChange={e=>setForm({...form,title:e.target.value})}/><Field label="Due date and time · 24-hour" type="datetime-local" required value={form.firstDue} onChange={e=>setForm({...form,firstDue:e.target.value})}/></div>
