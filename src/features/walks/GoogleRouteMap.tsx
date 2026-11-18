@@ -1,3 +1,4 @@
+import type { MapViewMode } from './mapPresentation'
 import type { DogPlace } from './dogPlaces'
 import { useEffect, useRef, useState } from 'react'
 import { Button } from '../../components/ui'
@@ -9,8 +10,9 @@ import { useRouteReplay } from './useRouteReplay'
 import { RouteMapControls } from './RouteMapControls'
 import './walks.css'
 
-export default function GoogleRouteMap({ points, compact = false, places = [], live = false }: { points: Point[]; compact?: boolean; places?: DogPlace[]; live?: boolean }) {
+export default function GoogleRouteMap({ points, compact = false, places = [], live = false, mode = 'standard', showDogPlaces = false }: { points: Point[]; compact?: boolean; places?: DogPlace[]; live?: boolean; mode?: MapViewMode; showDogPlaces?: boolean; onModeError?:()=>void }) {
  const host = useRef<HTMLDivElement>(null)
+ const mapView=useRef<google.maps.Map|null>(null)
  const placesLayer=useRef<google.maps.Data|null>(null)
  const latest = useRef(points)
  const replay = useRouteReplay(points)
@@ -25,6 +27,7 @@ export default function GoogleRouteMap({ points, compact = false, places = [], l
  const [error, setError] = useState('')
  const [retry, setRetry] = useState(0)
  useEffect(()=>{const layer=placesLayer.current;if(!layer)return;layer.forEach(feature=>layer.remove(feature));layer.addGeoJson({type:'FeatureCollection',features:places.map(place=>({type:'Feature',properties:{name:place.name,kind:place.kind},geometry:{type:'Point',coordinates:[place.longitude,place.latitude]}}))})},[places,ready])
+ useEffect(()=>{mapView.current?.setMapTypeId(mode==='satellite'?'satellite':'roadmap');mapView.current?.setOptions({styles:showDogPlaces?null:[{featureType:'poi.business',stylers:[{visibility:'off'}]},{featureType:'poi.medical',stylers:[{visibility:'off'}]}]})},[mode,showDogPlaces,ready])
  const hasPoints = mapCoordinates(points).length > 0
  useEffect(() => { latest.current = points; draw.current(points) }, [points])
  useEffect(() => {
@@ -52,11 +55,12 @@ export default function GoogleRouteMap({ points, compact = false, places = [], l
    const maps = libraries.maps; core = libraries.core
    instance = new maps.Map(host.current, {
     center: { lat: 0, lng: 0 }, zoom: 2, minZoom: 0, maxZoom: 21,
-    mapTypeId: 'roadmap', gestureHandling: 'cooperative', disableDoubleClickZoom: true,
+    mapTypeId: mode==='satellite'?'satellite':'roadmap', gestureHandling: 'greedy', scrollwheel:false, disableDoubleClickZoom: true,
     zoomControl: true, mapTypeControl: false, streetViewControl: false,
     fullscreenControl: true, keyboardShortcuts: true,
    })
    const map = instance
+   mapView.current=map
    const poi=new google.maps.Data({map});placesLayer.current=poi
    poi.setStyle(feature=>({title:`${feature.getProperty('name')} · ${feature.getProperty('kind')}`,icon:{path:core!.SymbolPath.CIRCLE,scale:7,fillColor:'#244d3c',fillOpacity:1,strokeColor:'#fffdf7',strokeWeight:2}}))
    const info=new maps.InfoWindow()
@@ -113,7 +117,7 @@ export default function GoogleRouteMap({ points, compact = false, places = [], l
   return () => {
    disposed = true; window.clearTimeout(timeout); window.removeEventListener(GOOGLE_MAP_ERROR, fail); resize?.disconnect()
    paths.forEach(path => path.setMap(null))
-   placesLayer.current?.setMap(null);placesLayer.current=null
+   placesLayer.current?.setMap(null);placesLayer.current=null;mapView.current=null
    if (instance && core) { core.event.clearInstanceListeners(instance); instance.data.setMap(null) }
    fit.current = () => {}; draw.current = () => {}; renderFrame.current = () => {}
    element.replaceChildren()

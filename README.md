@@ -365,3 +365,12 @@ the established PawShare design. Route milestones and GPS gaps form a timestampe
 timeline; final-only dog-waste records stay in the summary, outside that timeline.
 See [data, privacy and validation limits](docs/walks-nearby-timeline.md). No new
 database migration is needed. Teammate review is required before release.
+
+### Walk map controls, pause and notes (18 November 2026)
+
+Walks retains its green/cream design with free map panning, a slower location
+approach and Standard / 3D / Satellite views. Dog-place layers are opt-in.
+Active walks have compact GPS/saving status, recoverable notes and Pause GPS.
+Pause/resume segmentation and cloud notes require the proposed, **unapplied**
+`20261118200000_walk_pause_and_notes.sql` migration, coordinated with Laura and
+reviewed before hosted application. See [verification and release limits](docs/walks-map-controls.md).

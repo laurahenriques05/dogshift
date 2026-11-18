@@ -63,6 +63,7 @@ export function StartWalkDialog({ dogName, busy, blocked, onCancel, onConfirm }:
     <label><input type="radio" name="waste-timing" checked={wasteMode === 'during'} onChange={() => setWasteMode('during')}/>During the walk</label>
     <label><input type="radio" name="waste-timing" checked={wasteMode === 'end'} onChange={() => setWasteMode('end')}/>At the end</label>
    </fieldset>}
+   {trackGps&&<div className="walk-permission-explanation"><p>PawShare uses this device’s location to draw your route. If needed, your browser will ask you to allow access.</p><details><summary>How GPS works</summary><p>Location quality depends on your device and surroundings. Browser GPS may pause when the screen locks. You can record time only instead.</p></details></div>}
    {blocked && <Notice>{blocked}</Notice>}
    <div className="walk-location-actions"><Button disabled={busy || !!blocked} onClick={() => trackGps ? setStep('location') : onConfirm(recordDogWaste ? wasteMode : 'off', false)}>{trackGps ? 'Continue' : 'Start walk'}</Button></div>
   </div> : <><Suspense fallback={<p role="status">Loading map…</p>}><StartLocationMap location={current}/></Suspense>
@@ -70,7 +71,6 @@ export function StartWalkDialog({ dogName, busy, blocked, onCancel, onConfirm }:
   {gpsError && <Notice error>{gpsError}</Notice>}
   {gpsError && <details><summary>Location diagnostics</summary><p>Browser permission: <strong>{permission}</strong><br/>Secure connection: {window.isSecureContext ? 'Yes' : 'No'}<br/>{browserError && <>Browser response: {browserError}</>}</p>{permission === 'granted' && <p>Permission is granted, but no usable position is available yet. On a Mac, check that Wi-Fi is enabled and try finding your current location in Apple Maps. If Maps also fails, the issue may be with device Location Services. If Maps succeeds, try this page in another browser.</p>}</details>}
   {current && current.accuracy! > 50 && <Notice>Your location is approximate. Move outdoors for a more accurate fix, then retry.</Notice>}
-  <p className="muted">The route records your phone’s actual GPS position, and is shared with your family after the walk.</p>
   {blocked && <Notice>{blocked}</Notice>}
   <div className="walk-location-actions"><Button disabled={busy || !!blocked || !current || locating} onClick={() => onConfirm(recordDogWaste ? wasteMode : 'off', true)}>Confirm location</Button><Button className="secondary" disabled={busy} onClick={retryLocation}>Retry search again</Button></div>
   <div className="walk-step-back-row"><button type="button" className="walk-step-back" disabled={busy} onClick={() => setStep('tracking')}><ArrowLeft size={15} aria-hidden="true"/>Back</button></div></div></>}</div></div>
