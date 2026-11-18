@@ -34,6 +34,18 @@ describe('device location acquisition (simulated, no real GPS)', () => {
   s.stop(); const count = s.states.length; s.gps(); s.fail(2)
   expect(s.states).toHaveLength(count)
  })
+ it('starts a retry without the rejected fix and ignores the old watcher', () => {
+  const first = setup(); first.gps(); expect(first.states.at(-1)?.location).not.toBeNull()
+  first.stop()
+  const next = setup()
+  expect(next.states.at(-1)).toMatchObject({ location: null, locating: true })
+  const previousCount = first.states.length
+  first.gps(); first.fail(1)
+  expect(first.states).toHaveLength(previousCount)
+  expect(next.states.at(-1)?.location).toBeNull()
+  next.gps(8); expect(next.states.at(-1)?.location?.accuracy).toBe(8)
+  next.stop()
+ })
  it('displays the real fix when Safari uses the Apple reference epoch', () => {
   const s = setup(); s.gps(10, Date.now() - 978307200000)
   expect(s.states.at(-1)?.location).toMatchObject({ latitude: 38.72, longitude: -9.14, accuracy: 10 })

@@ -345,3 +345,23 @@ Each past appointment has a Visit summary dialog: reason, veterinarian observati
 Requires reviewed migration `20261118120000_appointment_summaries.sql` after existing Health appointments/medication/private documents migrations. It has **not** been applied to shared Supabase by this implementation. Coordinate with Laura/Maria before rollout. Existing appointment RLS/audit is preserved; summaries are shared-editable care records, limited to current members; linked medication/documents must belong to the same household. Deleting an appointment removes its summary. Private documents are downloaded using current membership, without public URLs. Deleted linked records are shown as unavailable and can be unlinked.
 
 Before the visit-summary migration is installed, existing appointment creation/editing remains available using the original fields. Category controls are disabled with an explanation, and no category is silently reported as saved. Search and date filters still work.
+
+## Walk updates
+
+### Explicit demo walk history (18 November 2026)
+
+Past Adventures now offers a **Demo walks** filter for the three read-only example
+routes, replay and sample summaries in production builds as well as development.
+Examples are separate from real household statistics and saved/deleted records.
+See [demo walk behaviour](docs/walks-demo.md). No migration is required; production
+release remains subject to teammate review.
+
+### Nearby dog places and journey timeline
+
+Walk maps can optionally show mapped vets, veterinary hospitals, dog parks and
+pet services as the recorded position moves. Nearby search explicitly shares an
+approximate map area with OpenStreetMap's Overpass service. The active view keeps
+the established PawShare design. Route milestones and GPS gaps form a timestamped
+timeline; final-only dog-waste records stay in the summary, outside that timeline.
+See [data, privacy and validation limits](docs/walks-nearby-timeline.md). No new
+database migration is needed. Teammate review is required before release.
