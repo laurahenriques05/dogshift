@@ -8,7 +8,7 @@ let dog:string,walk:string,day:string
 async function asUser(id:string){await sql.exec(`reset role;set role authenticated;select set_config('request.jwt.claim.sub','${id}',false)`)}
 beforeAll(async()=>{
  await sql.exec(`create role anon nologin;create role authenticated nologin;create schema auth;create table auth.users(id uuid primary key,email text,raw_user_meta_data jsonb);create function auth.uid() returns uuid language sql stable as $$select nullif(current_setting('request.jwt.claim.sub',true),'')::uuid$$;grant usage on schema auth to authenticated;grant execute on function auth.uid() to authenticated;`)
- for(const name of ['202611070001_initial_schema.sql','202611110001_walks.sql','20261119001000_walk_journal_and_daily_plan.sql'])await sql.exec(readFileSync(`supabase/migrations/${name}`,'utf8'))
+ for(const name of ['202611070001_initial_schema.sql','202611110001_walks.sql','20261119001000_walk_journal_and_daily_plan.sql','20261119165100_walk_routine_preferences.sql'])await sql.exec(readFileSync(`supabase/migrations/${name}`,'utf8'))
  await sql.exec(`insert into auth.users(id) values('${a}'),('${b}'),('${c}')`);await asUser(a)
  const home=(await sql.query<{id:string}>("select public.create_household('Walk journal','Pacific/Kiritimati') id")).rows[0].id
  dog=(await sql.query<{id:string}>("insert into public.dogs(household_id,name) values($1,'Milo') returning id",[home])).rows[0].id
@@ -46,4 +46,21 @@ it('counts only completed nondeleted real walks in the household day and keeps m
  const walks=[make('done','2026-01-01T12:05:00Z'),make('yesterday','2025-12-31T08:00:00Z'),make('active',null),make('deleted','2026-01-01T12:00:00Z','2026-01-01T13:00:00Z')]
  const slots=dailySlots(3,walks,[], '2026-01-02','Pacific/Kiritimati')
  expect(slots.filter(s=>s.walk)).toHaveLength(1);expect(slots[0].walk?.id).toBe('done');expect(slots[1].walk).toBeUndefined()
+})
+
+it('persists optional routine times and explicit opt-out, protects access and preserves legacy saves',async()=>{
+ await asUser(a)
+ await sql.query("select public.set_walk_routine($1,3,array['08:30','','21:00'])",[dog])
+ expect((await sql.query('select routine_enabled,estimated_times from public.walk_daily_plans')).rows[0]).toEqual({routine_enabled:true,estimated_times:['08:30','','21:00']})
+ for(const query of ["select public.set_walk_routine($1,0,'{}')","select public.set_walk_routine($1,1,array['24:00'])","select public.set_walk_routine($1,1,array['08:30','09:30'])","select public.set_walk_routine($1,null,array['08:30'])","select public.set_walk_routine($1,1,array[null]::text[])"]){await expect(sql.query(query,[dog])).rejects.toThrow()}
+ await sql.query("select public.set_walk_routine($1,null,'{}')",[dog])
+ expect((await sql.query('select routine_enabled from public.walk_daily_plans')).rows[0]).toEqual({routine_enabled:false})
+ await asUser(c)
+ await expect(sql.query("select public.set_walk_routine($1,2,'{}')",[dog])).rejects.toThrow('access')
+ expect((await sql.query('select * from public.walk_daily_plans')).rows).toHaveLength(0)
+ await asUser(b);await sql.query('select public.set_walk_daily_plan($1,2)',[dog])
+ expect((await sql.query('select routine_enabled,required_count,estimated_times from public.walk_daily_plans')).rows[0]).toEqual({routine_enabled:true,required_count:2,estimated_times:[]})
+ await sql.exec('reset role;set role anon')
+ await expect(sql.query("select public.set_walk_routine($1,2,'{}')",[dog])).rejects.toThrow()
+ await asUser(a)
 })

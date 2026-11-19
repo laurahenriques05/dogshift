@@ -4,8 +4,71 @@ import { Button, Field } from '../../components/ui'
 import type { DailyWalkRoutine } from './useDailyWalkRoutine'
 import { walkPeriod } from './routinePresentation'
 import { WalkRoutineSummary } from './WalkRoutineSummary'
+
 export function TodaysWalks({routine,user,zone}:{routine:DailyWalkRoutine;user:string;zone:string}){
- const [editing,setEditing]=useState(false),[value,setValue]=useState('3'),[selected,setSelected]=useState<number|null>(null),[saving,setSaving]=useState<number|null>(null)
+ const [editing,setEditing]=useState(false),[value,setValue]=useState('3'),[times,setTimes]=useState<string[]>([])
+ const [selected,setSelected]=useState<number|null>(null),[saving,setSaving]=useState<number|null>(null),[feedback,setFeedback]=useState('')
  const slot=routine.slots.find(item=>item.number===selected)
- return <section className="card walk-today"><header className="walk-today-heading"><h2><Footprints size={24} aria-hidden="true"/>Today’s walks</h2>{routine.ready&&<button type="button" className="walk-plan-edit walk-text-action" disabled={routine.busy} onClick={()=>{setValue(String(routine.count??3));setEditing(v=>!v)}}><Settings2 size={16} aria-hidden="true"/>{routine.count===undefined?'Set daily walks':'Edit routine'}</button>}</header>{routine.loading?<p role="status">Loading today’s walks…</p>:<>{routine.error&&<p role="alert">{routine.error} <button type="button" className="walk-text-action" onClick={routine.retry}>Retry</button></p>}{routine.ready&&<>{routine.count===undefined?<p>Choose how many walks to plan each day.</p>:<><p className="walk-routine-hint">Tap a circle to record a completed outing.</p><ol className="walk-routine-line dose-bubbles" aria-label="Today's walk routine">{routine.slots.map(item=>{const complete=!!(item.walk||item.manual),label=walkPeriod(item.number,routine.count!);return <li key={`${routine.day}-${item.number}`} className={`dose-step${complete?' is-given':''}`}><button type="button" className={`dose-bubble walk-period-bubble${complete?' is-given':''}`} disabled={routine.busy} aria-label={complete?`${label} walk recorded. View summary`:`Mark ${label} walk as done`} aria-busy={saving===item.number} onClick={async()=>{if(complete){setSelected(item.number);return}if(routine.busy)return;setSaving(item.number);try{await routine.mark(item.number)}finally{setSaving(null)}}}><strong>{label}</strong><span className="dose-bubble-mark" aria-hidden="true">{saving===item.number?<LoaderCircle size={19} className="walk-routine-saving"/>:complete?<Check size={23} strokeWidth={1.8} className="walk-check-mark"/>:<Circle size={17} strokeWidth={1.8}/>}</span></button><button type="button" className="dose-detail-link" disabled={!complete} aria-expanded={selected===item.number} onClick={()=>setSelected(item.number)}>Summary</button></li>})}</ol></>}{editing&&<form className="walk-plan-form" onSubmit={async event=>{event.preventDefault();if(await routine.saveCount(Number(value)))setEditing(false)}}><Field label="Walks per day" type="number" min={1} max={12} step={1} required value={value} onChange={event=>setValue(event.target.value)}/><Button disabled={routine.busy}>Save routine</Button></form>}</>}</>}{slot&&routine.count!==undefined&&(slot.walk||slot.manual)&&<WalkRoutineSummary key={`${routine.day}-${slot.number}`} slot={slot} label={walkPeriod(slot.number,routine.count)} user={user} zone={zone} routine={routine} onClose={()=>setSelected(null)}/>}</section>
+ function edit(){setValue(String(routine.count??3));setTimes(routine.times);setEditing(true);setFeedback('')}
+ function changeTime(index:number,time:string){
+  setTimes(previous=>Array.from({length:Math.max(previous.length,index+1)},(_,i)=>i===index?time:previous[i]??''))
+ }
+ async function withoutRoutine(){
+  if(await routine.saveCount(undefined)){setEditing(false);setFeedback('Walking without a routine. You can set one anytime.')}
+ }
+ return <section className="card walk-today">
+  <header className="walk-today-heading">
+   <h2><Footprints size={24} aria-hidden="true"/>Today’s walks</h2>
+   {routine.ready&&routine.count!==undefined&&!editing&&<button type="button" className="walk-plan-edit walk-text-action" disabled={routine.busy} onClick={edit}><Settings2 size={16} aria-hidden="true"/>Edit routine</button>}
+  </header>
+  {routine.loading?<p role="status">Loading today’s walks…</p>:<>
+   {feedback&&<p role="status">{feedback}</p>}
+   {routine.error&&<p role="alert">{routine.error} <button type="button" className="walk-text-action" onClick={routine.retry}>Retry</button></p>}
+   {routine.ready&&<>
+    {routine.count===undefined?<>
+     <h3>{routine.decided?'Walk at your own pace':'Set your dog’s walking routine'}</h3>
+     <p>{routine.decided?'No routine set. Start a walk whenever you’re ready.':'Choose daily walks and optional estimated times, or walk without a routine.'}</p>
+     {!editing&&<div className="walk-actions">
+      <Button disabled={routine.busy} onClick={edit}>Set walking routine</Button>
+      {!routine.decided&&<Button className="secondary" disabled={routine.busy} onClick={()=>void withoutRoutine()}>No routine for now</Button>}
+     </div>}
+    </>:<ol className="walk-routine-line dose-bubbles" aria-label="Today's walk routine">
+     {routine.slots.map(item=>{
+      const complete=!!(item.walk||item.manual),label=walkPeriod(item.number,routine.count!)
+      return <li key={`${routine.day}-${item.number}`} className={`dose-step${complete?' is-given':''}`}>
+       <button type="button" className={`dose-bubble walk-period-bubble${complete?' is-given':''}`} disabled={routine.busy}
+        aria-label={complete?`${label} walk recorded. View summary`:`Mark ${label} walk as done`} aria-busy={saving===item.number}
+        onClick={async()=>{
+         if(complete){setSelected(item.number);return}
+         if(routine.busy)return
+         setSaving(item.number)
+         try{await routine.mark(item.number)}finally{setSaving(null)}
+        }}>
+        <strong>{label}</strong>
+        {routine.times[item.number-1]&&<time>{routine.times[item.number-1]}</time>}
+        <span className="dose-bubble-mark" aria-hidden="true">{saving===item.number?<LoaderCircle size={19} className="walk-routine-saving"/>:complete?<Check size={23} strokeWidth={1.8} className="walk-check-mark"/>:<Circle size={17} strokeWidth={1.8}/>}</span>
+       </button>
+       <button type="button" className="dose-detail-link" disabled={!complete} aria-expanded={selected===item.number} onClick={()=>setSelected(item.number)}>Summary</button>
+      </li>
+     })}
+    </ol>}
+    {editing&&<form className="walk-plan-form" onSubmit={async event=>{
+     event.preventDefault()
+     if(await routine.saveCount(Number(value),Array.from({length:Number(value)},(_,i)=>times[i]??''))){setEditing(false);setFeedback('Walking routine saved.')}
+    }}>
+     <Field label="Walks per day" type="number" min={1} max={12} step={1} required disabled={routine.busy} value={value} onChange={event=>setValue(event.target.value)}/>
+     <div className="walk-routine-times"><p>Estimated times (optional)</p>
+      {Array.from({length:Math.max(1,Math.min(12,Number(value)||1))},(_,i)=><Field key={i} label={`Walk ${i+1}`} type="time" disabled={routine.busy} value={times[i]??''}
+       onInput={event=>changeTime(i,event.currentTarget.value)} onChange={event=>changeTime(i,event.target.value)} onBlur={event=>changeTime(i,event.target.value)}/>)}
+     </div>
+     <div className="walk-actions">
+      <Button disabled={routine.busy}>Save routine</Button>
+      <Button type="button" className="secondary" disabled={routine.busy} onClick={()=>setEditing(false)}>Cancel</Button>
+      {routine.count!==undefined&&<Button type="button" className="secondary" disabled={routine.busy} onClick={()=>void withoutRoutine()}>Remove routine</Button>}
+     </div>
+    </form>}
+   </>}
+  </>}
+  {slot&&routine.count!==undefined&&(slot.walk||slot.manual)&&<WalkRoutineSummary key={`${routine.day}-${slot.number}`} slot={slot} label={walkPeriod(slot.number,routine.count)} user={user} zone={zone} routine={routine} onClose={()=>setSelected(null)}/>}
+ </section>
 }

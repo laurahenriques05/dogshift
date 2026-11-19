@@ -441,3 +441,20 @@ Start walk, recorded daily progress, exact latest recorded start and a collar NF
 illustration/setup link. Today's walks uses Morning/Afternoon/Night circles and
 Summary for real waste/notes. It reuses the existing backend and adds no migration.
 See [behaviour, NFC and validation limits](docs/walks-collar-overview.md).
+
+### Optional walking routine and map refinements (19 November 2026)
+
+Walks now offers an explicit routine setup or No routine for now, with a chosen
+walk count and optional estimated times. The overview counts real walk starts,
+including active walks, and shows 0 without a last-start caption for an empty diary.
+NEXT WALK is hidden without a routine. The unwanted routine instruction and map
+Layers icon are removed; chevrons are lighter and the tag illustration includes
+a dog. Initial framing approaches from the world map over three seconds; opt-in
+dog places already observed remain visible at moderate zoom-out.
+
+Routine persistence requires proposed, **unapplied** migration
+`20261119165100_walk_routine_preferences.sql`, after the journal/daily-plan
+migration. Laura/team review and rollout remain required. Missing backend support
+shows an error, never a falsely saved routine. These are source/local validations,
+not a claim that the public app or hosted schema has been updated. See
+[behaviour and verification limits](docs/walks-routine-map-details.md).

@@ -1,5 +1,5 @@
 import{expect,it,afterEach,vi}from'vitest'
-import{walkPeriod,nextRoutineSlot,completedToday,lastRecordedStart,recordedWalksToday}from'../features/walks/routinePresentation'
+import{walkPeriod,nextRoutineSlot,completedToday,lastRecordedStart,recordedWalksToday,startedToday}from'../features/walks/routinePresentation'
 import{collarTagUrl,rememberWalkStart,pendingWalkStart,pendingWalkHousehold,clearWalkStart,collarMatchesHousehold}from'../features/walks/nfc'
 import type{Walk}from'../lib/supabase/database.types'
 afterEach(()=>{vi.unstubAllGlobals();vi.useRealTimers()})
@@ -29,4 +29,11 @@ it('preserves the collar household through sign-in, expires intent and rejects a
  const url=new URL(collarTagUrl('https://pawshare.example','family-a'));expect(url.pathname).toBe('/walks');expect(url.searchParams.get('household')).toBe('family-a')
  vi.advanceTimersByTime(30*60_000);expect(pendingWalkStart()).toBe(false);clearWalkStart();expect(pendingWalkHousehold()).toBeNull()
  vi.stubGlobal('window',{location:{search:''}});rememberWalkStart();expect(pendingWalkStart()).toBe(false)
+})
+
+it('counts actual starts including an active walk once, ignoring deleted and previous household days',()=>{
+ const base={id:'one',started_at:'2026-01-01T23:40:00Z',ended_at:null,deleted_at:null} as Walk
+ expect(startedToday([base,base,{...base,id:'deleted',deleted_at:'2026-01-02T00:00:00Z'},{...base,id:'previous',started_at:'2025-12-31T00:00:00Z'}],'2026-01-02','Pacific/Kiritimati')).toEqual([base])
+ expect(startedToday([], '2026-01-02','Pacific/Kiritimati')).toHaveLength(0)
+ expect(lastRecordedStart([])).toBeUndefined()
 })

@@ -1,6 +1,6 @@
 import { addCompactMapCredits } from './compactMapCredits'
 import { applyMapPresentation, type MapViewMode } from './mapPresentation'
-import { addDogPlaceTileLayers } from './dogPlaceLayers'
+import { addDogPlaceTileLayers, retainDogPlacesOnZoomOut } from './dogPlaceLayers'
 import type { DogPlace } from './dogPlaces'
 import { useEffect, useRef, useState } from 'react'
 import type { Map as VectorMap, GeoJSONSource, StyleSpecification, Popup } from 'maplibre-gl'
@@ -94,11 +94,12 @@ export default function VectorRouteMap({ points, compact = false, places = [], l
    map.on('style.load', () => {
     if (disposed) return
     addDogPlaceTileLayers(map)
+    retainDogPlacesOnZoomOut(map)
     map.on('click','walk-dog-tile-dot',event=>{const feature=event.features?.[0];if(feature?.geometry.type==='Point'){popup.current?.remove();popup.current=new M.Popup().setLngLat(feature.geometry.coordinates as [number,number]).setText(String(feature.properties['name:en']||feature.properties.name_en||feature.properties.name||'Dog place')).addTo(map)}})
     const empty = { type: 'FeatureCollection' as const, features: [] }
     map.addSource('dog-places', { type: 'geojson', data: empty })
-    map.addLayer({id:'dog-places-dot',type:'circle',source:'dog-places',paint:{'circle-radius':6,'circle-color':'#244d3c','circle-stroke-color':'#fffdf7','circle-stroke-width':2}})
-    map.addLayer({id:'dog-places-label',type:'symbol',source:'dog-places',layout:{'text-field':['get','name'],'text-font':['Noto Sans Regular'],'text-size':12,'text-offset':[0,1.4],'text-anchor':'top','text-max-width':12},paint:{'text-color':'#244d3c','text-halo-color':'#fffdf7','text-halo-width':2}})
+    map.addLayer({id:'dog-places-dot',type:'circle',source:'dog-places',minzoom:10,paint:{'circle-radius':6,'circle-color':'#244d3c','circle-stroke-color':'#fffdf7','circle-stroke-width':2}})
+    map.addLayer({id:'dog-places-label',type:'symbol',source:'dog-places',minzoom:10,layout:{'text-field':['get','name'],'text-font':['Noto Sans Regular'],'text-size':12,'text-allow-overlap':true,'text-ignore-placement':true,'text-offset':[0,1.4],'text-anchor':'top','text-max-width':12},paint:{'text-color':'#244d3c','text-halo-color':'#fffdf7','text-halo-width':2}})
     map.on('click','dog-places-dot',event=>{const feature=event.features?.[0];if(feature&&feature.geometry.type==='Point'){popup.current?.remove();popup.current=new M.Popup().setLngLat(feature.geometry.coordinates as [number,number]).setText(`${feature.properties.name} · ${feature.properties.kind}`).addTo(map)}})
     map.addSource('walk-route', { type: 'geojson', data: empty })
     map.addSource('walk-ends', { type: 'geojson', data: empty })
