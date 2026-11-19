@@ -122,11 +122,19 @@ approval, pause/notes, paused-duration and correction migrations were applied as
 `20261119192900`, `20261119192909` and `20261119192918`; do not reapply them.
 No real activity write or additional frontend deployment was performed.
 
-## Estimated-time naming follow-up
+## Estimated-time naming follow-up — fixed periods supersede sunrise
 
-The new [routine naming source](walks-routine-period-names.md) makes estimated
-hours mandatory, calculates daily sunrise from an explicitly consented, approximate device location,
-keeps night fixed at 20:00 and numbers same-period slots by time. It also fixes
-Edit routine height and restores the summary count without a count chart.
-Its `20261119195302_walk_routine_schedule.sql` migration remains proposed and
-unapplied; earlier confirmed hosted rollouts do not include this file.
+The user withdrew the solar/location requirement. Current source uses Morning
+07:00–12:00, Afternoon 12:00–20:00 and Night 20:00–07:00; all end boundaries are
+exclusive. See [routine naming and verification](walks-routine-period-names.md).
+Set routine reads only existing preferences fields, fixing its disappearance
+when the unapplied solar columns were selected. No routine geolocation remains.
+Setup and edit are separate: no Remove during setup, no Edit until a complete
+saved routine, no pending Summary or circle time labels. Short period names are
+assigned only from entered times; numbering appears only within repeated periods.
+
+`20261119195302_walk_routine_schedule.sql` remains historical and unapplied.
+New `20261119203310_fixed_walk_routine_periods.sql` supersedes its requirements;
+this append-only proposal also works without solar columns. Neither was applied
+to the hosted project in this follow-up. Do not apply the historical solar file
+alone. Existing recorded walks, checks, GPS and household routines are preserved.

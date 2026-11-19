@@ -473,16 +473,21 @@ and API recognition were verified. Real-account/device checks remain separate,
 and PR #54 has separately been merged into main as `4bf038f`. See
 [behaviour, permissions and rollout](docs/walks-editing-refinements.md).
 
-### Routine times and names (proposed follow-up)
+### Routine times and names (fixed periods)
 
-The latest source fixes the size of Edit routine, restores the completed-walk
-total in Walking together and keeps the statistics chart limited to distance/time.
-Routine times are now required estimates. An explicitly consented, approximate device location provides the daily
-sunrise for Morning Walk / Afternoon Walk / Night Walk labels, numbered by time
-when several occur in a period. Morning starts at sunrise, afternoon at 12:00 and
-night always at 20:00. Actual outings do not need to start at the estimated time.
+Routine estimates are required for naming: Morning 07:00–11:59, Afternoon
+12:00–19:59 and Night 20:00–06:59. There is no routine location permission or
+solar calculation. Labels are assigned as times are entered, with numbers only
+for repeated periods (Morning 1, Morning 2). Circles omit estimated times and
+show Summary only after completion. Actual walks need not follow these times.
 
-This supersedes the earlier optional-time proposal in source and requires new,
-**unapplied** migration `20261119195302_walk_routine_schedule.sql`, coordinated
-with Laura before release. No old routine is filled with invented times/location.
-See [naming rules, migration and verification](docs/walks-routine-period-names.md).
+Set routine is restored using the existing preferences columns/RPC. Edit routine
+stays disabled until a complete routine is saved and while its form is open;
+Remove routine appears only in edit mode. Its compact height remains fixed.
+Walking together retains the total count; statistics charts remain distance/time.
+
+The client works with the existing hosted routine-preferences schema. Proposed,
+**unapplied** `20261119203310_fixed_walk_routine_periods.sql` supersedes the old
+solar RPC requirements and enforces required estimates in SQL. Do not apply the
+historical solar migration on its own. Coordinate migration ordering with Laura.
+See [rules, compatibility and verification](docs/walks-routine-period-names.md).
