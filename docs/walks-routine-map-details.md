@@ -86,3 +86,15 @@ unit tests remain intact; no product configuration/security or CI rules changed.
 The original failure was reproduced locally with all three VITE app/Supabase
 variables blank before fixing it. The full isolated suite is rerun with those
 variables blank, followed by typecheck/build and both GitHub Verify executions.
+
+## Routine card layout follow-up
+
+The setup heading is now Walking routine, switching to Today’s walk after a
+saved plan. The left setup surface is one button labelled Set your routine;
+the duplicate subtitle and No routine for now button are removed. A separate
+right-hand card contains a pencil/Edit routine tile, disabled until a plan is
+loaded and configured. Both cards share a row and stretch to equal height;
+mobile keeps the edit card compact. Existing circles, optional times, Save/Cancel
+and persistence remain. The footsteps use the existing pale icon-tile primitive.
+No schema change. Presentation regression tests, typecheck/build and whitespace
+checks pass; browser layout validation is not yet recorded for this follow-up.
