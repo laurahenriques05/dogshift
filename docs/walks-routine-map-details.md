@@ -98,3 +98,14 @@ mobile keeps the edit card compact. Existing circles, optional times, Save/Cance
 and persistence remain. The footsteps use the existing pale icon-tile primitive.
 No schema change. Presentation regression tests, typecheck/build and whitespace
 checks pass; browser layout validation is not yet recorded for this follow-up.
+
+## Compact controls and statistics follow-up
+
+Routine heading and its pale footsteps tile are vertically centred. Setup uses
+a compact dark-green Set your routine button with a separate small description.
+Edit routine is a single compact button, without an enclosing card. The pair
+uses a narrower edit column and reduced padding. Completed walks is removed from
+the statistics summary and measure selector; the chart defaults to distance and
+retains time. Saved walk history/counting rules are unchanged. No database change.
+Validation: 14 relevant routine/history tests, typecheck, build and diff whitespace
+checks passed. Browser visual verification remains unrecorded for this follow-up.
