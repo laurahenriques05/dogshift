@@ -465,9 +465,10 @@ The refinement source moves setup to the right, fixes the footsteps/title margin
 overlays active metrics on the map and hides both note/edit buttons while an
 editor is open. The new author-only editor loads existing notes and all timeline
 events, with Starting Time / Finishing Time and Save, preserving raw GPS.
-It requires the proposed `20261119191348_walk_timeline_corrections.sql` migration
-and earlier pause support; these remain unapplied to hosted Supabase by this work.
-Live inspection confirmed missing pause schema, explaining why Pause GPS currently
-refuses to pause on the shared database. The additional pause migration attempt
-was blocked pending specific coordinated approval; none was applied. See
+The pause/notes, paused-duration and correction migrations were applied to shared
+Supabase on 19 November after explicit user confirmation of team approval, as
+ledger versions `20261119192900`, `20261119192909` and `20261119192918`. Do not
+reapply them. The earlier missing pause schema is resolved; fields, RPC grants
+and API recognition were verified. Real-account/device checks remain separate,
+and PR #54 has separately been merged into main as `4bf038f`. See
 [behaviour, permissions and rollout](docs/walks-editing-refinements.md).

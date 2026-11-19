@@ -1,3 +1,12 @@
+# Hosted status update — 19 November 2026
+
+Pause/notes and paused-duration are now installed in shared Supabase as ledger
+versions `20261119192900` and `20261119192909`, after explicit user confirmation
+of coordinated team approval. Do not reapply them. See the current
+[rollout record](walks-editing-refinements.md#schema-and-rollout-status).
+The unapplied-proposal statements below describe earlier implementation history;
+physical GPS/phone validation remains distinct from the verified schema rollout.
+
 # Walk map controls, pause and notes
 
 ## Behaviour
