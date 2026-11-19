@@ -156,3 +156,7 @@
 .walk-routine-layout .walk-today-heading .icon-tile{margin:0}.walk-live-map.has-route:not(:has(.walk-map-canvas))>.walk-live-metrics{position:static;margin:12px 0}
 
 .walk-today.is-unconfigured{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:14px}.walk-today.is-unconfigured .walk-today-heading{margin:0}.walk-today.is-unconfigured>p{grid-column:1/-1}@media(max-width:700px){.walk-today.is-unconfigured{grid-template-columns:minmax(0,1fr)}.walk-today.is-unconfigured .walk-routine-setup{justify-self:end}}
+
+.walk-routine-edit-tile{height:120px;min-height:120px;max-height:120px;align-self:start}.walk-routine-edit-tile:disabled{cursor:default}@media(max-width:600px){.walk-routine-edit-tile{height:104px;min-height:104px;max-height:104px}}
+.walk-routine-place{display:flex;align-items:center;gap:10px;flex-wrap:wrap}.walk-routine-place>small,.walk-routine-place>p{flex-basis:100%;margin:0;font-size:12px;line-height:1.5}.walk-routine-place>.button{min-height:44px;padding:10px 14px;font-size:13px}.walk-routine-estimate{font-size:12px;color:#637168;margin:0}.walk-routine-line .walk-period-bubble strong{font-size:11px;line-height:1.2}.walk-routine-times .field{min-width:140px;max-width:170px}
+.walk-today .walk-routine-line .walk-period-bubble:has(time){gap:3px;padding:6px}

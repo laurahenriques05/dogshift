@@ -16,10 +16,16 @@ it('offers an optional first routine without inventing a goal, last start or nex
  const declined=renderToStaticMarkup(<TodaysWalks routine={{...routine,decided:true}} user="user" zone="Europe/Lisbon"/> )
  expect(declined).toContain('Walking routine');expect(declined).not.toContain('No routine for now')
 })
-it('shows chosen optional times without the removed instruction and counts real starts instead of manual checks',()=>{
- const plan={...routine,count:2,times:['08:30',''],slots:[{number:1},{number:2}],recordedCount:7}
+it('shows required estimated times without the removed instruction and counts real starts instead of manual checks',()=>{
+ const plan={...routine,count:2,times:['08:30','21:00'],scheduleComplete:true,names:['Morning Walk','Night Walk'],slots:[{number:1},{number:2}],recordedCount:7}
  const walk={id:'started',started_at:'2026-11-19T10:00:00Z',ended_at:null,deleted_at:null} as Walk
  const html=overview(plan,[walk,walk]);expect(html).toContain('<strong>1</strong>');expect(html).toContain('NEXT WALK')
  const preview=renderToStaticMarkup(<TodaysWalks routine={plan} user="user" zone="Europe/Lisbon"/> )
  expect(preview).toContain('Today’s walk');expect(preview).not.toMatch(/walk-routine-edit-tile[^>]*disabled/);expect(preview).toContain('<time>08:30</time>');expect(preview).not.toContain('Tap a circle')
+})
+
+it('keeps legacy routines honest until missing estimated times and place are completed',()=>{
+ const legacy={...routine,count:2,times:['',''],place:null,scheduleComplete:false,names:['Walk 1','Walk 2'],slots:[{number:1},{number:2}]}
+ expect(overview(legacy)).not.toContain('NEXT WALK')
+ expect(renderToStaticMarkup(<TodaysWalks routine={legacy} user="user" zone="Europe/Lisbon"/>)).toContain('Complete your routine')
 })
