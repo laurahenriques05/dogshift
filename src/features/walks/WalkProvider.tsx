@@ -1,6 +1,7 @@
+import { queueNote, syncNotesBeforeFinish } from './noteJournal'
 import type { SupabaseClient } from '@supabase/supabase-js'
 import { closePause } from './pauseClock'
-import { saveWalkNote, noteDraftKey, parseNoteDraft, type NoteDraft } from './noteDraft'
+import { noteDraftKey, parseNoteDraft, type NoteDraft } from './noteDraft'
 import { isNetworkFailure } from './networkFailure'
 import { recordingBreaksAvailable } from './recordingCapabilities'
 import type { GpsQuality } from './recordingStatus'
@@ -84,9 +85,12 @@ function Tracker({user,household,dog,children}:{user:string;household:string;dog
     if(draft.ending) {
      attempted=true
      if(draft.ending.note){
-      const note=draft.ending.note;await saveWalkNote(draft.walk,note)
-      try{if(parseNoteDraft(localStorage.getItem(noteDraftKey(user,draft.walk)))?.text===note.text)localStorage.removeItem(noteDraftKey(user,draft.walk))}catch{/* Confirmed note is saved on the server. */}
+      const note=draft.ending.note
+      queueNote(user,{id:`${draft.walk}`,walk_id:draft.walk,text:note.text,recorded_at:draft.ending.at})
+      try{localStorage.removeItem(noteDraftKey(user,draft.walk))}catch{/* The end-intent also retains the draft. */}
      }
+     // A missing notes integration must not strand a completed GPS route.
+     await syncNotesBeforeFinish(user,draft.walk)
      const args={p_walk:draft.walk,p_ended_at:draft.ending.at,p_reason:draft.ending.reason}
      const result=draft.pauses?.length?await (db() as unknown as SupabaseClient).rpc('finish_walk_with_pauses',{...args,p_pauses:draft.pauses}):await db().rpc('finish_walk',args)
      if(result.error) throw result.error
@@ -169,7 +173,7 @@ function Tracker({user,household,dog,children}:{user:string;household:string;dog
    const latest=route.current.at(-1)
    let finalNote=note
    try{finalNote??=parseNoteDraft(localStorage.getItem(noteDraftKey(user,active.current.id)))??undefined}catch{/* In-memory note takes precedence when available. */}
-   buffer.current!.ending={at:new Date(Math.max(Date.now(),latest?Date.parse(latest.recorded_at):0,Date.parse(active.current.started_at))).toISOString(),reason,...(finalNote&&finalNote.text.trim()!==finalNote.expected?{note:finalNote}:{})}
+   buffer.current!.ending={at:new Date(Math.max(Date.now(),latest?Date.parse(latest.recorded_at):0,Date.parse(active.current.started_at))).toISOString(),reason,...(finalNote&&finalNote.text.trim()&&finalNote.text.trim()!==finalNote.expected?{note:finalNote}:{})}
    buffer.current!.pauses=closePause(buffer.current!.pauses??[],buffer.current!.ending.at);buffer.current!.pauseUpdatedAt=Date.now()
    persist();setGpsMessage(gpsChoice.current?'GPS stopped. Saving the completed walk…':'Saving the completed time-only walk…')
    await sync()

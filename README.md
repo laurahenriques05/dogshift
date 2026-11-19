@@ -406,3 +406,12 @@ Validated with disposable PGlite data: preserved dog/treatment/file rows, privat
 ### Permanent folder deletion across app versions
 
 `20261118231500_disable_legacy_folder_soft_delete.sql` (not yet applied to hosted Supabase) blocks the old `manage_health_document_folder` delete action with a refresh message. An old confirmation that promises recoverable deletion never becomes irreversible behind the user’s back. Current clients explicitly confirm Delete permanently, use the prepare/Storage/finalize flow and never report a successful archive. Existing archived folders remain recoverable until explicitly deleted. Preflight permission errors leave files unchanged; failures after preparation report retryable incomplete deletion.
+
+### Walk notes journal and Today's walks
+
+Save Note now adds timestamped history entries and clears the editor. Today's
+walks tracks a household's chosen daily count, using completed walks and explicit
+manual checks without fabricated GPS/time data. These features require the
+proposed, unapplied `20261119001000_walk_journal_and_daily_plan.sql` migration and
+Laura/team review. Missing notes integration no longer blocks route completion;
+unsynchronised notes remain marked pending. See [rollout and verification](docs/walks-journal-daily.md).

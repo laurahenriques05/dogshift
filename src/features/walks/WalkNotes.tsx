@@ -1,19 +1,23 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { Pencil } from 'lucide-react'
 import { Button } from '../../components/ui'
-import { noteDraftKey, parseNoteDraft, saveWalkNote, type NoteDraft } from './noteDraft'
-export function WalkNotes({walkId,user,notes,onSaved,onDraftChange,action,disabled=false}:{walkId:string;user:string;notes:string;onSaved?:(notes:string)=>void;onDraftChange?:(draft:NoteDraft)=>void;action?:ReactNode;disabled?:boolean}){
- const key=noteDraftKey(user,walkId),[text,setText]=useState(notes),[expected,setExpected]=useState(notes),[open,setOpen]=useState(false),[busy,setBusy]=useState(false),[status,setStatus]=useState(''),[conflict,setConflict]=useState(false)
- const onDraft=useRef(onDraftChange);onDraft.current=onDraftChange
- useEffect(()=>{onDraft.current?.({text,expected})},[text,expected])
+import { noteDraftKey, parseNoteDraft, type NoteDraft } from './noteDraft'
+import { queueNote, syncNotes } from './noteJournal'
+import { WalkNoteHistory } from './WalkNoteHistory'
+export function WalkNotes({walkId,user,notes,onSaved,onDraftChange,action,disabled=false,timezone}:{walkId:string;user:string;notes:string;onSaved?:(notes:string)=>void;onDraftChange?:(draft:NoteDraft)=>void;action?:ReactNode;disabled?:boolean;timezone?:string}){
+ const key=noteDraftKey(user,walkId),[text,setText]=useState(''),[open,setOpen]=useState(false),[busy,setBusy]=useState(false),[error,setError]=useState('')
+ const latest=useRef(onDraftChange);latest.current=onDraftChange
  const alive=useRef(true),locked=useRef(false)
- useEffect(()=>{alive.current=true;try{const draft=parseNoteDraft(localStorage.getItem(key));if(draft&&draft.text!==notes){setText(draft.text);setExpected(draft.expected);setStatus('Note recovered from this device.');setOpen(true)}else{setText(notes);setExpected(notes);if(draft)localStorage.removeItem(key)}}catch{setStatus('Device storage is unavailable. Save before closing.')}return()=>{alive.current=false}},[key,notes])
- function keep(value:string){setText(value);try{localStorage.setItem(key,JSON.stringify({text:value,expected} satisfies NoteDraft));setStatus('Draft kept on this device.')}catch{setStatus('Device storage is unavailable. Save before closing.')}}
+ useEffect(()=>{latest.current?.({text,expected:notes})},[text,notes])
+ useEffect(()=>{alive.current=true;try{const draft=parseNoteDraft(localStorage.getItem(key));if(draft&&draft.text!==draft.expected){setText(draft.text);setOpen(true)}}catch{setError('Device storage unavailable. Keep this page open.')}return()=>{alive.current=false}},[key])
+ useEffect(()=>{const retry=()=>{void syncNotes(user,walkId).catch(()=>{})};retry();const timer=setInterval(()=>{if(navigator.onLine&&!document.hidden)retry()},15000);window.addEventListener('online',retry);return()=>{clearInterval(timer);window.removeEventListener('online',retry)}},[user,walkId])
+ function keep(value:string){setText(value);setError('');try{localStorage.setItem(key,JSON.stringify({text:value,expected:notes}))}catch{setError('Device storage unavailable. Keep this page open.')}}
  async function save(){
-  if(locked.current)return;locked.current=true;setBusy(true);setStatus('Saving note…')
-  try{const walk=await saveWalkNote(walkId,{text,expected});if(!alive.current)return;setText(walk.notes);setExpected(walk.notes);try{localStorage.removeItem(key)}catch{/* The server confirmed this note. */}setOpen(false);setConflict(false);setStatus('Note saved.');onSaved?.(walk.notes)}
-  catch(error){if(alive.current){setConflict(!!error&&typeof error==='object'&&'code' in error&&error.code==='40001');let kept=false;try{kept=parseNoteDraft(localStorage.getItem(key))?.text===text}catch{/* The draft remains only in memory. */}setStatus(error&&typeof error==='object'&&'code' in error&&error.code==='40001'?'This note changed on another device. Reopen the walk before replacing it.':kept?'Your note is kept on this device. Try saving again when connected.':'Could not save the note. Keep this page open and retry.')}}
+  if(locked.current||!text.trim())return;locked.current=true;setBusy(true);setError('')
+  let queued=false
+  try{queueNote(user,{id:crypto.randomUUID(),walk_id:walkId,text:text.trim(),recorded_at:new Date().toISOString()});queued=true;localStorage.removeItem(key);setText('');setOpen(false);await syncNotes(user,walkId);onSaved?.(notes)}
+  catch{if(alive.current&&!queued)setError('Could not save note. Retry.')}
   finally{locked.current=false;if(alive.current)setBusy(false)}
  }
- return <section className="walk-note"><div className="walk-note-actions"><Button className="secondary walk-note-open" disabled={busy||disabled} onClick={()=>setOpen(value=>!value)}><Pencil size={19} aria-hidden="true"/>{text?'Edit note':'Add a note'}</Button>{action}</div>{open&&<div className="walk-note-editor"><textarea aria-label="Walk note" id={`note-${walkId}`} value={text} maxLength={2000} rows={3} disabled={busy||disabled} onChange={event=>keep(event.target.value)} placeholder="A little moment to remember…"/><Button disabled={busy||disabled} onClick={()=>void save()}>Save note</Button></div>}{!open&&text&&<p className="walk-notes">{text}</p>}{conflict&&<Button className="secondary" onClick={()=>{setText(notes);setExpected(notes);setConflict(false);setStatus('Saved note restored.');try{localStorage.removeItem(key)}catch{/* The visible saved note remains available. */}}}>Use saved note</Button>}{status&&<p className="walk-note-status" role="status">{status}</p>}</section>
+ return <section className="walk-note"><div className="walk-note-actions"><Button className="secondary walk-note-open" disabled={busy||disabled} onClick={()=>setOpen(value=>!value)}><Pencil size={19} aria-hidden="true"/>Add a note</Button>{action}</div>{open&&<div className="walk-note-editor"><textarea aria-label="Walk note" value={text} maxLength={2000} rows={3} disabled={busy||disabled} onChange={event=>keep(event.target.value)} placeholder="A little moment to remember…"/><Button disabled={busy||disabled||!text.trim()} onClick={()=>void save()}>Save Note</Button></div>}{error&&<p className="walk-note-status" role="alert">{error}</p>}<WalkNoteHistory walkId={walkId} user={user} legacy={notes} timezone={timezone}/></section>
 }

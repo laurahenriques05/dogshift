@@ -14,18 +14,18 @@ import 'maplibre-gl/dist/maplibre-gl.css'
 import './walks.css'
 export default function StartLocationMap({location}:{location:StartLocation|null}){
  const host=useRef<HTMLDivElement>(null),map=useRef<VectorMap|null>(null),marker=useRef<Marker|null>(null),centered=useRef(false),loaded=useRef(false),draw=useRef<()=>void>(()=>{})
- const [mode,setMode]=useState<MapViewMode>('standard'),[dogs,setDogs]=useState(false),[ready,setReady]=useState(false)
+ const [mode,setMode]=useState<MapViewMode>('standard'),[dogs,setDogs]=useState(false),[ready,setReady]=useState(false),[framed,setFramed]=useState(false)
  const lastMode=useRef<MapViewMode|null>(null)
  const latest=useRef({location,mode,dogs});latest.current={location,mode,dogs}
  const [error,setError]=useState(''),[loading,setLoading]=useState(true),[attempt,setAttempt]=useState(0)
  useEffect(()=>{
   let disposed=false,cleanup=()=>{}
-  loaded.current=false;setReady(false);setLoading(true);setError('')
+  loaded.current=false;setReady(false);setFramed(false);setLoading(true);setError('')
   const timeout=setTimeout(()=>{if(!disposed){setLoading(false);setError('Map unavailable. You can retry while GPS keeps searching.')}},20000)
   void import('maplibre-gl').then(M=>{
    if(disposed||!host.current)return
    M.setWorkerUrl(workerUrl)
-   const instance=new M.Map({container:host.current,style:structuredClone(style) as StyleSpecification,center:[0,20],zoom:1,maxZoom:20,scrollZoom:false,doubleClickZoom:false,dragPan:true,touchZoomRotate:true,dragRotate:false,touchPitch:false,attributionControl:false})
+   const instance=new M.Map({container:host.current,style:structuredClone(style) as StyleSpecification,center:latest.current.location?[latest.current.location.longitude,latest.current.location.latitude]:[0,20],zoom:latest.current.location?13.8:1,maxZoom:20,scrollZoom:false,doubleClickZoom:false,dragPan:true,touchZoomRotate:true,dragRotate:false,touchPitch:false,attributionControl:false})
    map.current=instance;centered.current=false
    const dot=document.createElement('div');dot.className='walk-location-dot';marker.current=new M.Marker({element:dot})
    instance.addControl(new M.NavigationControl({showCompass:false}),'top-left');addCompactMapCredits(instance,M)
@@ -36,6 +36,7 @@ export default function StartLocationMap({location}:{location:StartLocation|null
     marker.current?.setLngLat([point.longitude,point.latitude]).addTo(instance)
     if(!centered.current&&loaded.current){
      centered.current=true
+     instance.jumpTo({center:[point.longitude,point.latitude],zoom:13.8,pitch:latest.current.mode==='3d'?55:0});setFramed(true)
      instance.flyTo({center:[point.longitude,point.latitude],zoom:15.5,pitch:latest.current.mode==='3d'?55:0,duration:motionDuration(MAP_APPROACH_MS),essential:false})
     }
    }
@@ -53,5 +54,5 @@ export default function StartLocationMap({location}:{location:StartLocation|null
  },[attempt])
  useEffect(()=>draw.current(),[location])
  useEffect(()=>{const instance=map.current;if(!instance||!ready)return;applyMapPresentation(instance,mode,dogs,lastMode.current!==mode);lastMode.current=mode;draw.current();if(mode!=='satellite')return;const timer=setTimeout(()=>{if(!instance.isSourceLoaded('walk-satellite')){setMode('standard');setError('Imagery unavailable. Standard map is shown.')}},20000);return()=>clearTimeout(timer)},[mode,dogs,ready])
- return <><div className="walk-location-map-wrap"><div ref={host} className="walk-location-map" role="region" aria-label="Starting location map. Drag in any direction. Pinch or use zoom controls."/>{location&&<Button className="secondary walk-location-recenter" onClick={()=>map.current?.flyTo({center:[location.longitude,location.latitude],zoom:15.5,duration:0})}><LocateFixed size={14} aria-hidden="true"/>Recenter</Button>}{loading&&<p className="walk-map-status" role="status">Loading map…</p>}{error&&<p className="walk-map-status" role="alert">{error} <button type="button" onClick={()=>setAttempt(value=>value+1)}>Retry map</button></p>}<MapPreferences mode={mode} onMode={setMode} dogs={dogs} onDogs={setDogs}/></div></>
+ return <><div className="walk-location-map-wrap"><div ref={host} style={{visibility:framed?'visible':'hidden'}} className="walk-location-map" role="region" aria-label="Starting location map. Drag in any direction. Pinch or use zoom controls."/>{location&&<Button className="secondary walk-location-recenter" onClick={()=>map.current?.flyTo({center:[location.longitude,location.latitude],zoom:15.5,duration:0})}><LocateFixed size={14} aria-hidden="true"/>Recenter</Button>}{(loading||!framed)&&!error&&<p className="walk-map-status" role="status">{location?'Loading map…':'Finding your location…'}</p>}{error&&<p className="walk-map-status" role="alert">{error} <button type="button" onClick={()=>setAttempt(value=>value+1)}>Retry map</button></p>}<MapPreferences mode={mode} onMode={setMode} dogs={dogs} onDogs={setDogs}/></div></>
 }
