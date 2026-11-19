@@ -34,7 +34,11 @@ it('renders real contribution attribution and keeps the instruction guide separa
  expect(html).toContain('10 XP')
  const guide=renderToStaticMarkup(createElement(GuidedLesson,{module:modules[0]}))
  expect(guide).toContain('Step 1 of 3')
- expect(guide).toContain('Reading the guide does not mark the challenge complete')
+ expect(guide).toContain('Save your practice below to record your progress.')
+ expect(guide).toContain('How to do it')
+ expect(guide).toContain(modules[0].sections[0].text)
+ expect(guide).toContain('Choose a reward your dog enjoys and find a quiet, familiar place.')
+ expect(guide).not.toContain('Complete challenge')
 })
 it('handles an entirely achieved journey without inventing another locked lesson',()=>{
  const journey=trainingJourney(new Set(modules.map(module=>module.id)),[],[])
