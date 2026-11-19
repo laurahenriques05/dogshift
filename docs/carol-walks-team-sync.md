@@ -138,3 +138,12 @@ New `20261119203310_fixed_walk_routine_periods.sql` supersedes its requirements;
 this append-only proposal also works without solar columns. Neither was applied
 to the hosted project in this follow-up. Do not apply the historical solar file
 alone. Existing recorded walks, checks, GPS and household routines are preserved.
+
+## Save routine button follow-up
+
+Save stays clickable except while saving. Required browser validation plus explicit
+submission validation retain mandatory estimates; FormData reads actual controls
+instead of using React preview state to gate the button. A temporary local fixture
+verified empty-field rejection and correct saved values on desktop/mobile; no
+hosted writes or SQL changes. 263 isolated tests, typecheck and build passed on
+Node 22. Existing build warnings remain. See walks-routine-period-names.md.

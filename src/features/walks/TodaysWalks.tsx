@@ -52,15 +52,18 @@ export function TodaysWalks({routine,user,zone}:{routine:DailyWalkRoutine;user:s
     </ol>}
     {editing&&<form className="walk-plan-form" onSubmit={async event=>{
      event.preventDefault()
-     if(await routine.saveCount(Number(value),Array.from({length:Number(value)},(_,i)=>times[i]??''))){setMode(null);setFeedback('Walking routine saved.')}
+     if(routine.busy)return
+     const form=new FormData(event.currentTarget),count=Number(form.get('walk-count')),estimates=form.getAll('walk-time').map(String)
+     if(!validRoutineTimes(estimates,count)){setFeedback('Choose an estimated time for every walk.');return}
+     if(await routine.saveCount(count,estimates)){setMode(null);setFeedback('Walking routine saved.')}
     }}>
-     <Field label="Walks per day" type="number" min={1} max={12} step={1} required disabled={routine.busy} value={value} onChange={event=>setValue(event.target.value)}/>
+     <Field label="Walks per day" name="walk-count" type="number" min={1} max={12} step={1} required disabled={routine.busy} value={value} onChange={event=>setValue(event.target.value)}/>
      <div className="walk-routine-times"><p>Estimated times</p>
-      {Array.from({length:Math.max(1,Math.min(12,Number(value)||1))},(_,i)=><Field key={i} label={preview[i]||`Estimated time ${i+1}`} type="time" required disabled={routine.busy} value={times[i]??''}
+      {Array.from({length:Math.max(1,Math.min(12,Number(value)||1))},(_,i)=><Field key={i} label={preview[i]||`Estimated time ${i+1}`} name="walk-time" type="time" required disabled={routine.busy} value={times[i]??''}
        onInput={event=>changeTime(i,event.currentTarget.value)} onChange={event=>changeTime(i,event.target.value)} onBlur={event=>changeTime(i,event.target.value)}/>)}
      </div>
      <div className="walk-actions">
-      <Button disabled={routine.busy||!validRoutineTimes(times.slice(0,Number(value)),Number(value))}>Save routine</Button>
+      <Button type="submit" disabled={routine.busy}>Save routine</Button>
       <Button type="button" className="secondary" disabled={routine.busy} onClick={()=>setMode(null)}>Cancel</Button>
       {mode==='edit'&&<Button type="button" className="secondary" disabled={routine.busy} onClick={()=>void withoutRoutine()}>Remove routine</Button>}
      </div>
