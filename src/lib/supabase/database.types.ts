@@ -1,10 +1,10 @@
-export type AppointmentSummaryRecord = {appointment_id:string;reason:string;observations:string;treatment:string;next_visit_at:string|null;medication_ids:string[];document_paths:string[];updated_by:string|null;updated_at:string}
+export type AppointmentSummaryRecord = {appointment_id:string;reason:string;observations:string;treatment:string;next_visit_at:string|null;next_visit_kind:'consultation'|'vaccination';next_vaccine_name:string;medication_ids:string[];document_paths:string[];updated_by:string|null;updated_at:string}
 export type HealthDocumentFolder = {purged_at?:string|null;deleted_at?:string|null;is_default:boolean;id:string;household_id:string;name:string;created_by:string|null;created_at:string}
 export type HealthAudit = { id:string;household_id:string;created_by:string|null;updated_by:string|null;created_at:string;updated_at:string }
 export type Treatment = HealthAudit & {title:string;occurred_on:string;veterinarian:string;notes:string}
 export type VetContact = HealthAudit & {name:string;phone:string;email:string;address:string;notes:string}
 export type WeightMeasurement = HealthAudit & {weight_kg:number;measured_at:string;notes:string}
-export type Vaccination = { id:string; household_id:string; name:string; given_on:string; next_due_on:string|null; veterinarian:string; batch_number:string; notes:string; created_by:string|null; updated_by:string|null; created_at:string; updated_at:string }
+export type Vaccination = { id:string; household_id:string; name:string; given_on:string|null; next_due_on:string|null; veterinarian:string; batch_number:string; notes:string; created_by:string|null; updated_by:string|null; created_at:string; updated_at:string }
 export type MedicationSchedule = { id:string; household_id:string; name:string; instructions:string; created_by:string|null; updated_by:string|null; created_at:string; updated_at:string }
 export type MedicationDose = { id:string; schedule_id:string; scheduled_at:string; status:'scheduled'|'given'|'skipped'; administered_at:string|null; recorded_by:string|null; recorded_at:string|null; updated_at:string; notes:string }
 export type AppointmentType = 'uncategorised'|'consultation'|'vaccination'|'examination'|'surgery'|'other'

@@ -10,6 +10,10 @@ export function weightWindow(anchor:string,period:WeightPeriod){
  else{start.setUTCDate(1);if(period==='Year')start.setUTCMonth(0);if(period==='6 Months')start.setUTCMonth(Math.floor(start.getUTCMonth()/6)*6);end=new Date(start);end.setUTCMonth(end.getUTCMonth()+(period==='Year'?12:period==='6 Months'?6:1))}
  return {start:start.toISOString().slice(0,10),end:end.toISOString().slice(0,10)}
 }
+export function weightScale(values: number[]) {
+ const numbers = values.filter(Number.isFinite)
+ return { min: Math.max(0, Math.min(35, Math.floor(Math.min(...numbers) / 5) * 5)), max: Math.max(60, Math.ceil(Math.max(...numbers) / 5) * 5) }
+}
 export function WeightTrend({measurements,zone}:{measurements:WeightMeasurement[];zone:string}){
  const today=localTime(new Date().toISOString(),zone).slice(0,10)
  const [period,setPeriod]=useState<WeightPeriod>('Month'),[anchor,setAnchor]=useState(today),[selected,setSelected]=useState<string|null>(null)
@@ -17,8 +21,7 @@ export function WeightTrend({measurements,zone}:{measurements:WeightMeasurement[
  const rows=measurements.filter(row=>{const day=localTime(row.measured_at,zone).slice(0,10);return day>=start&&day<end}).sort((a,b)=>a.measured_at.localeCompare(b.measured_at))
  const active=rows.find(row=>row.id===selected)
  const average=rows.length?rows.reduce((sum,row)=>sum+Number(row.weight_kg),0)/rows.length:null
- const numbers=rows.map(row=>Number(row.weight_kg));const low=rows.length?Math.min(...numbers):0,high=rows.length?Math.max(...numbers):1
- const padding=Math.max((high-low)*.25,.5);const min=Math.max(0,Math.floor((low-padding)*2)/2),max=Math.ceil((high+padding)*2)/2
+ const {min,max}=weightScale(rows.map(row=>Number(row.weight_kg)))
  const from=Date.parse(start+'T00:00Z'),until=Date.parse(end+'T00:00Z')
  // Household wall-clock coordinates keep calendar-day boundaries independent of device timezone.
  const x=(row:WeightMeasurement)=>24+(Date.parse(localTime(row.measured_at,zone)+'Z')-from)/(until-from)*516

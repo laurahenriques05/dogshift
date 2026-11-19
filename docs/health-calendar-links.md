@@ -14,7 +14,7 @@ Medication schedules with at least one dose and every dose marked given appear i
 
 The medication form is hidden until Add medication or Edit is selected and closes after a successful save or cancellation. Past Medication is collapsed by default; links targeting a completed dose expand its history automatically.
 
-Health record pages use compact top actions to reveal their add forms (vaccinations, treatments, weight, documents, medication and past appointments). Forms close on successful save/upload or cancellation. Vet contacts retains its directory toolbar and add/edit form workflow.
+Vaccinations, medication, weight, documents, contacts and appointments use modal add forms, closing after successful save/upload or cancellation. Treatments retain an inline form. Summary next visits create linked appointment/vaccination source records after applying `20261119010000_summary_followups.sql`; existing calendar IDs/routes remain unchanged. Future vaccinations have a due date and no administration date, and are excluded from administered history. No new notification pipeline is introduced.
 
 Weight measurements appear in a single vertical list ordered by measured time, newest first. Hide records / Show records collapses only the list; the weight chart remains available.
 
