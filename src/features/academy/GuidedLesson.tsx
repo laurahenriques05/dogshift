@@ -1,0 +1,8 @@
+import { useState } from 'react'
+import { ArrowLeft,ArrowRight,Check } from 'lucide-react'
+import type { AcademyModule } from './catalog'
+export function GuidedLesson({module}:{module:AcademyModule}){
+ const [step,setStep]=useState(0)
+ const section=module.sections[step],visual=module.visualSteps[step]
+ return <section className="academy-guided-lesson" aria-label="Step-by-step teaching guide"><div className="academy-guide-top"><span>TEACHING GUIDE</span><span>Step {step+1} of {module.sections.length}</span></div><div className="academy-guide-dots" aria-label="Teaching steps">{module.sections.map((item,index)=><button type="button" key={item.heading} aria-label={`Read step ${index+1}: ${item.heading}`} aria-current={step===index?'step':undefined} className={index===step?'is-current':index<step?'is-read':''} onClick={()=>setStep(index)}>{index<step?<Check size={14}/>:index+1}</button>)}</div><div className="academy-guide-content" aria-live="polite"><p className="eyebrow">{visual?.title||`Step ${step+1}`}</p><h2>{section.heading}</h2><p>{section.text}</p></div><div className="academy-guide-actions"><button type="button" disabled={step===0} onClick={()=>setStep(value=>value-1)}><ArrowLeft size={16}/>Back</button>{step<module.sections.length-1?<button type="button" className="button" onClick={()=>setStep(value=>value+1)}>Next step<ArrowRight size={16}/></button>:<a className="button" href="#academy-practice">Try it with {"your dog"}<ArrowRight size={16}/></a>}</div><p className="academy-guide-note">Reading the guide does not mark the challenge complete. Save your practice below when you’re ready.</p></section>
+}

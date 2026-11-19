@@ -92,11 +92,11 @@ These are integration checks, not requests to decide Maria's task/reward rules:
    reports applying the Academy migration. The hosted schema has not been
    independently inspected here. Confirm current migration state before future
    schema work; never re-run the curriculum migration.
-2. **Beni (Health source events):** still confirm the stable source IDs and
-   exact deep links for appointments, vaccinations and medication doses used in
-   the Calendar, and flag any mismatch. Her earlier task-deletion review did not
-   confirm these calendar links. Health can then connect to the shared
-   sync/cancel RPCs for its agreed reminder policy.
+2. **Beni (Health source events):** destinations are documented in
+   [Health calendar links](health-calendar-links.md) and match the calendar
+   adapter. No further route confirmation is needed for these destinations.
+   Health still needs to connect source changes to the shared sync/cancel RPCs
+   for its reminder policy; a calendar link does not schedule a push reminder.
 3. **Carol (Walks integration):** review recorded 14 November. Keep walk
    stationary alerts local to the walker; do not connect them to shared push or
    add completed GPS walks to the calendar without a new agreement. `/walks/learn`
@@ -109,6 +109,11 @@ but the function still needs server secrets, deployment and a scheduled
 invocation. Feature-specific Feeding and Health adapters do not currently call
 the shared sync/cancel RPCs. Real-device delivery also needs validation before
 push can be called functional.
+
+The 17 November task reliability follow-up is described in
+[Tasks reliability and rollout](tasks-reliability.md). Its new migration remains
+pending review and coordinated application; it is not part of Laura's earlier
+reported rollout.
 
 ## Laura migration and Feeding review
 
