@@ -4,6 +4,8 @@ import {WalkDailyOverview} from '../features/walks/WalkDailyOverview'
 import {TodaysWalks} from '../features/walks/TodaysWalks'
 import type {DailyWalkRoutine} from '../features/walks/useDailyWalkRoutine'
 import type {Walk} from '../lib/supabase/database.types'
+// Isolate presentation from browser configuration and live Supabase initialization.
+vi.mock('../lib/supabase/client',()=>({appUrl:'https://pawshare.example',db:()=>{throw new Error('Presentation tests must not access Supabase')}}))
 const routine={day:'2026-11-19',count:undefined,times:[],decided:false,slots:[],done:0,recordedCount:0,loading:false,ready:true,busy:false,error:'',retry:vi.fn(),saveCount:vi.fn(),mark:vi.fn(),undo:vi.fn()} as unknown as DailyWalkRoutine
 const overview=(plan:DailyWalkRoutine,walks:Walk[]=[])=>renderToStaticMarkup(<WalkDailyOverview routine={plan} walks={walks} zone="Europe/Lisbon" dogName="Milo" household="example" busy={false} onStart={()=>{}}/>)
 it('offers an optional first routine without inventing a goal, last start or next walk',()=>{

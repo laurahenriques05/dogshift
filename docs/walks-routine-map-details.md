@@ -74,3 +74,15 @@ by TypeScript and the production build. Existing dependencies were reused; this
 was not a new `npm ci`. `git diff --check` passed. Existing Zod annotation and
 large-bundle warnings remain. Current main's documentation (PR #49 at `9d894b5`)
 was integrated without changing feature ownership or applying any migration.
+
+## CI follow-up
+
+The first push/PR Verify runs exposed an environment-dependent presentation test:
+with no VITE_APP_URL and no browser window, server rendering tried to construct
+the NFC URL from an empty base. Local .env.local had masked this test dependency.
+The presentation suite now supplies an explicit reserved example origin and a
+Supabase stub that rejects any database access. Assertions and the real NFC URL
+unit tests remain intact; no product configuration/security or CI rules changed.
+The original failure was reproduced locally with all three VITE app/Supabase
+variables blank before fixing it. The full isolated suite is rerun with those
+variables blank, followed by typecheck/build and both GitHub Verify executions.
