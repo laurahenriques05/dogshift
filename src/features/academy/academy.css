@@ -77,3 +77,21 @@
 .academy-challenge-page .academy-check>summary,.academy-challenge-page .academy-sources>summary,.academy-challenge-page .academy-history>summary{font-size:18px;min-height:44px;cursor:pointer;padding:8px 0;color:#244d3c}
 .academy-challenge-page .academy-check p,.academy-challenge-page .academy-sources a{font-size:16px;line-height:1.7}
 @media(max-width:600px){.academy-challenge-page .academy-challenge-guide{padding:20px}.academy-challenge-page .academy-challenge-sidebar{grid-template-columns:1fr}.academy-challenge-page .academy-training-drawing{gap:8px}.academy-challenge-page .academy-drawing-icon{width:66px;height:66px;border-radius:23px}.academy-challenge-page .academy-drawing-icon svg{width:30px;height:30px}.academy-challenge-page .academy-dog-drawing{transform:scale(.95)}.academy-challenge-page .academy-guide-content{padding:20px}.academy-challenge-page .academy-guide-content h2{font-size:25px}.academy-challenge-page .academy-guide-content>.academy-guide-main-instruction{font-size:19px}.academy-challenge-page .academy-training-drawing small{font-size:13px}}
+
+/* Match the established Academy greens and a quieter reading scale. */
+.academy-challenge-page .page-title h1{font-size:clamp(28px,3vw,38px)}
+.academy-challenge-page .page-title>.muted{font-size:15px}
+.academy-challenge-page .academy-guide-content h2{font-size:24px}
+.academy-challenge-page .academy-guide-content>.academy-guide-main-instruction{font-size:17px}
+.academy-challenge-page .academy-full-instructions p{font-size:15px}
+.academy-challenge-page .academy-guide-content>.academy-guide-safety{font-size:14px}
+.academy-challenge-page .academy-guide-top,.academy-challenge-page .academy-meta,.academy-challenge-page .academy-guide-note{font-size:13px}
+.academy-challenge-page .academy-guide-actions>.button,.academy-challenge-page .academy-guide-actions>button:not(.button){font-size:14px}
+.academy-challenge-page .academy-challenge-actions{background:#e8eedf;border-color:#d7e1cb}
+.academy-challenge-page .academy-challenge-actions h2{font-size:18px}.academy-challenge-page .academy-challenge-actions button{font-size:14px}
+.academy-challenge-page .academy-try>h2{font-size:24px}.academy-challenge-page .academy-try>p{font-size:15px}
+.academy-challenge-page .academy-drawing-icon{background:#e8eedf;color:#43683b}.academy-challenge-page .academy-drawing-reward{background:#d6e2c4}
+.academy-dog-icon{display:grid;place-items:center;height:100px;color:#43683b}.academy-dog-icon svg{width:96px;height:96px}
+.academy-popup-heading{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:22px}.academy-popup-heading h2{font-size:24px;margin:0;color:#244d3c}.academy-popup-heading .button{font-size:13px;padding:8px 12px;min-height:40px}
+.academy-challenge-modal{color:#244d3c;background:#fdfef9}.academy-challenge-modal p{font-size:15px;line-height:1.7}.academy-challenge-modal .academy-practice-form legend{font-size:16px}.academy-challenge-modal .academy-check-row{font-size:15px;line-height:1.65;min-height:48px;gap:12px}.academy-challenge-modal .academy-check-row input{width:20px;height:20px;accent-color:#43683b}.academy-challenge-modal .academy-complete-row>span{font-size:15px}.academy-challenge-modal .academy-soft-copy,.academy-challenge-modal .academy-practice-hint{font-size:14px}.academy-challenge-modal .academy-practice-form .button{font-size:14px}.academy-challenge-modal .academy-note-toggle>summary{font-size:14px}
+@media(max-width:600px){.academy-challenge-page .academy-guide-content h2{font-size:22px}.academy-challenge-page .academy-guide-content>.academy-guide-main-instruction{font-size:16px}.academy-dog-icon{height:78px}.academy-dog-icon svg{width:78px;height:78px}.academy-challenge-modal{max-width:calc(100vw - 24px)}}
