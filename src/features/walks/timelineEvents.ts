@@ -1,9 +1,11 @@
 import type { Walk } from '../../lib/supabase/database.types'
+import { validPauses } from './pauseClock'
 import { GPS_POLICY, segment, type Point } from './gps'
 import type { WasteEvent, WasteMode } from './waste'
 export type TimelineEntry = { id:string; at:string; label:string }
 /** Rebuilt from saved samples/events: no inferred visits, fabricated route or final-only waste times. */
 export function walkTimeline(walk: Pick<Walk,'started_at'|'ended_at'>, points: Point[], mode: WasteMode|null, waste: WasteEvent[]): TimelineEntry[] {
+ const stored=walk as typeof walk&{timeline_edits?:TimelineEntry[];pause_intervals?:unknown}
  const entries:TimelineEntry[]=[{id:'start',at:walk.started_at,label:'Walk started'}]
  let meters=0,next=500
  const ordered=[...new Map(points.map(point=>[point.seq,point])).values()].sort((a,b)=>a.seq-b.seq)
@@ -16,6 +18,8 @@ export function walkTimeline(walk: Pick<Walk,'started_at'|'ended_at'>, points: P
   if(meters>=next){entries.push({id:`distance-${next}`,at:point.recorded_at,label:`${(next/1000).toLocaleString('en',{maximumFractionDigits:1})} km recorded`});next+=500}
  })
  if(mode==='during')for(const event of new Map(waste.map(event=>[event.id,event])).values())entries.push({id:`waste-${event.id}`,at:event.recorded_at,label:event.kind==='pee'?'Pee recorded':'Poop recorded'})
+ if(validPauses(stored.pause_intervals))stored.pause_intervals.forEach((pause,index)=>{entries.push({id:`pause-start-${index}`,at:pause.start,label:'Walk paused'});if(pause.end)entries.push({id:`pause-end-${index}`,at:pause.end,label:'Walk resumed'})})
  if(walk.ended_at)entries.push({id:'finish',at:walk.ended_at,label:'Walk finished'})
- return entries.filter(entry=>Date.parse(entry.at)>=Date.parse(walk.started_at) && (!walk.ended_at||Date.parse(entry.at)<=Date.parse(walk.ended_at))).sort((a,b)=>Date.parse(a.at)-Date.parse(b.at)||(a.id==='start'?-1:b.id==='start'?1:a.id==='finish'?1:b.id==='finish'?-1:a.id.localeCompare(b.id)))
+ const edits=new Map((Array.isArray(stored.timeline_edits)?stored.timeline_edits:[]).map(entry=>[entry.id,entry]))
+ return entries.map(entry=>{const edit=edits.get(entry.id);return edit?{...entry,label:edit.label,at:['start','finish'].includes(entry.id)?entry.at:edit.at}:entry}).filter(entry=>Date.parse(entry.at)>=Date.parse(walk.started_at) && (!walk.ended_at||Date.parse(entry.at)<=Date.parse(walk.ended_at))).sort((a,b)=>Date.parse(a.at)-Date.parse(b.at)||(a.id==='start'?-1:b.id==='start'?1:a.id==='finish'?1:b.id==='finish'?-1:a.id.localeCompare(b.id)))
 }

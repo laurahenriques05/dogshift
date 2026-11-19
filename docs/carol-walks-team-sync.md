@@ -113,3 +113,9 @@ Publication uses the connected GitHub service because command-line HTTPS push
 has no credentials. The feature is for another member's review, without merging
 into main or deploying unreviewed changes. Prior local commits are preserved
 in the local integration branch when a consolidated publication commit is used.
+
+## Subsequent editing refinements
+
+See [walk editing and live metrics](walks-editing-refinements.md) for the source
+implementation, new proposed correction migration and the blocked pause rollout.
+No new hosted migration or activity write was performed for that follow-up.

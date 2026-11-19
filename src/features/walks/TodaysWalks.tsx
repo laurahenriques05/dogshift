@@ -16,7 +16,7 @@ export function TodaysWalks({routine,user,zone}:{routine:DailyWalkRoutine;user:s
  async function withoutRoutine(){
   if(await routine.saveCount(undefined)){setEditing(false);setFeedback('Walking without a routine. You can set one anytime.')}
  }
- return <div className="walk-routine-layout"><section className="card walk-today">
+ return <div className="walk-routine-layout"><section className={`card walk-today${routine.ready&&routine.count===undefined&&!editing?' is-unconfigured':''}`}>
   <header className="walk-today-heading">
    <h2><span className="icon-tile"><Footprints size={28} aria-hidden="true"/></span>{routine.count===undefined?'Walking routine':'Today’s walk'}</h2>
   </header>
@@ -25,7 +25,7 @@ export function TodaysWalks({routine,user,zone}:{routine:DailyWalkRoutine;user:s
    {routine.error&&<p role="alert">{routine.error} <button type="button" className="walk-text-action" onClick={routine.retry}>Retry</button></p>}
    {routine.ready&&<>
     {routine.count===undefined?<>
-     {!editing&&<div className="walk-routine-setup"><Button disabled={routine.busy} onClick={edit}>Set your routine</Button><p>Choose daily walks and optional estimated times</p></div>}
+     {!editing&&<div className="walk-routine-setup"><Button disabled={routine.busy} onClick={edit}>Set your routine</Button></div>}
     </>:<ol className="walk-routine-line dose-bubbles" aria-label="Today's walk routine">
      {routine.slots.map(item=>{
       const complete=!!(item.walk||item.manual),label=walkPeriod(item.number,routine.count!)
