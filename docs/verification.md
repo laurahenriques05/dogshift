@@ -27,7 +27,7 @@ Validation/configuration, invitation routing and authorization, household isolat
 - Phone push, background GPS and persistent calendar delivery; these integrations are not implemented by Feeding.
 - Automatic cross-device Feeding updates; current data refresh is manual/window focus.
 - Fresh-machine installation, the separate Supabase pgTAP suite, and a full secrets-history scan.
-- That GitHub main and production are aligned. See collaboration.md for the pending review/merge/release handoff. Record the actual merged SHA and deployment after it happens.
+- That GitHub main and production are aligned. The previous deployment record above is a historical snapshot; verify the production deployment SHA against the current `main` before claiming this release is live.
 
 ## Release smoke test
 

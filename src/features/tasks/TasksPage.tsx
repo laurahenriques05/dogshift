@@ -1,83 +1,98 @@
-import { useCallback, useEffect, useMemo, useState, type FormEvent } from 'react'
-import { Link, useSearchParams } from 'react-router-dom'
-import { Check, ListChecks, Plus, RotateCcw, Trash2 } from 'lucide-react'
-import { Button, Field, Notice, PageTitle, errorMessage, isSchemaUnavailable } from '../../components/ui'
+import { useCallback,useEffect,useMemo,useRef,useState,type FormEvent } from 'react'
+import { Link,useSearchParams } from 'react-router-dom'
+import { CalendarDays,Check,ChevronDown,Clock,MoreHorizontal,Plus,Repeat2,RotateCcw,UserRound } from 'lucide-react'
+import { Button,EmptyState,Field,LoadingPlaceholder,Notice,PageTitle,isSchemaUnavailable,errorMessage } from '../../components/ui'
+import { Modal } from '../../components/ui/Modal'
 import { db } from '../../lib/supabase/client'
-import type { FamilyMember, TaskOccurrence, TaskSeries } from '../../lib/supabase/database.types'
-import { localTime, toInstant } from '../health/time'
+import type { FamilyMember,TaskSeries } from '../../lib/supabase/database.types'
+import { localTime,toInstant } from '../health/time'
 import { useAuth } from '../auth/AuthProvider'
 import { useHousehold } from '../household/HouseholdProvider'
-import { recurrenceLabel, taskStatus } from './model'
+import { loadTaskData } from './data'
+import { groupTasks,type TaskRow } from './board'
+import { recurrenceLabel,taskStatus } from './model'
+import './tasks.css'
 
-type OccurrenceWithTask = TaskOccurrence & { task:TaskSeries }
-const emptyForm={title:'',details:'',assignedTo:'',firstDue:'',recurrence:'none' as TaskSeries['recurrence'],every:1,endsOn:''}
-export function TasksPage(){
- const {household}=useHousehold();const {session}=useAuth();const [search]=useSearchParams()
- const [series,setSeries]=useState<TaskSeries[]>([]),[occurrences,setOccurrences]=useState<TaskOccurrence[]>([]),[members,setMembers]=useState<FamilyMember[]>([])
- const [form,setForm]=useState(emptyForm),[editing,setEditing]=useState<string|null>(null),[formOpen,setFormOpen]=useState(false),[archive,setArchive]=useState<TaskSeries|null>(null)
- const [loading,setLoading]=useState(true),[busy,setBusy]=useState(false),[error,setError]=useState(''),[message,setMessage]=useState(''),[retry,setRetry]=useState(0)
+type TaskForm={title:string;details:string;assignedTo:string;firstDue:string;recurrence:TaskSeries['recurrence'];every:number;endsOn:string}
+function newForm(zone:string):TaskForm{return {title:'',details:'',assignedTo:'',firstDue:localTime(new Date(Date.now()+3600000).toISOString(),zone),recurrence:'none',every:1,endsOn:''}}
+function friendlyError(error:unknown){return isSchemaUnavailable(error)?'This task action is not available yet. You can reload your tasks; nothing needs to be reset.':errorMessage(error)}
+export function TasksPage(){const {household}=useHousehold();return household?<HouseholdTasks key={household.id}/>:null}
+function HouseholdTasks(){
+ const {household,dog}=useHousehold(),{session}=useAuth(),[search,setSearch]=useSearchParams()
+ const home=household!,zone=home.timezone,user=session!.user.id,focusId=search.get('occurrence')
+ const [data,setData]=useState<Awaited<ReturnType<typeof loadTaskData>>>({series:[],occurrences:[],members:[]})
+ const [loading,setLoading]=useState(true),[loadError,setLoadError]=useState(''),[actionError,setActionError]=useState(''),[message,setMessage]=useState(''),[busy,setBusy]=useState(false)
+ const [editing,setEditing]=useState<TaskSeries|null>(null),[formOpen,setFormOpen]=useState(false),[form,setForm]=useState(()=>newForm(zone)),[formError,setFormError]=useState(''),[advanced,setAdvanced]=useState(false),[archive,setArchive]=useState<TaskSeries|null>(null)
+ const [now,setNow]=useState(()=>new Date()),version=useRef(0)
  const load=useCallback(async()=>{
-  if(!household)return
-  setLoading(true);setError('')
+  const request=++version.current;setLoading(true);setLoadError('')
+  try{const result=await loadTaskData(home.id,focusId);if(request===version.current)setData(result)}
+  catch(error){if(request===version.current)setLoadError(friendlyError(error))}
+  finally{if(request===version.current)setLoading(false)}
+ },[home.id,focusId])
+ useEffect(()=>{void load();return()=>{version.current++}},[load])
+ useEffect(()=>{const timer=window.setInterval(()=>setNow(new Date()),60000);return()=>window.clearInterval(timer)},[])
+ useEffect(()=>{const refresh=()=>{if(!busy&&document.visibilityState==='visible')void load()};window.addEventListener('focus',refresh);return()=>window.removeEventListener('focus',refresh)},[load,busy])
+ const names=useMemo(()=>new Map(data.members.map(person=>[person.user_id,person.display_name])),[data.members])
+ const series=useMemo(()=>new Map(data.series.map(task=>[task.id,task])),[data.series])
+ const rows=useMemo<TaskRow[]>(()=>data.occurrences.flatMap(row=>{const task=series.get(row.series_id);return task?[{...row,task}]:[]}),[data.occurrences,series])
+ const groups=groupTasks(rows,zone,now),focused=focusId?rows.find(row=>row.id===focusId):undefined
+ function openForm(task?:TaskSeries){setEditing(task||null);setForm(task?{title:task.title,details:task.details,assignedTo:task.assigned_to||'',firstDue:localTime(task.first_due_at,zone),recurrence:task.recurrence,every:task.recurrence_every,endsOn:task.ends_on||''}:newForm(zone));setAdvanced(!!task&&(!!task.details||task.recurrence!=='none'));setFormError('');setFormOpen(true)}
+ async function save(event:FormEvent){event.preventDefault();if(busy)return;setBusy(true);setFormError('');setMessage('')
   try{
-   const now=Date.now(),from=new Date(now-90*86400000).toISOString(),until=new Date(now+180*86400000).toISOString()
-   const generated=await db().rpc('generate_task_occurrences',{p_household:household.id,p_from:from,p_until:until});if(generated.error)throw generated.error
-   const [s,o,m]=await Promise.all([
-    db().from('task_series').select('*').eq('household_id',household.id).order('first_due_at'),
-    db().from('task_occurrences').select('*').eq('household_id',household.id).gte('due_at',from).lte('due_at',until).order('due_at'),
-    db().rpc('get_household_members',{p_household:household.id}),
-   ])
-   if(s.error)throw s.error;if(o.error)throw o.error;if(m.error)throw m.error
-   setSeries(s.data||[]);setOccurrences(o.data||[]);setMembers(m.data||[])
-  }catch(e){setError(errorMessage(e))}finally{setLoading(false)}
- },[household?.id])
- useEffect(()=>{void load()},[load,retry])
- const names=useMemo(()=>new Map(members.map(member=>[member.user_id,member.display_name])),[members])
- const byId=useMemo(()=>new Map(series.map(task=>[task.id,task])),[series])
- const rows=useMemo<OccurrenceWithTask[]>(()=>occurrences.flatMap(occurrence=>{const task=byId.get(occurrence.series_id);return task?[{...occurrence,task}]:[]}),[occurrences,byId])
- const focusId=search.get('occurrence')
- useEffect(()=>{if(!loading&&focusId)document.getElementById(`task-${focusId}`)?.scrollIntoView({block:'center',behavior:'smooth'})},[loading,focusId,rows.length])
- function startEdit(task?:TaskSeries){
-  if(task){setEditing(task.id);setForm({title:task.title,details:task.details,assignedTo:task.assigned_to||'',firstDue:localTime(task.first_due_at,household!.timezone),recurrence:task.recurrence,every:task.recurrence_every,endsOn:task.ends_on||''})}
-  else{setEditing(null);setForm({...emptyForm,firstDue:localTime(new Date(Date.now()+3600000).toISOString(),household!.timezone)})}
-  setFormOpen(true)
-  setError('');setMessage('')
- }
- async function save(event:FormEvent<HTMLFormElement>){event.preventDefault();if(!household)return;setBusy(true);setError('');setMessage('')
-  try{
-   const result=await db().rpc('save_household_task',{p_household:household.id,p_id:editing,p_title:form.title,p_details:form.details,p_assigned_to:form.assignedTo||null,p_first_due_at:toInstant(form.firstDue,household.timezone),p_recurrence:form.recurrence,p_recurrence_every:form.recurrence==='none'?1:form.every,p_ends_on:form.recurrence==='none'||!form.endsOn?null:form.endsOn})
+   const result=await db().rpc('save_household_task',{p_household:home.id,p_id:editing?.id||null,p_title:form.title.trim(),p_details:form.details,p_assigned_to:form.assignedTo||null,p_first_due_at:toInstant(form.firstDue,zone),p_recurrence:form.recurrence,p_recurrence_every:form.recurrence==='none'?1:form.every,p_ends_on:form.recurrence==='none'||!form.endsOn?null:form.endsOn})
    if(result.error)throw result.error
-   setForm(emptyForm);setEditing(null);setFormOpen(false);setMessage(editing?'Task updated. Open future occurrences use the updated schedule.':'Task saved. Its calendar dates are ready.');await load()
-  }catch(e){setError(errorMessage(e))}finally{setBusy(false)}
+   setFormOpen(false);setMessage(editing?'Task updated. Completed history is kept.':'Task added to your family plan.');if(focusId)setSearch({}, {replace:true});await load()
+  }catch(error){setFormError(friendlyError(error))}finally{setBusy(false)}
  }
- async function toggle(row:OccurrenceWithTask,complete:boolean){setBusy(true);setError('');setMessage('')
-  try{const result=await db().rpc('complete_household_task',{p_occurrence:row.id,p_completed:complete});if(result.error)throw result.error;setMessage(complete?'Task marked done.':'Completion corrected.');await load()}
-  catch(e){setError(errorMessage(e))}finally{setBusy(false)}
+ async function complete(row:TaskRow,value:boolean){if(busy)return;setBusy(true);setActionError('');setMessage('')
+  try{const result=await db().rpc('complete_household_task',{p_occurrence:row.id,p_completed:value});if(result.error)throw result.error;setMessage(value?`${row.title} is done. Saved to your family’s completed tasks.`:'Completion undone. This task is open again.');await load()}
+  catch(error){setActionError(friendlyError(error))}finally{setBusy(false)}
  }
- async function archiveTask(){if(!household||!archive)return;setBusy(true);setError('')
-  try{const result=await db().rpc('archive_household_task',{p_household:household.id,p_task:archive.id});if(result.error)throw result.error;setMessage('Task stopped. Its history is kept.');setArchive(null);await load()}
-  catch(e){setError(errorMessage(e))}finally{setBusy(false)}
+ async function assign(row:TaskRow,assignee:string|null){if(busy||row.assigned_to===assignee)return;setBusy(true);setActionError('');setMessage('')
+  try{const result=await db().rpc('assign_household_task_occurrence',{p_occurrence:row.id,p_assigned_to:assignee,p_expected_assignee:row.assigned_to});if(result.error)throw result.error;setMessage(assignee===user?'You’re taking care of this task.':assignee?'Responsibility updated for this date.':'This task is available to anyone in the family.');await load()}
+  catch(error){setActionError(friendlyError(error))}finally{setBusy(false)}
  }
- const now=Date.now()
- return <div className="task-page">
-  <PageTitle eyebrow="YOUR FAMILY" title="Tasks and calendar">Share the little jobs that keep your dog’s days happy.</PageTitle>
-  <nav className="task-hub-nav" aria-label="Tasks and calendar"><Link className="is-active" to="/tasks" aria-current="page">Tasks</Link><Link to="/calendar">Calendar</Link></nav>
-  {error&&<Notice error>{error}</Notice>}{message&&<Notice>{message}</Notice>}
-  <section className="card task-form-card"><div className="task-title-row"><span className="icon-tile peach"><Plus size={19}/></span><div><h2>{editing?'Edit task':'Add a family task'}</h2><p className="muted">Create one clear responsibility for the family. Completion is attributed to the person who marks it done.</p></div><Button type="button" className="secondary task-form-toggle" aria-expanded={formOpen} onClick={()=>{if(formOpen){setForm(emptyForm);setEditing(null);setFormOpen(false)}else startEdit()}}>{formOpen?'Close':'Add task'}</Button></div>
-   {formOpen&&<form className="form-stack task-form" onSubmit={save}><div className="task-form-grid"><Field label="Task title" required maxLength={100} value={form.title} onChange={e=>setForm({...form,title:e.target.value})}/><Field label="Due date and time · 24-hour" type="datetime-local" required value={form.firstDue} onChange={e=>setForm({...form,firstDue:e.target.value})}/></div>
-    <label className="field">Details<textarea maxLength={1200} rows={3} value={form.details} onChange={e=>setForm({...form,details:e.target.value})}/></label>
-    <label className="field">Responsible family member<select value={form.assignedTo} onChange={e=>setForm({...form,assignedTo:e.target.value})}><option value="">Anyone in the family</option>{members.map(member=><option key={member.user_id} value={member.user_id}>{member.display_name}{member.user_id===session?.user.id?' (you)':''}</option>)}</select></label>
-    <div className="task-form-grid"><label className="field">Repeat<select value={form.recurrence} onChange={e=>setForm({...form,recurrence:e.target.value as TaskSeries['recurrence'],endsOn:''})}><option value="none">Does not repeat</option><option value="daily">Daily</option><option value="weekly">Weekly</option><option value="monthly">Monthly</option></select></label>
-     {form.recurrence!=='none'&&<Field label="Every (interval)" type="number" min={1} max={52} required value={form.every} onChange={e=>setForm({...form,every:Number(e.target.value)})}/>}
-    </div>
-    {form.recurrence!=='none'&&<Field label="Repeat until (optional)" type="date" value={form.endsOn} onChange={e=>setForm({...form,endsOn:e.target.value})} hint="Repeats follow the household time zone. A monthly task uses the same day, clamped to the month's final day."/>}
-    <div className="walk-actions"><Button disabled={busy||loading||isSchemaUnavailable(error)}>{busy?'Saving…':editing?'Save task':'Add task'}</Button>{editing&&<Button type="button" className="secondary" onClick={()=>{setForm(emptyForm);setEditing(null);setFormOpen(false)}}>Cancel edit</Button>}</div>
-   </form>}
-  </section>
-  {archive&&<section className="card task-confirm"><h2>Stop “{archive.title}”?</h2><p>Future occurrences will stop appearing. Completed and overdue history will remain.</p><div className="walk-actions"><Button disabled={busy} onClick={()=>void archiveTask()}>Stop task</Button><Button className="secondary" onClick={()=>setArchive(null)}>Keep task</Button></div></section>}
-  <section className="card task-list-card"><div className="task-title-row"><span className="icon-tile"><ListChecks size={20}/></span><div><h2>Upcoming and overdue</h2><p className="muted">Times shown in {household?.timezone}.</p></div></div>
-   {loading?<p role="status">Loading family tasks…</p>:error&&!series.length?<Button className="secondary" onClick={()=>setRetry(v=>v+1)}>Retry</Button>:rows.length===0?<p className="muted">No task dates in this view. Add a one-time or recurring task above.</p>:<ul className="task-occurrence-list">{rows.map(row=>{const status=taskStatus(row,now),name=names.get(row.assigned_to||'')||'';return <li key={row.id} id={`task-${row.id}`} className={focusId===row.id?'task-focused':''}><div className="task-occurrence-copy"><div className="task-occurrence-heading"><strong>{row.title}</strong><span className={`task-status task-${status}`}>{status==='completed'?'Done':status==='overdue'?'Overdue':'Upcoming'}</span></div><p>{localTime(row.due_at,household!.timezone).replace('T',' · ')} · {row.assigned_to?(name?`For ${name}`:'Assigned family member'):'Anyone'} · {recurrenceLabel(row)}</p>{row.details&&<p>{row.details}</p>}{row.completed_at&&<small>Completed by {row.completed_by===session?.user.id?'you':names.get(row.completed_by||'')||'Former family member'}</small>}</div><div className="task-row-actions">{status!=='completed'?<Button className="secondary" disabled={busy} aria-label={`Mark ${row.title} complete`} onClick={()=>void toggle(row,true)}><Check size={16}/>Done</Button>:row.completed_by===session?.user.id&&<Button className="secondary" disabled={busy} aria-label={`Correct ${row.title} completion`} onClick={()=>void toggle(row,false)}><RotateCcw size={15}/>Undo</Button>}{!row.task.archived_at&&<><Button className="secondary" disabled={busy} onClick={()=>startEdit(row.task)}>Edit</Button><Button className="secondary task-icon-button" aria-label={`Stop ${row.title}`} disabled={busy} onClick={()=>setArchive(row.task)}><Trash2 size={15}/></Button></>}</div></li>})}</ul>}
-   {series.length>0&&<p className="task-history-note">{series.filter(task=>!task.archived_at).length} active task {series.length===1?'series':'series'}. Calendar shows occurrences within the current planning window.</p>}
-  </section>
+ async function stop(){if(!archive||busy)return;setBusy(true);setActionError('')
+  try{const result=await db().rpc('archive_household_task',{p_household:home.id,p_task:archive.id});if(result.error)throw result.error;setArchive(null);setMessage('Future dates stopped. Completed and overdue history is kept.');await load()}
+  catch(error){setActionError(friendlyError(error))}finally{setBusy(false)}
+ }
+ const actions={zone,user,names,members:data.members,busy:busy||loading,onComplete:complete,onAssign:assign,onEdit:openForm,onStop:setArchive,now:now.getTime()}
+ return <div className="task-page tasks-experience">
+  <PageTitle eyebrow="YOUR FAMILY" title="Tasks and calendar">A clear plan for {dog?.name}’s day. Share the care, one task at a time.</PageTitle>
+  <nav className="task-hub-nav" aria-label="Tasks and calendar"><Link className="is-active" aria-current="page" to="/tasks">Tasks</Link><Link to="/calendar">Calendar</Link></nav>
+  <div className="tasks-day-heading"><div><p className="eyebrow">{new Intl.DateTimeFormat('en-GB',{timeZone:zone,weekday:'long',day:'numeric',month:'long'}).format(now)}</p><h2>Today’s plan</h2></div><Button disabled={loading||!!loadError} onClick={()=>openForm()}><Plus size={17}/>Add task</Button></div>
+  {message&&<Notice>{message}</Notice>}{actionError&&<Notice error>{actionError}</Notice>}
+  {loadError?<section className="card tasks-state"><Notice error>We couldn’t load your family’s tasks. {loadError}</Notice><Button className="secondary" onClick={()=>void load()}>Reload tasks</Button></section>:loading?<LoadingPlaceholder label="Loading your family’s plan" lines={3}/>:<>
+   {focusId&&<section className="card tasks-focused"><div className="tasks-section-heading"><h2>Selected task</h2><Link className="text-link" to="/tasks">Show today’s plan</Link></div>{focused?<TaskItem row={focused} {...actions}/>:<p>This task is unavailable in this family. It may have been rescheduled or removed.</p>}</section>}
+   <TaskGroup title="Today" subtitle="Your household’s local time" rows={groups.today} {...actions} empty={<EmptyState icon={<Check size={21}/>} title="All clear for today">{groups.upcoming.length?'Your next responsibilities are below.':'Add a task when your dog needs a little extra care.'}</EmptyState>}/>
+   {groups.overdue.length>0&&<TaskGroup title="Needs attention" subtitle={`${groups.overdue.length} overdue from earlier days`} rows={groups.overdue} {...actions}/>}
+   {groups.upcoming.length>0&&<TaskGroup title="Coming up" subtitle="Your next shared responsibilities" rows={groups.upcoming} {...actions}/>}
+   <details className="card tasks-completed"><summary><span><Check size={17}/>Completed</span><span>{groups.completed.length}<ChevronDown size={16}/></span></summary><p className="tasks-caption">Last 90 days · only the recorder can undo a completion.</p>{groups.completed.length?<TaskGroup title="Completed tasks" rows={groups.completed} {...actions} nested/>:<p className="muted">Your completed tasks will appear here.</p>}</details>
+  </>}
+  <p className="tasks-caption"><CalendarDays size={14}/>Times follow {zone}. All family members can manage shared tasks.</p>
+  {formOpen&&<Modal title={editing?'Edit task':'Add a task'} description={editing?.recurrence!=='none'&&editing?'Changes apply to future open dates in this series. Completed history is kept.':'Choose what needs doing, when, and who can help.'} onClose={()=>setFormOpen(false)} busy={busy}>
+   <form onSubmit={save}><fieldset disabled={busy} className="tasks-form-fields"><Field label="What needs doing?" autoFocus required maxLength={100} placeholder="e.g. Brush the dog" value={form.title} onChange={event=>setForm({...form,title:event.target.value})}/><Field label={`Due date and time · ${zone}`} type="datetime-local" required value={form.firstDue} onChange={event=>setForm({...form,firstDue:event.target.value})}/><label className="field">Who’s taking care of it?<select value={form.assignedTo} onChange={event=>setForm({...form,assignedTo:event.target.value})}><option value="">Anyone in the family</option>{data.members.map(person=><option key={person.user_id} value={person.user_id}>{person.display_name}{person.user_id===user?' (you)':''}</option>)}</select></label>
+    <details open={advanced} className="tasks-advanced" onToggle={event=>setAdvanced(event.currentTarget.open)}><summary>Repeat or add details <ChevronDown size={15}/></summary><label className="field">Repeat<select value={form.recurrence} onChange={event=>setForm({...form,recurrence:event.target.value as TaskSeries['recurrence'],endsOn:''})}><option value="none">Does not repeat</option><option value="daily">Daily</option><option value="weekly">Weekly</option><option value="monthly">Monthly</option></select></label>{form.recurrence!=='none'&&<div className="task-form-grid"><Field label="Every" type="number" min={1} max={52} required value={form.every} onChange={event=>setForm({...form,every:Number(event.target.value)})}/><Field label="Until (optional)" type="date" min={form.firstDue.slice(0,10)} value={form.endsOn} onChange={event=>setForm({...form,endsOn:event.target.value})}/></div>}<label className="field">Details (optional)<textarea rows={3} maxLength={1200} value={form.details} onChange={event=>setForm({...form,details:event.target.value})}/></label><p className="tasks-caption">Monthly tasks use the last day when a month is shorter.</p></details>
+    {formError&&<Notice error>{formError}</Notice>}<div className="tasks-modal-actions"><Button type="button" className="secondary" onClick={()=>setFormOpen(false)}>Cancel</Button><Button>{busy?'Saving…':editing?'Save changes':'Add task'}</Button></div>
+   </fieldset></form>
+  </Modal>}
+  {archive&&<Modal title={`Stop “${archive.title}”?`} description="Future dates will stop. Overdue tasks and completed history remain available." busy={busy} onClose={()=>setArchive(null)}>{actionError&&<Notice error>{actionError}</Notice>}<div className="tasks-modal-actions"><Button className="secondary" disabled={busy} onClick={()=>setArchive(null)}>Keep task</Button><Button disabled={busy} onClick={()=>void stop()}>{busy?'Stopping…':'Stop future dates'}</Button></div></Modal>}
  </div>
+}
+
+type ItemActions={zone:string;user:string;names:Map<string,string>;members:FamilyMember[];busy:boolean;now:number;onComplete:(row:TaskRow,value:boolean)=>Promise<void>;onAssign:(row:TaskRow,user:string|null)=>Promise<void>;onEdit:(task:TaskSeries)=>void;onStop:(task:TaskSeries)=>void}
+function TaskGroup({title,subtitle,rows,empty,nested=false,...actions}:ItemActions&{title:string;subtitle?:string;rows:TaskRow[];empty?:React.ReactNode;nested?:boolean}){
+ const [count,setCount]=useState(8)
+ return <section className={nested?'tasks-group-nested':'card tasks-group'} aria-label={title}>{!nested&&<div className="tasks-section-heading"><div><h2>{title}</h2>{subtitle&&<p>{subtitle}</p>}</div><span className="tasks-count">{rows.length}</span></div>}{rows.length?<ul className="tasks-items">{rows.slice(0,count).map(row=><li key={row.id}><TaskItem row={row} {...actions}/></li>)}</ul>:empty}{rows.length>count&&<Button className="secondary tasks-show-more" onClick={()=>setCount(value=>value+20)}>Show {Math.min(rows.length-count,20)} more</Button>}</section>
+}
+function TaskItem({row,zone,user,names,members,busy,now,onComplete,onAssign,onEdit,onStop}:ItemActions&{row:TaskRow}){
+ const status=taskStatus(row,now),own=row.completed_by===user
+ const date=localTime(row.due_at,zone),today=localTime(new Date(now).toISOString(),zone).slice(0,10)
+ const label=date.startsWith(today)?date.slice(11):`${new Intl.DateTimeFormat('en-GB',{timeZone:zone,day:'numeric',month:'short'}).format(new Date(row.due_at))} · ${date.slice(11)}`
+ return <article className={`tasks-item ${status==='completed'?'is-done':''}`} id={`task-${row.id}`}>
+  <button type="button" className={`tasks-complete-button ${status==='completed'?'is-done':''}`} aria-label={status==='completed'?own?`Undo ${row.title}`:`${row.title} completed by ${names.get(row.completed_by||'')||'a former member'}`:`Complete ${row.title}`} disabled={busy||(status==='completed'&&!own)} onClick={()=>void onComplete(row,status!=='completed')}>{status==='completed'?<Check size={18}/>:<span/>}</button>
+  <div className="tasks-item-copy"><strong>{row.title}</strong><div className="tasks-item-meta"><span className={status==='overdue'?'tasks-overdue-label':''}><Clock size={13}/>{label}{status==='overdue'?' · Overdue':''}</span>{row.recurrence!=='none'&&<span><Repeat2 size={13}/>{recurrenceLabel(row)}</span>}</div>{row.details&&<p>{row.details}</p>}{row.completed_at?<small>Done by {own?'you':names.get(row.completed_by||'')||'a former member'}</small>:<div className="tasks-assignment">{!row.assigned_to?<button type="button" disabled={busy} onClick={()=>void onAssign(row,user)}><UserRound size={13}/>I’ll do it</button>:<span><UserRound size={13}/>{row.assigned_to===user?'You':names.get(row.assigned_to)||'Former member'}</span>}<label className="tasks-assign-select"><span className="sr-only">Assign {row.title} for this date</span><select aria-label={`Assign ${row.title} for this date`} disabled={busy} value={row.assigned_to||''} onChange={event=>void onAssign(row,event.target.value||null)}><option value="">Anyone</option>{members.map(person=><option key={person.user_id} value={person.user_id}>{person.display_name}{person.user_id===user?' (you)':''}</option>)}</select></label></div>}</div>
+  {status==='completed'?(own&&<button type="button" className="tasks-undo" disabled={busy} aria-label={`Undo ${row.title} completion`} onClick={()=>void onComplete(row,false)}><RotateCcw size={15}/></button>):!row.task.archived_at&&<details className="tasks-item-menu"><summary aria-label={`Options for ${row.title}`}><MoreHorizontal size={20}/></summary><div><button disabled={busy} onClick={()=>onEdit(row.task)}>{row.recurrence==='none'?'Edit task':'Edit recurring series'}</button><button disabled={busy} onClick={()=>onStop(row.task)}>Stop future dates</button></div></details>}
+ </article>
 }
