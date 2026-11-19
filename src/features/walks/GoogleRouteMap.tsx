@@ -125,7 +125,7 @@ export default function GoogleRouteMap({ points, compact = false, places = [], l
  }, [visible, hasPoints, retry, live])
  if (!hasPoints) return <p className="walk-empty">{live?'Waiting for your first recorded GPS position…':'No GPS route recorded. Time-only walks are still included in summaries.'}</p>
  return <figure className={`walk-route-map${compact ? ' compact' : ''}`}>
-  <div ref={host} className="walk-map-canvas" role="region" aria-label="Google Maps walking route. Pinch with two fingers to zoom. Normal scrolling leaves the map unchanged."/>
+  <div ref={host} style={{visibility:ready?'visible':'hidden'}} className="walk-map-canvas" role="region" aria-label="Google Maps walking route. Pinch with two fingers to zoom. Normal scrolling leaves the map unchanged."/>
   {visible && loading && <p className="walk-map-status" role="status">Loading Google Maps…</p>}
   {error && <p className="walk-map-status" role="alert">{error} <Button className="secondary" onClick={() => setRetry(value => value + 1)}>Retry map</Button></p>}
   <RouteMapControls live={live} playing={replay.playing} disabled={!ready || !replay.canReplay} status={replay.status} onFit={() => fit.current()} onReplay={() => { if (!replay.playing) fit.current(); replay.toggle() }}/>

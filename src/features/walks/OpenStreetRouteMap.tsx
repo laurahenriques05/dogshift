@@ -105,7 +105,7 @@ export function OpenStreetRouteMap({ points, compact = false, places = [], live 
  }, [visible, retry, live, mode])
  if (!valid.length) return <p className="walk-empty">{live?'Waiting for your first recorded GPS position…':'No GPS route recorded. Time-only walks are still included in summaries.'}</p>
  return <figure className={`walk-route-map${compact ? ' compact' : ''}`}>
-  <div ref={host} className="walk-map-canvas" role="region" aria-label="Interactive walking route map. Pinch with two fingers to zoom. Normal scrolling leaves the map unchanged. Keyboard and zoom buttons are available."/>
+  <div ref={host} style={{visibility:ready?'visible':'hidden'}} className="walk-map-canvas" role="region" aria-label="Interactive walking route map. Pinch with two fingers to zoom. Normal scrolling leaves the map unchanged. Keyboard and zoom buttons are available."/>
   {visible && loading && <p className="walk-map-status" role="status">Loading street map…</p>}
   {error && <p className="walk-map-status" role="alert">{error} <Button className="secondary" onClick={() => setRetry(n => n + 1)}>Retry map</Button></p>}
   <RouteMapControls live={live} playing={replay.playing} disabled={!ready || !replay.canReplay} status={replay.status} onFit={() => fit.current()} onReplay={() => { if (!replay.playing) fit.current(); replay.toggle() }}/>

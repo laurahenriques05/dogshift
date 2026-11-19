@@ -137,7 +137,7 @@ export default function VectorRouteMap({ points, compact = false, places = [], l
  if (!hasPoints) return <p className="walk-empty">{live?'Waiting for your first recorded GPS position…':'No GPS route recorded. Time-only walks are still included in summaries.'}</p>
  if (fallback) return <OpenStreetRouteMap points={points} compact={compact} places={places} live={live} mode={mode} showDogPlaces={showDogPlaces}/>
  return <figure className={`walk-route-map walk-vector-map${compact ? ' compact' : ''}`}>
-  <div ref={host} className="walk-map-canvas" role="region" aria-label="Recorded walking route map. Pinch to zoom; normal scrolling leaves the map unchanged."/>
+  <div ref={host} style={{visibility:ready?'visible':'hidden'}} className="walk-map-canvas" role="region" aria-label="Recorded walking route map. Pinch to zoom; normal scrolling leaves the map unchanged."/>
   <span className="walk-map-north" aria-hidden="true">N ↑</span>
   {visible && loading && <p className="walk-map-status" role="status">Loading street map…</p>}
   {error && <p className="walk-map-status" role="alert">{error} <Button className="secondary" onClick={() => setRetry(value => value + 1)}>Retry map</Button></p>}
