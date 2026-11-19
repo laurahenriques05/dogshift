@@ -338,3 +338,21 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{ou
 /* Health is in the desktop sidebar and in More only with mobile navigation. */
 .more-grid>.mobile-health-link{display:none}
 @media(max-width:700px){.more-grid>.mobile-health-link{display:flex}}
+
+/* Finder-like icon view for the shared document archive. */
+.health-folder-list.finder-folders{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:22px 18px;padding:12px 0;margin:0;align-items:start}
+.health-folder-list.finder-folders>li{position:relative;display:block;border:0;padding:0;min-width:0}
+.finder-folders .health-folder-link{display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:16px;width:100%;min-width:0;padding:26px 12px 16px;border:1px solid transparent;border-radius:14px;background:transparent;text-align:center;color:#244d3c;min-height:182px}
+.finder-folders .health-folder-link:hover{background:#f2f6eb;border-color:#e0e8d7}
+.finder-folders .health-folder-link:focus-visible{outline:2px solid #52764c;outline-offset:3px;background:#edf3e5}
+.finder-folders .health-folder-link>span:nth-child(2){flex:none;width:100%;min-width:0}
+.finder-folders .health-folder-link strong{display:block;font-size:14px;font-weight:500;line-height:1.45;overflow-wrap:anywhere;color:#244d3c}
+.finder-folders .health-folder-link small{display:block;font-size:12px;color:#73806c;margin-top:5px;line-height:1.4}
+.finder-folders .health-folder-link>svg{display:none}
+.finder-folders .health-folder-icon{position:relative;display:block;flex:none;width:108px;height:78px;padding:0;background:transparent;border-radius:0;isolation:isolate}
+.finder-folders .health-folder-icon>svg{display:none}
+.finder-folders .health-folder-icon:before{content:'';position:absolute;inset:0 0 4px;background:linear-gradient(160deg,#a7bd8d,#8faa73);clip-path:polygon(0 8%,4% 0,37% 0,47% 13%,96% 13%,100% 20%,100% 100%,0 100%);border-radius:7px;z-index:-1}
+.finder-folders .health-folder-icon:after{content:'';position:absolute;inset:18px 0 0;background:linear-gradient(160deg,#d3e1bf,#b6cd9d);border:1px solid #abc294;border-top-color:#e5efd8;border-radius:5px 6px 8px 8px;box-shadow:0 4px 6px #244d3c13, inset 0 1px 0 #f3f8eb}
+.finder-folders>li>.folder-action-control{position:absolute;top:0;right:0;z-index:2}
+.finder-folders .folder-action-menu{right:0;min-width:160px}
+@media(max-width:480px){.health-folder-list.finder-folders{grid-template-columns:repeat(2,minmax(0,1fr));gap:18px 10px}.finder-folders .health-folder-link{padding:30px 6px 12px;min-height:174px;gap:13px}.finder-folders .health-folder-icon{width:90px;height:67px}.finder-folders .health-folder-link strong{font-size:13px}}
