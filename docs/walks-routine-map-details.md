@@ -1,0 +1,76 @@
+# Optional walking routine and map refinements — 19 November 2026
+
+## Source behaviour
+
+On Walks, Today's walks offers **Set your dog’s walking routine** when no plan
+has been saved. Setup asks for 1–12 walks/day and an optional estimated local
+HH:MM per slot; no times or routine are silently invented. Save, Cancel, Edit
+routine and Remove routine are explicit. **No routine for now** saves an opt-out;
+a later visit offers Set walking routine without asking for that decision again.
+The routine is shared per dog/household, consistent with the existing daily plan.
+Estimated times are routine hints, not appointments, calendar rows or reminders.
+Existing chosen counts are retained when the migration adds the new fields.
+
+The overview omits NEXT WALK without a configured routine. The counter counts
+actual nondeleted walk starts on the household-local start day, including active
+walks, deduplicated by saved walk ID. An empty diary shows 0 and no last-start
+caption. Manual routine checks still attest completed outings in the circles;
+they do not fabricate a start, GPS record or increase the real-start counter.
+Completed slots/summaries retain their existing rules. Counts may exceed the goal.
+The removed “Tap a circle…” sentence is absent. Chosen time hints appear in the
+routine circles; unscheduled slots have no clock time.
+
+The NFC illustration now includes a small dog wearing the tag beside the phone,
+in the same line-art system. It is not proof of a written/scanned tag. Selection
+chevrons are lighter; the separate Layers icon is removed from Map view.
+Initial location framing starts at world zoom 1 and approaches the device at zoom
+15.5 over three seconds. Reduced-motion users receive the final frame directly;
+Recenter does not replay the initial approach.
+
+Opt-in dog places remain visible on moderate zoom-out: already observed mapped
+POIs are retained in bounded session memory (250 entries), with markers and names
+from zoom 10. Detailed tiles take over at zoom 16; very distant views hide the
+extra markers. No new location request is made for this retention. Map data and
+coverage still depend on the provider; unseen/unmapped places cannot be invented.
+Turning dog places off hides both tile and retained layers. Nearby Overpass
+results remain optional and use the existing consent/query behaviour.
+
+## Proposed schema and release
+
+`20261119165100_walk_routine_preferences.sql` is a new, **unapplied** proposal after
+`20261119001000_walk_journal_and_daily_plan.sql`. It adds explicit routine choice,
+optional estimated times and a membership-checked `set_walk_routine` RPC. Existing
+plan RLS and no-direct-write permissions remain. Invalid counts/times, anonymous
+callers and outsiders are rejected. Legacy count saves still work and clear stale
+time hints. No existing checks, walks or notes are deleted. Shared generated types
+are untouched. Laura must coordinate review/order and reconcile the hosted ledger
+before application; no remote migration or account write was performed here.
+
+The client needs these new fields/RPC to read/save the routine. If missing it
+shows an unavailable/retry state and does not claim success or fall back to a
+browser-only “saved” plan. This source change does not update the public app:
+review, passing CI, merge and deployment of that merged commit remain separate.
+
+## Verification
+
+Local tests cover first-run/opt-out rendering, zero/active/deleted/deduplicated
+starts, household-local days, optional time display, member persistence, invalid
+counts/times, anonymous/outsider denial and legacy RPC compatibility. Map tests
+cover retaining observed POIs when lower-detail tiles omit them and ignoring
+hidden-layer additions. They do not establish worldwide map-data completeness.
+
+A temporary browser harness rendered the actual components with explicit sample
+state and a public example Lisbon map area; no account or real GPS data was used.
+It verified setup, optional 08:30/21:00 times, save feedback, opt-out, no NEXT WALK
+without a plan, 0 without a last-start caption, no removed instruction/Layers icon,
+lighter arrows, and narrow 390px/desktop 1280px layouts with no horizontal page
+overflow. A mapped Pet ways label remained visible after two zoom-out steps.
+Screenshots are fixture previews, not hosted integration evidence. The harness
+was removed. Real phone consent, physical GPS motion/background behaviour and NFC
+remain unverified. Full final test/typecheck/build results are recorded in the PR.
+
+Final checks: **250 tests across 57 files passed** on Node **22.23.5**, followed
+by TypeScript and the production build. Existing dependencies were reused; this
+was not a new `npm ci`. `git diff --check` passed. Existing Zod annotation and
+large-bundle warnings remain. Current main's documentation (PR #49 at `9d894b5`)
+was integrated without changing feature ownership or applying any migration.

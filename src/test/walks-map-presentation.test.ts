@@ -30,3 +30,19 @@ it('reports paused, stale, blocked and offline states without claiming unsynced 
  expect(recordingStatus({...base,pending:3,online:false}).footer).not.toContain('is saved')
  expect(recordingStatus({...base,gps:false}).gps).toBe('Time only')
 })
+
+it('keeps observed dog places when zoom-out tiles omit POIs, bounded and toggled off with dog layers',async()=>{
+ const {retainDogPlacesOnZoomOut}=await import('../features/walks/dogPlaceLayers')
+ let zoom=15,enabled=true,features:unknown[]=[{geometry:{type:'Point',coordinates:[-9.15,38.75]},properties:{name:'Mapped vet'}}],idle=()=>{}
+ const setData=vi.fn().mockResolvedValue(undefined)
+ const map={addSource:vi.fn(),addLayer:vi.fn(),on:(_event:string,callback:()=>void)=>{idle=callback},getZoom:()=>zoom,getCenter:()=>({lng:0,lat:1}),getLayoutProperty:()=>enabled?'visible':'none',querySourceFeatures:()=>features,getSource:()=>({setData})} as unknown as VectorMap
+ retainDogPlacesOnZoomOut(map);idle()
+ expect(setData).toHaveBeenCalledWith(expect.objectContaining({features:[expect.objectContaining({properties:{name:'Mapped vet'}})]}))
+ setData.mockClear();zoom=11;features=[];idle();expect(setData).not.toHaveBeenCalled()
+ // The existing source is retained, rather than replaced with empty low-detail tiles.
+ enabled=false;zoom=15;features=[{geometry:{type:'Point',coordinates:[1,1]},properties:{name:'Hidden place'}}];idle();expect(setData).not.toHaveBeenCalled()
+ expect(map.addLayer).toHaveBeenCalledWith(expect.objectContaining({id:'walk-dog-retained-label',minzoom:10,maxzoom:16}))
+ enabled=true;features=Array.from({length:300},(_,i)=>({geometry:{type:'Point',coordinates:[i/100,1]},properties:{name:`Place ${i}`}}));idle()
+ expect(setData.mock.calls.at(-1)![0].features).toHaveLength(250)
+ setData.mockClear();idle();expect(setData).not.toHaveBeenCalled()
+})

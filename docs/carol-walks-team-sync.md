@@ -1,3 +1,13 @@
+# Current follow-up — 19 November 2026
+
+The explicit routine/map requests are implemented in source on
+`codex/walk-routine-map-details`; see [the request-by-request handoff](walks-routine-map-details.md).
+This adds one proposed, unapplied migration:
+`20261119165100_walk_routine_preferences.sql`, after the journal/daily-plan file.
+No shared Supabase migration, merge or production deployment was performed.
+The older snapshots below do not describe these new behaviours or establish
+that the requested public app has been updated.
+
 # Carol Walks / team synchronization — 19 November 2026
 
 ## Repository evidence

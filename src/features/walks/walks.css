@@ -139,3 +139,7 @@
 @media(prefers-reduced-motion:reduce){.walk-collar-phone,.walk-collar-waves,.walk-check-mark path,.walk-routine-saving{animation:none}.walk-routine-line .dose-bubble,.walk-overview-progress progress::-webkit-progress-value{transition:none}}
 
 .walk-collar-setup-toggle{min-height:44px}@media(max-width:550px){.walk-routine-line .dose-detail-link{min-height:44px}.walk-routine-line.dose-bubbles>li{grid-template-rows:84px 44px}}
+
+.walk-filter-trigger>svg{color:#78917b;border-left-color:#e0e5db}.walk-plan-form{display:grid;align-items:start}.walk-routine-times{display:flex;flex-wrap:wrap;gap:12px}.walk-routine-times>p{flex-basis:100%;margin:0}.walk-routine-times input{max-width:150px}.walk-period-bubble time{font-size:11px;color:inherit}.walk-today .walk-actions{display:flex;gap:10px;flex-wrap:wrap}.walk-today .walk-actions .button{min-height:44px}
+
+.walk-today .walk-routine-line .walk-period-bubble:has(time){gap:4px;padding:8px}.walk-period-bubble time{line-height:1.1}

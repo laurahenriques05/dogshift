@@ -24,13 +24,13 @@ export function applyMapPresentation(map:VectorMap,mode:MapViewMode,dogs:boolean
  if(map.getLayer('walk-satellite'))map.setLayoutProperty('walk-satellite','visibility',mode==='satellite'?'visible':'none')
  if(mode==='3d'&&!map.getLayer('walk-buildings-3d')&&map.getSource('openmaptiles'))map.addLayer({id:'walk-buildings-3d',type:'fill-extrusion',source:'openmaptiles','source-layer':'building',minzoom:14,paint:{'fill-extrusion-color':'#b6c0b0','fill-extrusion-height':['coalesce',['get','render_height'],['get','height'],0],'fill-extrusion-base':['coalesce',['get','render_min_height'],0],'fill-extrusion-opacity':.75}},map.getLayer('walk-route-halo')?'walk-route-halo':undefined)
  if(map.getLayer('walk-buildings-3d'))map.setLayoutProperty('walk-buildings-3d','visibility',mode==='3d'?'visible':'none')
- for(const id of ['walk-dog-tile-dot','walk-dog-tile-label','dog-places-dot','dog-places-label'])if(map.getLayer(id))map.setLayoutProperty(id,'visibility',dogs?'visible':'none')
+ for(const id of ['walk-dog-tile-dot','walk-dog-tile-label','walk-dog-retained-dot','walk-dog-retained-label','dog-places-dot','dog-places-label'])if(map.getLayer(id))map.setLayoutProperty(id,'visibility',dogs?'visible':'none')
  // White-backed, larger place labels stay legible against photographic imagery.
- for(const id of ['walk-dog-tile-dot','dog-places-dot'])if(map.getLayer(id)){
+ for(const id of ['walk-dog-tile-dot','walk-dog-retained-dot','dog-places-dot'])if(map.getLayer(id)){
   map.setPaintProperty(id,'circle-radius',mode==='satellite'?7:5)
   map.setPaintProperty(id,'circle-stroke-width',mode==='satellite'?3:2)
  }
- for(const id of ['walk-dog-tile-label','dog-places-label'])if(map.getLayer(id)){
+ for(const id of ['walk-dog-tile-label','walk-dog-retained-label','dog-places-label'])if(map.getLayer(id)){
   map.setLayoutProperty(id,'text-size',mode==='satellite'?13:12)
   map.setPaintProperty(id,'text-color',mode==='satellite'?'#fffdf7':'#244d3c')
   map.setPaintProperty(id,'text-halo-color',mode==='satellite'?'#244d3c':'#fffdf7')
