@@ -25,7 +25,7 @@ export function TodaysWalks({routine,user,zone}:{routine:DailyWalkRoutine;user:s
    {routine.error&&<p role="alert">{routine.error} <button type="button" className="walk-text-action" onClick={routine.retry}>Retry</button></p>}
    {routine.ready&&<>
     {routine.count===undefined?<>
-     {!editing&&<button type="button" className="walk-routine-setup-button" disabled={routine.busy} onClick={edit}><strong>Set your routine</strong><span>Choose daily walks and optional estimated times</span></button>}
+     {!editing&&<div className="walk-routine-setup"><Button disabled={routine.busy} onClick={edit}>Set your routine</Button><p>Choose daily walks and optional estimated times</p></div>}
     </>:<ol className="walk-routine-line dose-bubbles" aria-label="Today's walk routine">
      {routine.slots.map(item=>{
       const complete=!!(item.walk||item.manual),label=walkPeriod(item.number,routine.count!)
@@ -64,5 +64,5 @@ export function TodaysWalks({routine,user,zone}:{routine:DailyWalkRoutine;user:s
    </>}
   </>}
   {slot&&routine.count!==undefined&&(slot.walk||slot.manual)&&<WalkRoutineSummary key={`${routine.day}-${slot.number}`} slot={slot} label={walkPeriod(slot.number,routine.count)} user={user} zone={zone} routine={routine} onClose={()=>setSelected(null)}/>}
- </section><section className="card walk-routine-edit-card"><button type="button" className="walk-routine-edit-tile" disabled={!routine.ready||routine.count===undefined||routine.busy} onClick={edit}><Pencil size={28} aria-hidden="true"/><span>Edit routine</span></button></section></div>
+ </section><button type="button" className="walk-routine-edit-tile" disabled={!routine.ready||routine.count===undefined||routine.busy} onClick={edit}><Pencil size={28} aria-hidden="true"/><span>Edit routine</span></button></div>
 }
