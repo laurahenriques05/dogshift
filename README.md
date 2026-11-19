@@ -414,3 +414,11 @@ Add contact and Edit open a native modal dialog, dismissible with Cancel/Escape 
 ### Health add dialogs and weight scale
 
 Vaccinations, medications, weight and appointments use native modal add/edit forms; Cancel/Escape closes when idle, successful saves close, and errors stay visible inside the modal. Weight charts use a 35–60 kg reference range, expanding in 5 kg steps for values outside that range. `20261119010000_summary_followups.sql` is tested locally, but has not been applied to hosted Supabase by this implementation. Existing next-visit dates are scheduled when their summary is next saved; this migration does not silently backfill existing summaries.
+### Walk notes journal and Today's walks
+
+Save Note now adds timestamped history entries and clears the editor. Today's
+walks tracks a household's chosen daily count, using completed walks and explicit
+manual checks without fabricated GPS/time data. These features require the
+proposed, unapplied `20261119001000_walk_journal_and_daily_plan.sql` migration and
+Laura/team review. Missing notes integration no longer blocks route completion;
+unsynchronised notes remain marked pending. See [rollout and verification](docs/walks-journal-daily.md).

@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState, type FormEvent } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
-import { Check, ChevronRight, ListChecks, Plus, RotateCcw, Trash2 } from 'lucide-react'
+import { Check, ListChecks, Plus, RotateCcw, Trash2 } from 'lucide-react'
 import { Button, Field, Notice, PageTitle, errorMessage, isSchemaUnavailable } from '../../components/ui'
 import { db } from '../../lib/supabase/client'
 import type { FamilyMember, TaskOccurrence, TaskSeries } from '../../lib/supabase/database.types'
@@ -14,7 +14,7 @@ const emptyForm={title:'',details:'',assignedTo:'',firstDue:'',recurrence:'none'
 export function TasksPage(){
  const {household}=useHousehold();const {session}=useAuth();const [search]=useSearchParams()
  const [series,setSeries]=useState<TaskSeries[]>([]),[occurrences,setOccurrences]=useState<TaskOccurrence[]>([]),[members,setMembers]=useState<FamilyMember[]>([])
- const [form,setForm]=useState(emptyForm),[editing,setEditing]=useState<string|null>(null),[archive,setArchive]=useState<TaskSeries|null>(null)
+ const [form,setForm]=useState(emptyForm),[editing,setEditing]=useState<string|null>(null),[formOpen,setFormOpen]=useState(false),[archive,setArchive]=useState<TaskSeries|null>(null)
  const [loading,setLoading]=useState(true),[busy,setBusy]=useState(false),[error,setError]=useState(''),[message,setMessage]=useState(''),[retry,setRetry]=useState(0)
  const load=useCallback(async()=>{
   if(!household)return
@@ -40,13 +40,14 @@ export function TasksPage(){
  function startEdit(task?:TaskSeries){
   if(task){setEditing(task.id);setForm({title:task.title,details:task.details,assignedTo:task.assigned_to||'',firstDue:localTime(task.first_due_at,household!.timezone),recurrence:task.recurrence,every:task.recurrence_every,endsOn:task.ends_on||''})}
   else{setEditing(null);setForm({...emptyForm,firstDue:localTime(new Date(Date.now()+3600000).toISOString(),household!.timezone)})}
+  setFormOpen(true)
   setError('');setMessage('')
  }
  async function save(event:FormEvent<HTMLFormElement>){event.preventDefault();if(!household)return;setBusy(true);setError('');setMessage('')
   try{
    const result=await db().rpc('save_household_task',{p_household:household.id,p_id:editing,p_title:form.title,p_details:form.details,p_assigned_to:form.assignedTo||null,p_first_due_at:toInstant(form.firstDue,household.timezone),p_recurrence:form.recurrence,p_recurrence_every:form.recurrence==='none'?1:form.every,p_ends_on:form.recurrence==='none'||!form.endsOn?null:form.endsOn})
    if(result.error)throw result.error
-   setForm(emptyForm);setEditing(null);setMessage(editing?'Task updated. Open future occurrences use the updated schedule.':'Task saved. Its calendar dates are ready.');await load()
+   setForm(emptyForm);setEditing(null);setFormOpen(false);setMessage(editing?'Task updated. Open future occurrences use the updated schedule.':'Task saved. Its calendar dates are ready.');await load()
   }catch(e){setError(errorMessage(e))}finally{setBusy(false)}
  }
  async function toggle(row:OccurrenceWithTask,complete:boolean){setBusy(true);setError('');setMessage('')
@@ -60,18 +61,18 @@ export function TasksPage(){
  const now=Date.now()
  return <div className="task-page">
   <PageTitle eyebrow="YOUR FAMILY" title="Tasks and calendar">Share the little jobs that keep your dog’s days happy.</PageTitle>
-  <div className="task-shortcuts"><Link className="text-link" to="/calendar">Open shared calendar <ChevronRight size={16}/></Link></div>
+  <nav className="task-hub-nav" aria-label="Tasks and calendar"><Link className="is-active" to="/tasks" aria-current="page">Tasks</Link><Link to="/calendar">Calendar</Link></nav>
   {error&&<Notice error>{error}</Notice>}{message&&<Notice>{message}</Notice>}
-  <section className="card task-form-card"><div className="task-title-row"><span className="icon-tile peach"><Plus size={19}/></span><div><h2>{editing?'Edit task':'Add a family task'}</h2><p className="muted">All family members can edit shared tasks. Completion is attributed to the person who marks it done.</p></div></div>
-   <form className="form-stack task-form" onSubmit={save}><div className="task-form-grid"><Field label="Task title" required maxLength={100} value={form.title} onChange={e=>setForm({...form,title:e.target.value})}/><Field label="Due date and time · 24-hour" type="datetime-local" required value={form.firstDue} onChange={e=>setForm({...form,firstDue:e.target.value})}/></div>
+  <section className="card task-form-card"><div className="task-title-row"><span className="icon-tile peach"><Plus size={19}/></span><div><h2>{editing?'Edit task':'Add a family task'}</h2><p className="muted">Create one clear responsibility for the family. Completion is attributed to the person who marks it done.</p></div><Button type="button" className="secondary task-form-toggle" aria-expanded={formOpen} onClick={()=>{if(formOpen){setForm(emptyForm);setEditing(null);setFormOpen(false)}else startEdit()}}>{formOpen?'Close':'Add task'}</Button></div>
+   {formOpen&&<form className="form-stack task-form" onSubmit={save}><div className="task-form-grid"><Field label="Task title" required maxLength={100} value={form.title} onChange={e=>setForm({...form,title:e.target.value})}/><Field label="Due date and time · 24-hour" type="datetime-local" required value={form.firstDue} onChange={e=>setForm({...form,firstDue:e.target.value})}/></div>
     <label className="field">Details<textarea maxLength={1200} rows={3} value={form.details} onChange={e=>setForm({...form,details:e.target.value})}/></label>
     <label className="field">Responsible family member<select value={form.assignedTo} onChange={e=>setForm({...form,assignedTo:e.target.value})}><option value="">Anyone in the family</option>{members.map(member=><option key={member.user_id} value={member.user_id}>{member.display_name}{member.user_id===session?.user.id?' (you)':''}</option>)}</select></label>
     <div className="task-form-grid"><label className="field">Repeat<select value={form.recurrence} onChange={e=>setForm({...form,recurrence:e.target.value as TaskSeries['recurrence'],endsOn:''})}><option value="none">Does not repeat</option><option value="daily">Daily</option><option value="weekly">Weekly</option><option value="monthly">Monthly</option></select></label>
      {form.recurrence!=='none'&&<Field label="Every (interval)" type="number" min={1} max={52} required value={form.every} onChange={e=>setForm({...form,every:Number(e.target.value)})}/>}
     </div>
     {form.recurrence!=='none'&&<Field label="Repeat until (optional)" type="date" value={form.endsOn} onChange={e=>setForm({...form,endsOn:e.target.value})} hint="Repeats follow the household time zone. A monthly task uses the same day, clamped to the month's final day."/>}
-    <div className="walk-actions"><Button disabled={busy||loading||isSchemaUnavailable(error)}>{busy?'Saving…':editing?'Save task':'Add task'}</Button>{editing&&<Button type="button" className="secondary" onClick={()=>startEdit()}>Cancel edit</Button>}</div>
-   </form>
+    <div className="walk-actions"><Button disabled={busy||loading||isSchemaUnavailable(error)}>{busy?'Saving…':editing?'Save task':'Add task'}</Button>{editing&&<Button type="button" className="secondary" onClick={()=>{setForm(emptyForm);setEditing(null);setFormOpen(false)}}>Cancel edit</Button>}</div>
+   </form>}
   </section>
   {archive&&<section className="card task-confirm"><h2>Stop “{archive.title}”?</h2><p>Future occurrences will stop appearing. Completed and overdue history will remain.</p><div className="walk-actions"><Button disabled={busy} onClick={()=>void archiveTask()}>Stop task</Button><Button className="secondary" onClick={()=>setArchive(null)}>Keep task</Button></div></section>}
   <section className="card task-list-card"><div className="task-title-row"><span className="icon-tile"><ListChecks size={20}/></span><div><h2>Upcoming and overdue</h2><p className="muted">Times shown in {household?.timezone}.</p></div></div>
