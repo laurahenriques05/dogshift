@@ -477,7 +477,7 @@ and PR #54 has separately been merged into main as `4bf038f`. See
 
 The latest source fixes the size of Edit routine, restores the completed-walk
 total in Walking together and keeps the statistics chart limited to distance/time.
-Routine times are now required estimates. A selected locality provides the daily
+Routine times are now required estimates. An explicitly consented, approximate device location provides the daily
 sunrise for Morning Walk / Afternoon Walk / Night Walk labels, numbered by time
 when several occur in a period. Morning starts at sunrise, afternoon at 12:00 and
 night always at 20:00. Actual outings do not need to start at the estimated time.

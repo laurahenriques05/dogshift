@@ -125,7 +125,7 @@ No real activity write or additional frontend deployment was performed.
 ## Estimated-time naming follow-up
 
 The new [routine naming source](walks-routine-period-names.md) makes estimated
-hours mandatory, calculates daily sunrise from an explicitly selected locality,
+hours mandatory, calculates daily sunrise from an explicitly consented, approximate device location,
 keeps night fixed at 20:00 and numbers same-period slots by time. It also fixes
 Edit routine height and restores the summary count without a count chart.
 Its `20261119195302_walk_routine_schedule.sql` migration remains proposed and

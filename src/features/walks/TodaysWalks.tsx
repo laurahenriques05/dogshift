@@ -3,7 +3,7 @@ import { Check, Circle, Footprints, LoaderCircle, Pencil } from 'lucide-react'
 import { Button, Field } from '../../components/ui'
 import type { DailyWalkRoutine } from './useDailyWalkRoutine'
 import { routineNames, sunriseMinutes, validRoutineTimes, type RoutinePlace } from './routineSchedule'
-import { RoutinePlacePicker } from './RoutinePlacePicker'
+import { RoutineLocationConsent } from './RoutineLocationConsent'
 import { WalkRoutineSummary } from './WalkRoutineSummary'
 
 export function TodaysWalks({routine,user,zone}:{routine:DailyWalkRoutine;user:string;zone:string}){
@@ -57,7 +57,7 @@ export function TodaysWalks({routine,user,zone}:{routine:DailyWalkRoutine;user:s
      if(await routine.saveCount(Number(value),Array.from({length:Number(value)},(_,i)=>times[i]??''),place)){setEditing(false);setFeedback('Walking routine saved.')}
     }}>
      <Field label="Walks per day" type="number" min={1} max={12} step={1} required disabled={routine.busy} value={value} onChange={event=>setValue(event.target.value)}/>
-     <RoutinePlacePicker value={place} onChange={setPlace} disabled={routine.busy}/><p className="walk-routine-estimate">Estimated times use {zone}. You can go out earlier or later.</p><div className="walk-routine-times"><p>Estimated times</p>
+     <RoutineLocationConsent value={place} onChange={setPlace} disabled={routine.busy}/><p className="walk-routine-estimate">Estimated times use {zone}. You can go out earlier or later.</p><div className="walk-routine-times"><p>Estimated times</p>
       {Array.from({length:Math.max(1,Math.min(12,Number(value)||1))},(_,i)=><Field key={i} label={preview[i]} type="time" required disabled={routine.busy} value={times[i]??''}
        onInput={event=>changeTime(i,event.currentTarget.value)} onChange={event=>changeTime(i,event.target.value)} onBlur={event=>changeTime(i,event.target.value)}/>)}
      </div>

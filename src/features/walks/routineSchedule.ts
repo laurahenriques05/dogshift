@@ -1,5 +1,10 @@
 import { localDay } from './gps'
 export type RoutinePlace={latitude:number;longitude:number;label:string}
+/** Sunrise needs only an approximate position, never a route fix. */
+export function routineDeviceLocation(latitude:number,longitude:number):RoutinePlace{
+ if(!Number.isFinite(latitude)||!Number.isFinite(longitude)||Math.abs(latitude)>90||Math.abs(longitude)>180)throw new Error('Invalid device location')
+ return {latitude:Math.round(latitude*100)/100,longitude:Math.round(longitude*100)/100,label:'Device location'}
+}
 const timePattern=/^([01]\d|2[0-3]):[0-5]\d$/
 export const validRoutineTimes=(times:string[],count:number)=>times.length===count&&count>=1&&count<=12&&times.every(time=>timePattern.test(time))
 export function minutesOf(time:string){return timePattern.test(time)?Number(time.slice(0,2))*60+Number(time.slice(3)):null}

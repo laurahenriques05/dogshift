@@ -16,7 +16,7 @@ export async function readDailyWalks(dog:string,day:string){
  return {count:plan.data?.routine_enabled?plan.data.required_count as number:undefined,times:(plan.data?.estimated_times??[]) as string[],decided:!!plan.data,place:plan.data?.place_latitude!=null&&plan.data?.place_longitude!=null?{latitude:plan.data.place_latitude,longitude:plan.data.place_longitude,label:plan.data.place_label} as RoutinePlace:null,checks:checks.data as DailyCheck[]}
 }
 export async function saveDailyCount(dog:string,count:number|undefined,times:string[]=[],place:RoutinePlace|null=null){
- if(count!==undefined&&(!validRoutineTimes(times,count)||!place))throw new Error('Choose a location and an estimated time for every walk.')
+ if(count!==undefined&&(!validRoutineTimes(times,count)||!place))throw new Error('Choose your device location and an estimated time for every walk.')
  const result=count===undefined?await client().rpc('set_walk_routine',{p_dog:dog,p_count:null,p_times:[]}):await client().rpc('set_walk_routine_schedule',{p_dog:dog,p_times:times,p_latitude:place!.latitude,p_longitude:place!.longitude,p_place:place!.label});if(result.error)throw result.error
 }
 

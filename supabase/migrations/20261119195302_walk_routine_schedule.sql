@@ -33,6 +33,8 @@ begin
  if auth.uid() is null or d.id is null or not private.is_member(d.household_id) then raise exception 'Member access required' using errcode='42501';end if;
  if not private.valid_walk_routine_times(cardinality(p_times),p_times) then raise exception 'An estimated time is required for every walk';end if;
  if p_latitude is null or p_longitude is null or not (p_latitude between -90 and 90) or not (p_longitude between -180 and 180) or p_place is null or char_length(trim(p_place)) not between 1 and 200 then raise exception 'Choose a valid routine location';end if;
+ p_latitude:=round(p_latitude::numeric,2)::double precision;
+ p_longitude:=round(p_longitude::numeric,2)::double precision;
  p_times:=array(select t from unnest(p_times) with ordinality x(t,n) order by t,n);
  insert into public.walk_daily_plans(dog_id,household_id,required_count,routine_enabled,estimated_times,place_latitude,place_longitude,place_label)
  values(d.id,d.household_id,cardinality(p_times),true,p_times,p_latitude,p_longitude,trim(p_place))

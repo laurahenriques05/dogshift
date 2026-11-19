@@ -1,5 +1,5 @@
 import {it,expect} from 'vitest'
-import {routineNames,sunriseMinutes,validRoutineTimes} from '../features/walks/routineSchedule'
+import {routineNames,sunriseMinutes,validRoutineTimes,routineDeviceLocation} from '../features/walks/routineSchedule'
 it('names each period from required estimated times, numbered in time order rather than input order',()=>{
  expect(routineNames(['10:00','14:00','21:00'],450)).toEqual(['Morning Walk','Afternoon Walk','Night Walk'])
  expect(routineNames(['11:30','09:30','18:00','14:30','23:00','20:00'],450)).toEqual(['Morning Walk 2','Morning Walk 1','Afternoon Walk 2','Afternoon Walk 1','Night Walk 2','Night Walk 1'])
@@ -26,4 +26,9 @@ it('calculates daily Lisbon sunrise approximately, converts daylight saving, han
 it('requires a valid HH:MM for each configured walk',()=>{
  expect(validRoutineTimes(['09:30','20:00'],2)).toBe(true)
  for(const [times,count]of [[['09:30',''],2],[['9:30'],1],[['24:00'],1],[[],0],[['09:30'],2]] as [string[],number][])expect(validRoutineTimes(times,count)).toBe(false)
+})
+
+it('keeps only an approximate device location and rejects invalid coordinates',()=>{
+ expect(routineDeviceLocation(38.721234,-9.145432)).toEqual({latitude:38.72,longitude:-9.15,label:'Device location'})
+ for(const [lat,lon]of [[NaN,0],[91,0],[0,181]])expect(()=>routineDeviceLocation(lat,lon)).toThrow('Invalid device location')
 })

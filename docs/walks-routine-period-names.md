@@ -10,12 +10,14 @@ there is no completed-count chart or count measure option. Demo/manual checks do
 not create real completed-walk statistics.
 
 Routine setup now requires one valid HH:MM estimated time for every configured
-walk. A selected town/city supplies approximate coordinates for daily sunrise.
-This uses the existing explicit Photon search (query submitted only on Find place);
-there is no automatic GPS permission request. The locality choice was the stated
-default while awaiting the optional user preference question. Coordinates/label
-are stored in the household-private routine, protected by its existing RLS.
-The selected location is not inserted into a GPS route.
+walk. The user chose device location with consent. Routine setup acquires a
+position only after Use current location; the browser handles permission. It uses
+low-accuracy acquisition, rounds to two decimal degrees and stores that approximate
+position with the household-private routine. The UI states why it is needed and
+that it is saved with the shared routine. Permission denial/timeout/unavailable
+states retain the form and offer retry. Existing selected positions can be reused
+or explicitly updated. No automatic permission request, continuous watcher,
+external solar service or GPS-route insertion is involved.
 
 Naming uses the current household-local calendar day and household time zone:
 
@@ -49,7 +51,7 @@ recomputed each household-local day.
 
 `20261119195302_walk_routine_schedule.sql` is proposed and **not applied** to
 shared Supabase. Coordinate review/order with Laura after routine preferences.
-It adds the routine locality and a membership-checked set_walk_routine_schedule
+It adds the routine approximate location and a membership-checked set_walk_routine_schedule
 RPC; one required HH:MM per configured outing is checked in SQL and the browser.
 Missing/null/invalid times and invalid coordinates/labels are rejected. Authenticated
 outsiders and anonymous callers cannot save. No authorisation uses editable
@@ -65,7 +67,7 @@ A source/preview build does not establish production rollout or persistence.
 
 ## Verification
 
-258 tests in 58 files passed with VITE_APP_URL and both Supabase browser variables
+259 tests in 58 files passed with VITE_APP_URL and both Supabase browser variables
 blank on Node 22.23.5, followed by typecheck/build and whitespace checks. Existing
 dependencies were reused; this was not a new npm ci. Existing Zod/bundle warnings
 remain. Tests cover the user's 09:30/11:30 example, noon/sunrise/20:00 boundaries,
@@ -73,10 +75,24 @@ chronological numbering, invalid/missing times, winter/summer estimates, DST/dat
 line conversion, polar sunrise absence, legacy-data preservation and SQL permissions.
 
 A removed browser fixture rendered the real routine components with local state
-and a Supabase stub that rejects access. The public Photon search returned Lisbon;
-the user-selected sample location and 09:30/11:30/20:30 produced Morning Walk 1,
+and a Supabase stub that rejects access. The earlier fixture used a sample Lisbon locality;
+its sample coordinates and 09:30/11:30/20:30 produced Morning Walk 1,
 Morning Walk 2 and Night Walk. Save was disabled until location and all times were
 present. Edit routine stayed 120 px high before/while configuring on 1280px and
 104 px before/while editing on 390px. No horizontal page overflow was observed;
 routine circles use their existing horizontal scroller on narrow screens.
 Screenshots are fixtures, not real saved household data or hosted migration tests.
+
+The user then explicitly chose device location with consent, superseding the
+initial locality-picker default. The source now uses a button-triggered geolocation
+request and coarse coordinates; the earlier Photon-picker fixture is historical.
+Device consent/denial UI and coarse-coordinate validation are checked separately;
+physical phone location accuracy remains unverified.
+
+Final consent fixture: no geolocation call occurred on page load or form opening.
+A simulated denial kept the form open and Save disabled; retry with simulated
+consent selected approximate coordinates, then the required times produced the
+expected names. Desktop/mobile remained free of page overflow and Edit routine
+kept its fixed height. No real device position was requested. SQL also rounds
+coordinates to two decimals, so a client cannot accidentally save precise fixes
+through this routine RPC.

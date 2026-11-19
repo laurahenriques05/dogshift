@@ -107,9 +107,9 @@ it('upgrades routine times without fabricating existing schedules and requires c
  await sql.exec(readFileSync('supabase/migrations/20261119195302_walk_routine_schedule.sql','utf8'))
  expect((await sql.query('select required_count,estimated_times from public.walk_daily_plans where dog_id=$1',[dog])).rows[0]).toEqual(before)
  await asUser(b)
- const call='select public.set_walk_routine_schedule($1,$2::text[],$3::double precision,$4::double precision,$5::text)',args=[dog,['11:30','09:30','20:30'],38.72,-9.14,'Lisbon']
+ const call='select public.set_walk_routine_schedule($1,$2::text[],$3::double precision,$4::double precision,$5::text)',args=[dog,['11:30','09:30','20:30'],38.721234,-9.145432,'Device location']
  await sql.query(call,args)
- expect((await sql.query('select estimated_times,place_label from public.walk_daily_plans where dog_id=$1',[dog])).rows[0]).toEqual({estimated_times:['09:30','11:30','20:30'],place_label:'Lisbon'})
+ expect((await sql.query('select estimated_times,place_label,place_latitude,place_longitude from public.walk_daily_plans where dog_id=$1',[dog])).rows[0]).toEqual({estimated_times:['09:30','11:30','20:30'],place_label:'Device location',place_latitude:38.72,place_longitude:-9.15})
  for(const invalid of [[dog,['09:30',''],38,-9,'Lisbon'],[dog,[],38,-9,'Lisbon'],[dog,['24:00'],38,-9,'Lisbon'],[dog,['09:30'],null,-9,'Lisbon'],[dog,['09:30'],91,-9,'Lisbon'],[dog,['09:30'],38,-181,'Lisbon'],[dog,['09:30'],38,-9,' '],[dog,[null],38,-9,'Lisbon']])await expect(sql.query(call,invalid)).rejects.toThrow()
  await expect(sql.query('select public.set_walk_daily_plan($1,2)',[dog])).rejects.toThrow('estimated time')
  await sql.query("select public.set_walk_routine($1,null,'{}')",[dog])
