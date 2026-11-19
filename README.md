@@ -174,11 +174,12 @@ walks by hour, day or month, using the same period selection and selector as Pas
 Adventures. The chart opens with Show statistics and can display walk count,
 kilometres or minutes on an automatic scale. See [local preview data](docs/walks-demo.md) for fixture limitations.
 
-The Walks feature on `codex/walk-tracking` adds private GPS recording, history,
-calendar summaries, recorder-only corrections, reversible deletion, a Home summary
-and a confirmed NFC start link. Apply only the new
-`supabase/migrations/202611110001_walks.sql` migration to the existing project
-before using it. See [Walks setup and validation](docs/walks.md) for full rollout
+Walks is integrated into `main` and includes private GPS recording, history,
+statistics, recorder-only corrections, reversible deletion, a Home summary
+and a confirmed NFC start link. The core migration was recorded as installed
+on 11 November; do not rerun it. Later capabilities require additional migrations
+whose hosted status must be reconciled with Laura. See the
+[current Walks pending-work register](docs/carol-walks-team-sync.md). See [Walks setup and validation](docs/walks.md) for full rollout
 instructions and [phone GPS tests](docs/walks-gps-testing.md) for required real-device
 checks. No new browser keys or paid map service are needed.
 
@@ -208,16 +209,18 @@ This year in the household timezone. Weeks begin on Monday; filtering happens
 before pagination, and a Load more control reveals additional matching walks.
 
 History/detail cards and accumulated distance use kilometres, alongside duration
-and average speed. Three local presentation walks in Past adventures (Benfica,
-Expo and Alvalade) contribute to local totals without demonstration badges. They
-and their detail pages are excluded from production; real household data and Home
-stay intact. See [presentation provenance](docs/walks-demo.md). No new migration
-is required. Street maps need internet; requests share viewed-area/IP information
-with the provider. See [map style notices](public/licenses/walk-map-style.txt).
+and average speed. Past Adventures → Demo walks explicitly opens three read-only
+examples in development and production builds. Examples never enter real household
+statistics, Home or saved/deleted lists and are never written to Supabase. See
+[presentation provenance](docs/walks-demo.md). No migration is needed for examples.
+Street maps need internet; requests share viewed-area/IP information with the
+provider. See [map style notices](public/licenses/walk-map-style.txt).
 
-Stationary automatic ending remains optional and foreground-only. Shared mobile
-notifications and Academy progress await the team's interfaces. Background or
-screen-locked GPS and physical touch-device reliability remain unverified.
+Stationary automatic ending remains optional and foreground-only. Walks does not
+publish shared calendar events or server push. Academy is dog-trick training;
+walking lessons are outside its current scope. NFC opens setup/confirmation;
+immediate start after required consent remains a request, not implemented behaviour.
+Background or screen-locked GPS and physical NFC reliability remain unverified.
 
 ## Health and account additions
 
