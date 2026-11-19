@@ -430,3 +430,11 @@ manual checks without fabricated GPS/time data. These features require the
 proposed, unapplied `20261119001000_walk_journal_and_daily_plan.sql` migration and
 Laura/team review. Missing notes integration no longer blocks route completion;
 unsynchronised notes remain marked pending. See [rollout and verification](docs/walks-journal-daily.md).
+
+### Walk collar overview and routine
+
+The idle Walks card now mirrors Feeding's layout, with the next routine slot,
+Start walk, recorded daily progress, exact latest recorded start and a collar NFC
+illustration/setup link. Today's walks uses Morning/Afternoon/Night circles and
+Summary for real waste/notes. It reuses the existing backend and adds no migration.
+See [behaviour, NFC and validation limits](docs/walks-collar-overview.md).

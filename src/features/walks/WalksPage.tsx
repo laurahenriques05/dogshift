@@ -1,3 +1,5 @@
+import { WalkDailyOverview } from './WalkDailyOverview'
+import { useDailyWalkRoutine } from './useDailyWalkRoutine'
 import { TodaysWalks } from './TodaysWalks'
 import { WalkFinishSummary } from './WalkFinishSummary'
 import type { NoteDraft } from './noteDraft'
@@ -16,7 +18,7 @@ import { useHousehold } from '../household/HouseholdProvider'
 import { useWalks } from './WalkProvider'
 import { paceLabel, routeDistance, timeLabel } from './gps'
 import { RouteMap } from './RouteMap'
-import { clearWalkStart, pendingWalkStart } from './nfc'
+import { clearWalkStart, pendingWalkStart, pendingWalkHousehold, collarMatchesHousehold } from './nfc'
 import { walkHistory, summarizeHistory, type HistoryPeriod } from './history'
 import { kilometersLabel } from './mapGestures'
 import { WalkActivityCard } from './WalkActivityCard'
@@ -32,10 +34,11 @@ export function WalksPage() {
  const [timelineRevision,setTimelineRevision]=useState(0)
  const [deleting, setDeleting] = useState<string | null>(null)
  const [showStatistics,setShowStatistics]=useState(false)
- const [copied,setCopied]=useState('')
+ const [nfcError,setNfcError]=useState('')
  const [finishingWalk,setFinishingWalk]=useState<string|null>(null)
  const active=data.walks.find(w=>!w.ended_at&&!w.deleted_at),mine=active?.walker_id===session!.user.id
  const historyView=search.get('view')==='history'
+ const routine=useDailyWalkRoutine({dog:dog!.id,walks:data.walks,zone:household!.timezone,now:data.now,enabled:!historyView})
  useEffect(()=>{window.scrollTo(0,0)},[historyView])
  const history=walkHistory(data.walks,false,session!.user.id)
  const summaryNow=new Date(data.now)
@@ -47,7 +50,7 @@ export function WalksPage() {
   const completed=data.walks.find(w=>w.id===finishingWalk&&w.ended_at&&!w.deleted_at)
   if(completed)navigate(`/walks/${completed.id}`)
  },[finishingWalk,data.walks,navigate])
- useEffect(()=>{if((search.get('action')==='start'||pendingWalkStart())&&data.ready){clearWalkStart();setConfirm('start');const next=new URLSearchParams(search);next.delete('action');next.delete('view');setSearch(next,{replace:true})}},[search,setSearch,data.ready])
+ useEffect(()=>{if((search.get('action')==='start'||pendingWalkStart())&&data.ready){const tagHousehold=search.get('household')??pendingWalkHousehold();clearWalkStart();if(!collarMatchesHousehold(tagHousehold,household!.id))setNfcError('This collar tag belongs to another family. Choose the matching family before starting.');else{setNfcError('');setConfirm('start')}const next=new URLSearchParams(search);next.delete('action');next.delete('view');next.delete('household');setSearch(next,{replace:true})}},[search,setSearch,data.ready,household])
  useEffect(()=>{
   if(confirm!=='end')return
   previousFocus.current=document.activeElement as HTMLElement
@@ -56,10 +59,12 @@ export function WalksPage() {
  },[confirm])
  if(historyView)return <WalkHistoryPage deletedHistory={walkHistory(data.walks,false,session!.user.id,true)} history={history} timezone={household!.timezone} loading={data.loading} ready={data.ready} error={data.error} onRetry={()=>data.reload()}/>
  return <div className="walk-page"><PageTitle eyebrow="A LITTLE FRESH AIR" title={`Out with ${dog!.name}.`}/>
+  {nfcError&&<Notice error>{nfcError}</Notice>}
   {data.error&&<Notice error>{isSchemaUnavailable(data.error)?'This recording is waiting to sync. Retry when the connection is ready.':data.error}<p><Button className="secondary" onClick={()=>{void data.reload();void data.sync()}}>Retry connection</Button></p></Notice>}
   {data.loading?<p role="status">Loading walks…</p>:!data.ready?<section className="card"><h2>Your walking diary is getting ready</h2><p>Walks and summaries will appear here once the connection is ready. GPS diagnostics and the walking lesson are available below.</p></section>:<>
-   <section className="card walk-hero"><div className="walk-hero-header"><div className="walk-heading"><span className="icon-tile"><Footprints size={28} aria-hidden="true"/></span><div><p className="eyebrow">{active?'OUT EXPLORING':'READY WHEN YOU ARE'}</p><h2>{active?(mine?'Your walk is in progress':'Your dog is on a walk'):'A new adventure awaits'}</h2></div></div>{!active&&<Button disabled={data.busy} onClick={()=>setConfirm('start')}>Start walk</Button>}</div>
-    {active?<><p>Started {new Date(active.started_at).toLocaleString()}. {!mine&&'The summary becomes available after the walker finishes.'}</p>
+   {!active&&<WalkDailyOverview routine={routine} walks={data.walks} zone={household!.timezone} dogName={dog!.name} household={household!.id} busy={data.busy} onStart={()=>setConfirm('start')}/>}
+   {active&&<section className="card walk-hero"><div className="walk-hero-header"><div className="walk-heading"><span className="icon-tile"><Footprints size={28} aria-hidden="true"/></span><div><p className="eyebrow">OUT EXPLORING</p><h2>{mine?'Your walk is in progress':'Your dog is on a walk'}</h2></div></div></div>
+    <><p>Started {new Date(active.started_at).toLocaleString()}. {!mine&&'The summary becomes available after the walker finishes.'}</p>
      {mine&&<><div className="walk-live-metrics"><div><Clock3 size={20} aria-hidden="true"/><span><strong>{timeLabel(data.elapsedSeconds)}</strong><small>Elapsed time</small></span></div>{data.gpsEnabled&&<><div><MapPin size={20} aria-hidden="true"/><span><strong>{(meters/1000).toFixed(2)} km</strong><small>Distance</small></span></div><div><Gauge size={20} aria-hidden="true"/><span><strong>{paceLabel(meters,data.elapsedSeconds)}</strong><small>Average pace</small></span></div></>}</div>
       <div className={`walk-live-layout${!data.gpsEnabled?' time-only':''}`}>
       {data.gpsEnabled&&<div className="walk-live-map"><RouteMap points={data.points} live/></div>}
@@ -72,13 +77,12 @@ export function WalksPage() {
       {data.ending&&<Notice><p role="status">Finishing your walk. Reconnect if saving is interrupted.</p></Notice>}
       </div></div>
      </>}
-    </>:<><p className="walk-hero-description">Every walk has a story. Record the little moments along the way.</p></>}
-   </section>
-   <TodaysWalks dog={dog!.id} user={session!.user.id} walks={data.walks} zone={household!.timezone} now={data.now} onStart={()=>setConfirm('start')}/>
+    </>
+   </section>}
+   <TodaysWalks routine={routine} user={session!.user.id} zone={household!.timezone}/>
    <section className="card"><div className="walk-heading"><div><p className="eyebrow">LITTLE STEPS ADD UP</p><h2>Walking together</h2></div><WalkPeriodSelect label="Summary period" value={period} onChange={setPeriod}/></div><div className="walk-metrics"><div><strong>{summary.count}</strong><span>Completed walks</span></div><div><strong>{kilometersLabel(summary.meters)} km</strong><span>Recorded distance</span></div><div><strong>{timeLabel(summary.seconds)}</strong><span>Total time</span></div></div><div id="walk-statistics" hidden={!showStatistics}>{showStatistics&&<WalkSummaryChart history={history} period={period} timezone={household!.timezone} now={summaryNow}/>}</div><div className="walk-statistics-action"><button type="button" className="walk-statistics-toggle" aria-expanded={showStatistics} aria-controls="walk-statistics" onClick={()=>setShowStatistics(value=>!value)}>{showStatistics?'Hide statistics':'Show statistics'}</button></div></section>
    <section className="card"><div className="walk-heading walk-history-heading"><h2>Last Adventure</h2><Link className="walk-show-more" to="/walks?view=history">Show more</Link></div>{!history.length?<p className="walk-empty">Your first completed walk will appear here.</p>:<div className="walk-activity-list">{history.slice(0,1).map(w=><WalkActivityCard key={w.id} {...w} loadRoute={!w.demo} onDelete={w.own && !w.demo ? () => setDeleting(w.id) : undefined}/>)}</div>}</section>
   </>}
-  <section className="card"><h2>A shortcut on the leash</h2><p>Tap the NFC tag on the leash to open PawShare. Your phone records the GPS route while you carry it on the walk. Configure the tag once with this link. It opens the Start Walk confirmation for the signed-in user’s selected family. Opening a link never starts a walk automatically.</p><code className="walk-url">{window.location.origin}/walks?action=start</code><p><Button className="secondary" onClick={async()=>{try{await navigator.clipboard.writeText(`${window.location.origin}/walks?action=start`);setCopied('Link copied.')}catch{setCopied('Copy the link shown above manually.')}}}>Copy NFC link</Button></p>{copied&&<p role="status">{copied}</p>}<Link to="/walks/gps-test">Open GPS diagnostics</Link></section>
   <WalkConnectionAlert active={!!active&&mine} failed={data.connectionFailed} onReconnect={()=>data.reconnect()}/>
   {deleting&&<RestoreWalkDialog action="delete" walkId={deleting} onCancel={()=>setDeleting(null)} onRestored={async()=>{await data.reload();setDeleting(null)}}/>}
   {confirm==='start'&&<StartWalkDialog dogName={dog!.name} busy={data.busy} blocked={active?(mine?'You already have an active walk. Close this window and resume GPS.':'Another family member is already walking your dog. Wait until they finish.'):''} onCancel={()=>setConfirm(null)} onConfirm={(mode,trackGps)=>{setConfirm(null);void data.start(mode,trackGps)}}/>}
