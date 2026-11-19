@@ -62,3 +62,11 @@ progressive names, save, edit, remove and setup again. Edit stayed 120/104px tal
 there was no horizontal page overflow. No location control or Remove appeared in
 setup; no time or pending Summary appeared in circles. Screenshots are fixtures,
 not real household saves. No hosted activity or schema write was performed.
+
+## Save-button correction
+
+Save routine stays clickable unless a save is in progress. Native required-field
+validation explains missing estimates. Submission reads the actual named form
+controls through FormData, then revalidates the count and every HH:MM before the
+existing save RPC. Live name previews still use React state, but a delayed time
+input event cannot leave Save permanently disabled. This follow-up changes no SQL.

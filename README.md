@@ -491,3 +491,7 @@ The client works with the existing hosted routine-preferences schema. Proposed,
 solar RPC requirements and enforces required estimates in SQL. Do not apply the
 historical solar migration on its own. Coordinate migration ordering with Laura.
 See [rules, compatibility and verification](docs/walks-routine-period-names.md).
+
+Save routine remains clickable while filling the form; required-field validation
+identifies missing times. Saving reads the actual form values and validates them
+again, avoiding a disabled button caused by delayed time-input state updates.
