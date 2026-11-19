@@ -8,7 +8,7 @@ let dog:string,walk:string,day:string
 async function asUser(id:string){await sql.exec(`reset role;set role authenticated;select set_config('request.jwt.claim.sub','${id}',false)`)}
 beforeAll(async()=>{
  await sql.exec(`create role anon nologin;create role authenticated nologin;create schema auth;create table auth.users(id uuid primary key,email text,raw_user_meta_data jsonb);create function auth.uid() returns uuid language sql stable as $$select nullif(current_setting('request.jwt.claim.sub',true),'')::uuid$$;grant usage on schema auth to authenticated;grant execute on function auth.uid() to authenticated;`)
- for(const name of ['202611070001_initial_schema.sql','202611110001_walks.sql','20261119001000_walk_journal_and_daily_plan.sql','20261119165100_walk_routine_preferences.sql'])await sql.exec(readFileSync(`supabase/migrations/${name}`,'utf8'))
+ for(const name of ['202611070001_initial_schema.sql','202611110001_walks.sql','20261116170000_walk_dog_waste.sql','20261118200000_walk_pause_and_notes.sql','20261118223000_walk_paused_duration.sql','20261119001000_walk_journal_and_daily_plan.sql','20261119165100_walk_routine_preferences.sql','20261119191348_walk_timeline_corrections.sql'])await sql.exec(readFileSync(`supabase/migrations/${name}`,'utf8'))
  await sql.exec(`insert into auth.users(id) values('${a}'),('${b}'),('${c}')`);await asUser(a)
  const home=(await sql.query<{id:string}>("select public.create_household('Walk journal','Pacific/Kiritimati') id")).rows[0].id
  dog=(await sql.query<{id:string}>("insert into public.dogs(household_id,name) values($1,'Milo') returning id",[home])).rows[0].id
@@ -62,5 +62,41 @@ it('persists optional routine times and explicit opt-out, protects access and pr
  expect((await sql.query('select routine_enabled,required_count,estimated_times from public.walk_daily_plans')).rows[0]).toEqual({routine_enabled:true,required_count:2,estimated_times:[]})
  await sql.exec('reset role;set role anon')
  await expect(sql.query("select public.set_walk_routine($1,2,'{}')",[dog])).rejects.toThrow()
+ await asUser(a)
+})
+
+it('atomically corrects saved events and notes, preserves raw GPS, rejects stale and unauthorised edits',async()=>{
+ await asUser(a)
+ const home=(await sql.query<{household_id:string}>('select household_id from public.dogs where id=$1',[dog])).rows[0].household_id
+ const w='83000000-0000-0000-0000-000000000001',n='83000000-0000-0000-0000-000000000002'
+ await sql.exec(`reset role;insert into public.walks(id,household_id,dog_id,walker_id,started_at,ended_at,end_reason) values('${w}','${home}','${dog}','${a}','2026-11-18T10:00Z','2026-11-18T10:10Z','manual');insert into public.walk_points(walk_id,seq,recorded_at,latitude,longitude,accuracy) values('${w}',0,'2026-11-18T10:01Z',38,-9,5);insert into public.walk_note_entries values('${n}','${w}','${a}','Water break','2026-11-18T10:02Z')`)
+ const expected=[{id:n,text:'Water break',recorded_at:'2026-11-18T10:02:00Z'}],notes=[{...expected[0],text:'Rest and water',recorded_at:'2026-11-18T10:03:00Z'}],events=[{id:'gps-start',at:'2026-11-18T10:02:00Z',label:'Route recording began'}]
+ const args=[w,0,'2026-11-18T10:00Z','2026-11-18T10:10Z','',JSON.stringify(expected),JSON.stringify(notes),JSON.stringify(events)]
+ const call='select * from public.correct_walk_details($1,$2,$3,$4,$5,$6::jsonb,$7::jsonb,$8::jsonb)'
+ for(const user of [b,c]){await asUser(user);await expect(sql.query(call,args)).rejects.toThrow('author access')}
+ await asUser(a)
+ await expect(sql.query(call,[...args.slice(0,7),JSON.stringify([{...events[0],at:'2026-11-18T11:00Z'}])])).rejects.toThrow('Invalid timeline')
+ expect((await sql.query('select text from public.walk_note_entries where id=$1',[n])).rows[0]).toEqual({text:'Water break'})
+ const result=await sql.query<{edit_revision:number;timeline_edits:unknown}>(call,args)
+ expect(result.rows[0].timeline_edits).toEqual(events)
+ expect((await sql.query('select text from public.walk_note_entries where id=$1',[n])).rows[0]).toEqual({text:'Rest and water'})
+ expect((await sql.query('select latitude,longitude,recorded_at::text from public.walk_points where walk_id=$1',[w])).rows[0]).toMatchObject({latitude:38,longitude:-9,recorded_at:'2026-11-18 10:01:00+00'})
+ await expect(sql.query(call,args)).rejects.toThrow('Walk changed')
+ const revision=result.rows[0].edit_revision
+ await expect(sql.query(call,[w,revision,...args.slice(2)])).rejects.toThrow('Notes changed')
+ await expect(sql.query('select * from private.walk_correction_audit')).rejects.toThrow()
+ await sql.exec(`reset role;update public.walks set pause_intervals='[{"start":"2026-11-18T10:04:00Z","end":"2026-11-18T10:05:00Z"}]' where id='${w}';insert into public.walk_waste_settings values('${w}','during');insert into public.walk_waste_events values('83000000-0000-0000-0000-000000000003','${w}','pee','2026-11-18T10:06:00Z')`)
+ await asUser(a)
+ const current=(await sql.query<{edit_revision:number}>('select edit_revision from public.walks where id=$1',[w])).rows[0].edit_revision
+ const corrections=[...events,{id:'pause-start-0',at:'2026-11-18T10:05:00Z',label:'Rest'},{id:'pause-end-0',at:'2026-11-18T10:07:00Z',label:'Walking again'},{id:'waste-83000000-0000-0000-0000-000000000003',at:'2026-11-18T10:08:00Z',label:'Pee at garden'}]
+ const pauseArgs=[w,current,...args.slice(2,5),JSON.stringify(notes),JSON.stringify(notes),JSON.stringify(corrections)]
+ await expect(sql.query(call,[...pauseArgs.slice(0,7),JSON.stringify(corrections.map(e=>e.id==='pause-start-0'?{...e,at:'2026-11-18T10:00:00Z'}:e))])).rejects.toThrow('overlap')
+ await sql.query(call,pauseArgs)
+ expect((await sql.query("select extract(epoch from ((pause_intervals->0->>'end')::timestamptz-(pause_intervals->0->>'start')::timestamptz))::integer seconds from public.walks where id=$1",[w])).rows[0]).toEqual({seconds:120})
+ expect((await sql.query("select extract(minute from recorded_at)::integer minute_value from public.walk_waste_events where walk_id=$1",[w])).rows[0]).toEqual({minute_value:8})
+ await sql.exec('reset role')
+ expect((await sql.query('select * from private.walk_correction_audit where walk_id=$1',[w])).rows).toHaveLength(2)
+ await sql.exec('set role anon')
+ await expect(sql.query(call,args)).rejects.toThrow()
  await asUser(a)
 })

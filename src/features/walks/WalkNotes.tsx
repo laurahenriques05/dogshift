@@ -4,7 +4,7 @@ import { Button } from '../../components/ui'
 import { noteDraftKey, parseNoteDraft, type NoteDraft } from './noteDraft'
 import { queueNote, syncNotes } from './noteJournal'
 import { WalkNoteHistory } from './WalkNoteHistory'
-export function WalkNotes({walkId,user,notes,onSaved,onDraftChange,action,disabled=false,timezone}:{walkId:string;user:string;notes:string;onSaved?:(notes:string)=>void;onDraftChange?:(draft:NoteDraft)=>void;action?:ReactNode;disabled?:boolean;timezone?:string}){
+export function WalkNotes({walkId,user,notes,onSaved,onDraftChange,action,disabled=false,hideActions=false,timezone}:{walkId:string;user:string;notes:string;onSaved?:(notes:string)=>void;onDraftChange?:(draft:NoteDraft)=>void;action?:ReactNode;disabled?:boolean;hideActions?:boolean;timezone?:string}){
  const key=noteDraftKey(user,walkId),[text,setText]=useState(''),[open,setOpen]=useState(false),[busy,setBusy]=useState(false),[error,setError]=useState('')
  const latest=useRef(onDraftChange);latest.current=onDraftChange
  const alive=useRef(true),locked=useRef(false)
@@ -19,5 +19,5 @@ export function WalkNotes({walkId,user,notes,onSaved,onDraftChange,action,disabl
   catch{if(alive.current&&!queued)setError('Could not save note. Retry.')}
   finally{locked.current=false;if(alive.current)setBusy(false)}
  }
- return <section className="walk-note"><div className="walk-note-actions"><Button className="secondary walk-note-open" disabled={busy||disabled} onClick={()=>setOpen(value=>!value)}><Pencil size={19} aria-hidden="true"/>Add a note</Button>{action}</div>{open&&<div className="walk-note-editor"><textarea aria-label="Walk note" value={text} maxLength={2000} rows={3} disabled={busy||disabled} onChange={event=>keep(event.target.value)} placeholder="A little moment to remember…"/><Button disabled={busy||disabled||!text.trim()} onClick={()=>void save()}>Save Note</Button></div>}{error&&<p className="walk-note-status" role="alert">{error}</p>}<WalkNoteHistory walkId={walkId} user={user} legacy={notes} timezone={timezone}/></section>
+ return <section className="walk-note">{!open&&!hideActions&&<div className="walk-note-actions"><Button className="secondary walk-note-open" disabled={busy||disabled} onClick={()=>setOpen(value=>!value)}><Pencil size={19} aria-hidden="true"/>Add a note</Button>{action}</div>}{open&&<div className="walk-note-editor"><textarea aria-label="Walk note" value={text} maxLength={2000} rows={3} disabled={busy||disabled} onChange={event=>keep(event.target.value)} placeholder="A little moment to remember…"/><Button disabled={busy||disabled||!text.trim()} onClick={()=>void save()}>Save Note</Button><Button className="secondary" disabled={busy} onClick={()=>setOpen(false)}>Cancel</Button></div>}{error&&<p className="walk-note-status" role="alert">{error}</p>}<WalkNoteHistory walkId={walkId} user={user} legacy={notes} timezone={timezone}/></section>
 }

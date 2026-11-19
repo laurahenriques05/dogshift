@@ -458,3 +458,16 @@ migration. Laura/team review and rollout remain required. Missing backend suppor
 shows an error, never a falsely saved routine. These are source/local validations,
 not a claim that the public app or hosted schema has been updated. See
 [behaviour and verification limits](docs/walks-routine-map-details.md).
+
+### Walk event/note editing and live metrics refinements
+
+The refinement source moves setup to the right, fixes the footsteps/title margin,
+overlays active metrics on the map and hides both note/edit buttons while an
+editor is open. The new author-only editor loads existing notes and all timeline
+events, with Starting Time / Finishing Time and Save, preserving raw GPS.
+It requires the proposed `20261119191348_walk_timeline_corrections.sql` migration
+and earlier pause support; these remain unapplied to hosted Supabase by this work.
+Live inspection confirmed missing pause schema, explaining why Pause GPS currently
+refuses to pause on the shared database. The additional pause migration attempt
+was blocked pending specific coordinated approval; none was applied. See
+[behaviour, permissions and rollout](docs/walks-editing-refinements.md).
