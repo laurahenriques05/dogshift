@@ -122,3 +122,28 @@ it('upgrades routine times without fabricating existing schedules and requires c
  await expect(sql.query(call,args)).rejects.toThrow()
  await asUser(a)
 })
+
+it('supersedes solar setup without losing routines and accepts required times without location',async()=>{
+ await sql.exec('reset role')
+ const before=(await sql.query('select required_count,estimated_times from public.walk_daily_plans where dog_id=$1',[dog])).rows[0]
+ await sql.exec(readFileSync('supabase/migrations/20261119203310_fixed_walk_routine_periods.sql','utf8'))
+ expect((await sql.query('select required_count,estimated_times from public.walk_daily_plans where dog_id=$1',[dog])).rows[0]).toEqual(before)
+ await sql.query('update public.walk_daily_plans set place_latitude=null,place_longitude=null,place_label=null where dog_id=$1',[dog])
+ await asUser(b)
+ const call='select public.set_walk_routine($1,$2,$3::text[])'
+ await sql.query(call,[dog,2,['20:00','07:00']])
+ expect((await sql.query('select estimated_times from public.walk_daily_plans where dog_id=$1',[dog])).rows[0]).toEqual({estimated_times:['07:00','20:00']})
+ for(const args of [[dog,2,['09:00','']],[dog,1,['24:00']],[dog,2,['09:00']]])await expect(sql.query(call,args)).rejects.toThrow('estimated time')
+ await expect(sql.query("select public.set_walk_routine_schedule($1,array['09:00'],38::double precision,-9::double precision,'old')",[dog])).rejects.toThrow('permission denied')
+ await asUser(c);await expect(sql.query(call,[dog,1,['09:00']])).rejects.toThrow('access')
+ await sql.exec('reset role;set role anon');await expect(sql.query(call,[dog,1,['09:00']])).rejects.toThrow()
+ await asUser(a);await sql.query(call,[dog,null,[]])
+ expect((await sql.query('select routine_enabled from public.walk_daily_plans where dog_id=$1',[dog])).rows[0]).toEqual({routine_enabled:false})
+})
+
+it('also runs the fixed routine RPC on a schema without any solar columns',async()=>{
+ await sql.exec('reset role;alter table public.walk_daily_plans drop column place_latitude,drop column place_longitude,drop column place_label')
+ await asUser(a)
+ await sql.query("select public.set_walk_routine($1,1,array['07:00'])",[dog])
+ expect((await sql.query('select required_count,estimated_times from public.walk_daily_plans where dog_id=$1',[dog])).rows[0]).toEqual({required_count:1,estimated_times:['07:00']})
+})
