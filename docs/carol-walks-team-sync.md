@@ -117,5 +117,7 @@ in the local integration branch when a consolidated publication commit is used.
 ## Subsequent editing refinements
 
 See [walk editing and live metrics](walks-editing-refinements.md) for the source
-implementation, new proposed correction migration and the blocked pause rollout.
-No new hosted migration or activity write was performed for that follow-up.
+implementation and hosted rollout. Following specific user confirmation of team
+approval, pause/notes, paused-duration and correction migrations were applied as
+`20261119192900`, `20261119192909` and `20261119192918`; do not reapply them.
+No real activity write or additional frontend deployment was performed.

@@ -34,29 +34,33 @@ member restrictions remain server-side. No user-editable metadata authorisation.
 
 ## Schema and rollout status
 
-New proposal: `20261119191348_walk_timeline_corrections.sql`.
-Requires core Walks, dog-waste, journal/daily-plan, pause/notes and paused-duration
-migrations. The shared database is still missing:
+All three migrations were applied to shared Supabase on 19 November 2026,
+after the user explicitly confirmed coordinated team approval for this scope.
+The migration ledger was rechecked first; none was already installed. Apply order
+and ledger mapping (do not reapply):
 
-1. `20261118200000_walk_pause_and_notes.sql`
-2. `20261118223000_walk_paused_duration.sql`
-3. The new correction migration above.
+| Repository migration | Hosted version/name |
+| --- | --- |
+| `20261118200000_walk_pause_and_notes.sql` | `20261119192900_walk_pause_and_notes` |
+| `20261118223000_walk_paused_duration.sql` | `20261119192909_walk_paused_duration` |
+| `20261119191348_walk_timeline_corrections.sql` | `20261119192918_walk_timeline_corrections` |
 
-The first two already exist in merged source. Read-only hosted inspection found
-neither segment_start nor pause_intervals. The current Pause GPS guard therefore
-refuses the pause and keeps recording, instead of pretending to stop while the
-server cannot preserve segment boundaries/duration. This explains the reported
-live clock behaviour; local duration logic already freezes open pause intervals.
+The earlier missing-schema diagnosis explained the live Pause GPS failure. The
+previous rejected application did not execute; this rollout followed the later
+specific approval. All three application calls succeeded and their ledger entries
+were independently read back. segment_start, pause_intervals, timeline_edits and
+edit_revision now exist. The pause/note/correction RPCs allow authenticated
+execution and deny anonymous execution. The private correction audit has RLS
+and no authenticated or anonymous SELECT grant. Anonymous zero-row REST probes
+recognised the new fields and returned expected 401/42501 access denials rather
+than missing-table/column errors. No private activity rows were read or modified.
 
-Attempted application of the first pause migration was rejected by automatic
-approval review: previous approval covered the two routine migrations, and this
-additional production change lacked specific coordinated approval. No pause or
-correction migration was applied. Explicit scope/team confirmation is required
-before retrying; do not bypass the rejected action through raw SQL or a local
-clock-only workaround. The new correction migration also requires review with
-Laura before hosted application. New editor fields depend on that migration;
-older databases show an unavailable-update state instead of claiming a save.
-The routine migrations applied earlier must not be repeated.
+No real account/GPS test was performed after rollout. Existing local pause logic
+now has its required hosted contracts; this is schema evidence, not physical phone
+validation. The correction frontend is still in PR #54; migration installation
+does not merge or publish that interface. Older schemas elsewhere still get an
+unavailable-editor state rather than false success. Installed routine migrations
+were not rerun, and no Auth settings or unrelated migrations were changed.
 
 This source branch has no production release. Another teammate reviews before
 merge; passing checks are not that approval. No hosted activity/note/routine was
