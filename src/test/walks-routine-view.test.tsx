@@ -12,14 +12,14 @@ it('offers an optional first routine without inventing a goal, last start or nex
  const html=overview(routine)
  expect(html).toContain('<strong>0</strong>');expect(html).not.toContain('NEXT WALK');expect(html).not.toContain('Last recorded start')
  const setup=renderToStaticMarkup(<TodaysWalks routine={routine} user="user" zone="Europe/Lisbon"/> )
- expect(setup).toContain('Set your dog’s walking routine');expect(setup).toContain('No routine for now')
+ expect(setup).toContain('Walking routine');expect(setup).toContain('Set your routine');expect(setup).not.toContain('No routine for now');expect(setup).toMatch(/walk-routine-edit-tile[^>]*disabled/)
  const declined=renderToStaticMarkup(<TodaysWalks routine={{...routine,decided:true}} user="user" zone="Europe/Lisbon"/> )
- expect(declined).toContain('Walk at your own pace');expect(declined).not.toContain('No routine for now')
+ expect(declined).toContain('Walking routine');expect(declined).not.toContain('No routine for now')
 })
 it('shows chosen optional times without the removed instruction and counts real starts instead of manual checks',()=>{
  const plan={...routine,count:2,times:['08:30',''],slots:[{number:1},{number:2}],recordedCount:7}
  const walk={id:'started',started_at:'2026-11-19T10:00:00Z',ended_at:null,deleted_at:null} as Walk
  const html=overview(plan,[walk,walk]);expect(html).toContain('<strong>1</strong>');expect(html).toContain('NEXT WALK')
  const preview=renderToStaticMarkup(<TodaysWalks routine={plan} user="user" zone="Europe/Lisbon"/> )
- expect(preview).toContain('<time>08:30</time>');expect(preview).not.toContain('Tap a circle')
+ expect(preview).toContain('Today’s walk');expect(preview).not.toMatch(/walk-routine-edit-tile[^>]*disabled/);expect(preview).toContain('<time>08:30</time>');expect(preview).not.toContain('Tap a circle')
 })

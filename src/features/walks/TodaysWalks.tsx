@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Check, Circle, Footprints, LoaderCircle, Settings2 } from 'lucide-react'
+import { Check, Circle, Footprints, LoaderCircle, Pencil } from 'lucide-react'
 import { Button, Field } from '../../components/ui'
 import type { DailyWalkRoutine } from './useDailyWalkRoutine'
 import { walkPeriod } from './routinePresentation'
@@ -16,22 +16,16 @@ export function TodaysWalks({routine,user,zone}:{routine:DailyWalkRoutine;user:s
  async function withoutRoutine(){
   if(await routine.saveCount(undefined)){setEditing(false);setFeedback('Walking without a routine. You can set one anytime.')}
  }
- return <section className="card walk-today">
+ return <div className="walk-routine-layout"><section className="card walk-today">
   <header className="walk-today-heading">
-   <h2><Footprints size={24} aria-hidden="true"/>Today’s walks</h2>
-   {routine.ready&&routine.count!==undefined&&!editing&&<button type="button" className="walk-plan-edit walk-text-action" disabled={routine.busy} onClick={edit}><Settings2 size={16} aria-hidden="true"/>Edit routine</button>}
+   <h2><span className="icon-tile"><Footprints size={28} aria-hidden="true"/></span>{routine.count===undefined?'Walking routine':'Today’s walk'}</h2>
   </header>
   {routine.loading?<p role="status">Loading today’s walks…</p>:<>
    {feedback&&<p role="status">{feedback}</p>}
    {routine.error&&<p role="alert">{routine.error} <button type="button" className="walk-text-action" onClick={routine.retry}>Retry</button></p>}
    {routine.ready&&<>
     {routine.count===undefined?<>
-     <h3>{routine.decided?'Walk at your own pace':'Set your dog’s walking routine'}</h3>
-     <p>{routine.decided?'No routine set. Start a walk whenever you’re ready.':'Choose daily walks and optional estimated times, or walk without a routine.'}</p>
-     {!editing&&<div className="walk-actions">
-      <Button disabled={routine.busy} onClick={edit}>Set walking routine</Button>
-      {!routine.decided&&<Button className="secondary" disabled={routine.busy} onClick={()=>void withoutRoutine()}>No routine for now</Button>}
-     </div>}
+     {!editing&&<button type="button" className="walk-routine-setup-button" disabled={routine.busy} onClick={edit}><strong>Set your routine</strong><span>Choose daily walks and optional estimated times</span></button>}
     </>:<ol className="walk-routine-line dose-bubbles" aria-label="Today's walk routine">
      {routine.slots.map(item=>{
       const complete=!!(item.walk||item.manual),label=walkPeriod(item.number,routine.count!)
@@ -70,5 +64,5 @@ export function TodaysWalks({routine,user,zone}:{routine:DailyWalkRoutine;user:s
    </>}
   </>}
   {slot&&routine.count!==undefined&&(slot.walk||slot.manual)&&<WalkRoutineSummary key={`${routine.day}-${slot.number}`} slot={slot} label={walkPeriod(slot.number,routine.count)} user={user} zone={zone} routine={routine} onClose={()=>setSelected(null)}/>}
- </section>
+ </section><section className="card walk-routine-edit-card"><button type="button" className="walk-routine-edit-tile" disabled={!routine.ready||routine.count===undefined||routine.busy} onClick={edit}><Pencil size={28} aria-hidden="true"/><span>Edit routine</span></button></section></div>
 }
