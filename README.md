@@ -406,3 +406,7 @@ Validated with disposable PGlite data: preserved dog/treatment/file rows, privat
 ### Permanent folder deletion across app versions
 
 `20261118231500_disable_legacy_folder_soft_delete.sql` (not yet applied to hosted Supabase) blocks the old `manage_health_document_folder` delete action with a refresh message. An old confirmation that promises recoverable deletion never becomes irreversible behind the user’s back. Current clients explicitly confirm Delete permanently, use the prepare/Storage/finalize flow and never report a successful archive. Existing archived folders remain recoverable until explicitly deleted. Preflight permission errors leave files unchanged; failures after preparation report retryable incomplete deletion.
+
+### Veterinary contact dialogs and deletion
+
+Add contact and Edit open a native modal dialog, dismissible with Cancel/Escape when idle. Save closes only after persisted success. Edit includes Delete contact with a separate confirmation inside the modal; deletion checks the returned row and keeps the dialog open on errors. Requires `20261118235500_vet_contact_deletion.sql`, not applied to hosted Supabase by this change. Current household members may delete shared contacts, matching existing shared create/edit permissions; anonymous users, outsiders and former members cannot. No real contact was deleted during verification.
