@@ -2,14 +2,18 @@ import { useState } from 'react'
 import { Check, Circle, Footprints, LoaderCircle, Pencil } from 'lucide-react'
 import { Button, Field } from '../../components/ui'
 import type { DailyWalkRoutine } from './useDailyWalkRoutine'
-import { walkPeriod } from './routinePresentation'
+import { routineNames, sunriseMinutes, validRoutineTimes, type RoutinePlace } from './routineSchedule'
+import { RoutinePlacePicker } from './RoutinePlacePicker'
 import { WalkRoutineSummary } from './WalkRoutineSummary'
 
 export function TodaysWalks({routine,user,zone}:{routine:DailyWalkRoutine;user:string;zone:string}){
+ const [place,setPlace]=useState<RoutinePlace|null>(null)
  const [editing,setEditing]=useState(false),[value,setValue]=useState('3'),[times,setTimes]=useState<string[]>([])
  const [selected,setSelected]=useState<number|null>(null),[saving,setSaving]=useState<number|null>(null),[feedback,setFeedback]=useState('')
+ const name=(number:number)=>routine.names?.[number-1]??`Walk ${number}`
+ const preview=routineNames(Array.from({length:Math.max(1,Math.min(12,Number(value)||1))},(_,i)=>times[i]??''),place?sunriseMinutes(routine.day,zone,place):null)
  const slot=routine.slots.find(item=>item.number===selected)
- function edit(){setValue(String(routine.count??3));setTimes(routine.times);setEditing(true);setFeedback('')}
+ function edit(){setValue(String(routine.count??3));setTimes(routine.times);setPlace(routine.place??null);setEditing(true);setFeedback('')}
  function changeTime(index:number,time:string){
   setTimes(previous=>Array.from({length:Math.max(previous.length,index+1)},(_,i)=>i===index?time:previous[i]??''))
  }
@@ -24,14 +28,16 @@ export function TodaysWalks({routine,user,zone}:{routine:DailyWalkRoutine;user:s
    {feedback&&<p role="status">{feedback}</p>}
    {routine.error&&<p role="alert">{routine.error} <button type="button" className="walk-text-action" onClick={routine.retry}>Retry</button></p>}
    {routine.ready&&<>
+    {routine.count!==undefined&&!routine.scheduleComplete&&!editing&&<p role="status">Complete your routine’s estimated times and location to name each walk.</p>}
+    {routine.place&&routine.sunrise===null&&<p role="status">No sunrise estimate for this location and day. Early walks use neutral names.</p>}
     {routine.count===undefined?<>
      {!editing&&<div className="walk-routine-setup"><Button disabled={routine.busy} onClick={edit}>Set your routine</Button></div>}
     </>:<ol className="walk-routine-line dose-bubbles" aria-label="Today's walk routine">
      {routine.slots.map(item=>{
-      const complete=!!(item.walk||item.manual),label=walkPeriod(item.number,routine.count!)
+      const complete=!!(item.walk||item.manual),label=name(item.number)
       return <li key={`${routine.day}-${item.number}`} className={`dose-step${complete?' is-given':''}`}>
        <button type="button" className={`dose-bubble walk-period-bubble${complete?' is-given':''}`} disabled={routine.busy}
-        aria-label={complete?`${label} walk recorded. View summary`:`Mark ${label} walk as done`} aria-busy={saving===item.number}
+        aria-label={complete?`${label} recorded. View summary`:`Mark ${label} as done`} aria-busy={saving===item.number}
         onClick={async()=>{
          if(complete){setSelected(item.number);return}
          if(routine.busy)return
@@ -48,21 +54,21 @@ export function TodaysWalks({routine,user,zone}:{routine:DailyWalkRoutine;user:s
     </ol>}
     {editing&&<form className="walk-plan-form" onSubmit={async event=>{
      event.preventDefault()
-     if(await routine.saveCount(Number(value),Array.from({length:Number(value)},(_,i)=>times[i]??''))){setEditing(false);setFeedback('Walking routine saved.')}
+     if(await routine.saveCount(Number(value),Array.from({length:Number(value)},(_,i)=>times[i]??''),place)){setEditing(false);setFeedback('Walking routine saved.')}
     }}>
      <Field label="Walks per day" type="number" min={1} max={12} step={1} required disabled={routine.busy} value={value} onChange={event=>setValue(event.target.value)}/>
-     <div className="walk-routine-times"><p>Estimated times (optional)</p>
-      {Array.from({length:Math.max(1,Math.min(12,Number(value)||1))},(_,i)=><Field key={i} label={`Walk ${i+1}`} type="time" disabled={routine.busy} value={times[i]??''}
+     <RoutinePlacePicker value={place} onChange={setPlace} disabled={routine.busy}/><p className="walk-routine-estimate">Estimated times use {zone}. You can go out earlier or later.</p><div className="walk-routine-times"><p>Estimated times</p>
+      {Array.from({length:Math.max(1,Math.min(12,Number(value)||1))},(_,i)=><Field key={i} label={preview[i]} type="time" required disabled={routine.busy} value={times[i]??''}
        onInput={event=>changeTime(i,event.currentTarget.value)} onChange={event=>changeTime(i,event.target.value)} onBlur={event=>changeTime(i,event.target.value)}/>)}
      </div>
      <div className="walk-actions">
-      <Button disabled={routine.busy}>Save routine</Button>
+      <Button disabled={routine.busy||!place||!validRoutineTimes(times.slice(0,Number(value)),Number(value))}>Save routine</Button>
       <Button type="button" className="secondary" disabled={routine.busy} onClick={()=>setEditing(false)}>Cancel</Button>
       {routine.count!==undefined&&<Button type="button" className="secondary" disabled={routine.busy} onClick={()=>void withoutRoutine()}>Remove routine</Button>}
      </div>
     </form>}
    </>}
   </>}
-  {slot&&routine.count!==undefined&&(slot.walk||slot.manual)&&<WalkRoutineSummary key={`${routine.day}-${slot.number}`} slot={slot} label={walkPeriod(slot.number,routine.count)} user={user} zone={zone} routine={routine} onClose={()=>setSelected(null)}/>}
+  {slot&&routine.count!==undefined&&(slot.walk||slot.manual)&&<WalkRoutineSummary key={`${routine.day}-${slot.number}`} slot={slot} label={name(slot.number)} user={user} zone={zone} routine={routine} onClose={()=>setSelected(null)}/>}
  </section><button type="button" className="walk-routine-edit-tile" disabled={!routine.ready||routine.count===undefined||routine.busy} onClick={edit}><Pencil size={28} aria-hidden="true"/><span>Edit routine</span></button></div>
 }

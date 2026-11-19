@@ -121,3 +121,12 @@ implementation and hosted rollout. Following specific user confirmation of team
 approval, pause/notes, paused-duration and correction migrations were applied as
 `20261119192900`, `20261119192909` and `20261119192918`; do not reapply them.
 No real activity write or additional frontend deployment was performed.
+
+## Estimated-time naming follow-up
+
+The new [routine naming source](walks-routine-period-names.md) makes estimated
+hours mandatory, calculates daily sunrise from an explicitly selected locality,
+keeps night fixed at 20:00 and numbers same-period slots by time. It also fixes
+Edit routine height and restores the summary count without a count chart.
+Its `20261119195302_walk_routine_schedule.sql` migration remains proposed and
+unapplied; earlier confirmed hosted rollouts do not include this file.

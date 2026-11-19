@@ -1,12 +1,9 @@
 import{expect,it,afterEach,vi}from'vitest'
-import{walkPeriod,nextRoutineSlot,completedToday,lastRecordedStart,recordedWalksToday,startedToday}from'../features/walks/routinePresentation'
+import{nextRoutineSlot,completedToday,lastRecordedStart,recordedWalksToday,startedToday}from'../features/walks/routinePresentation'
 import{collarTagUrl,rememberWalkStart,pendingWalkStart,pendingWalkHousehold,clearWalkStart,collarMatchesHousehold}from'../features/walks/nfc'
 import type{Walk}from'../lib/supabase/database.types'
 afterEach(()=>{vi.unstubAllGlobals();vi.useRealTimers()})
-it('labels the configured count by periods and chooses only a genuinely unfinished slot',()=>{
- expect([1,2,3].map(n=>walkPeriod(n,3))).toEqual(['Morning','Afternoon','Night'])
- expect([1,2].map(n=>walkPeriod(n,2))).toEqual(['Morning','Night'])
- expect(new Set(Array.from({length:12},(_,i)=>walkPeriod(i+1,12))).size).toBe(12)
+it('chooses only a genuinely unfinished routine slot',()=>{
  const done={number:1,walk:{id:'saved'} as Walk},pending={number:2}
  expect(nextRoutineSlot([done,pending])).toBe(pending);expect(nextRoutineSlot([done])).toBeUndefined()
 })

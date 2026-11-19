@@ -472,3 +472,17 @@ reapply them. The earlier missing pause schema is resolved; fields, RPC grants
 and API recognition were verified. Real-account/device checks remain separate,
 and PR #54 has separately been merged into main as `4bf038f`. See
 [behaviour, permissions and rollout](docs/walks-editing-refinements.md).
+
+### Routine times and names (proposed follow-up)
+
+The latest source fixes the size of Edit routine, restores the completed-walk
+total in Walking together and keeps the statistics chart limited to distance/time.
+Routine times are now required estimates. A selected locality provides the daily
+sunrise for Morning Walk / Afternoon Walk / Night Walk labels, numbered by time
+when several occur in a period. Morning starts at sunrise, afternoon at 12:00 and
+night always at 20:00. Actual outings do not need to start at the estimated time.
+
+This supersedes the earlier optional-time proposal in source and requires new,
+**unapplied** migration `20261119195302_walk_routine_schedule.sql`, coordinated
+with Laura before release. No old routine is filled with invented times/location.
+See [naming rules, migration and verification](docs/walks-routine-period-names.md).
