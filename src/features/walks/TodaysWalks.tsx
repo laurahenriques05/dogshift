@@ -27,21 +27,20 @@ export function TodaysWalks({routine,user,zone}:{routine:DailyWalkRoutine;user:s
   if(Number.isInteger(count)&&count>=1&&count<=12){setDraft(Array.from({length:count},(_,i)=>draft[i]??{id:nextId.current++,time:''}))}
  }
  async function withoutRoutine(){
-  if(await routine.saveCount(undefined)){setMode(null);setFeedback('Walking without a routine. You can set one anytime.')}
+  if(await routine.saveCount(undefined)){setMode(null);setFeedback('Routine removed.')}
  }
  return <div className="walk-routine-layout"><section className={`card walk-today${routine.ready&&!routine.scheduleComplete&&!editing?' is-unconfigured':''}`}>
   <header className="walk-today-heading">
    <h2><span className="icon-tile"><Footprints size={28} aria-hidden="true"/></span>{routine.count===undefined||!routine.scheduleComplete?'Walking routine':'Today’s walk'}</h2>
-   <button type="button" className="walk-routine-edit-tile" disabled={!routine.ready||!routine.scheduleComplete||routine.busy||editing} onClick={()=>edit('edit')}><Pencil size={28} aria-hidden="true"/><span>Edit routine</span></button>
+   <div className="walk-routine-header-actions">{routine.ready&&!routine.scheduleComplete&&!editing&&<Button disabled={routine.busy} onClick={()=>edit('setup')}>Set routine</Button>}
+   <button type="button" className="walk-routine-edit-tile" disabled={!routine.ready||!routine.scheduleComplete||routine.busy||editing} onClick={()=>edit('edit')}><Pencil size={28} aria-hidden="true"/><span>Edit routine</span></button></div>
   </header>
   {routine.loading?<p role="status">Loading today’s walks…</p>:<>
    {feedback&&<p role="status">{feedback}</p>}
    {routine.error&&<p role="alert">{routine.error} <button type="button" className="walk-text-action" onClick={routine.retry}>Retry</button></p>}
    {routine.ready&&<>
     {routine.count!==undefined&&!routine.scheduleComplete&&!editing&&<p role="status">Complete your routine’s estimated hours to name each walk.</p>}
-    {routine.count===undefined||!routine.scheduleComplete?<>
-     {!editing&&<div className="walk-routine-setup"><Button disabled={routine.busy} onClick={()=>edit('setup')}>Set routine</Button></div>}
-    </>:<ol className="walk-routine-line dose-bubbles" aria-label="Today's walk routine">
+    {routine.count!==undefined&&routine.scheduleComplete&&<ol className="walk-routine-line dose-bubbles" aria-label="Today's walk routine">
      {visibleSlots.map(item=>{
       const complete=!!(item.walk?.ended_at||item.manual),inProgress=!!item.walk&&!item.walk.ended_at,label=name(item.number)
       return <li key={`${routine.day}-${item.number}`} className={`dose-step${complete?' is-given':inProgress?' is-in-progress':''}`}>

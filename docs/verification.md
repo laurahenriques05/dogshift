@@ -4,23 +4,23 @@ Updated 20 November 2026. Test counts are observations, not permanent guarantees
 Use Node 22.x >=22.12; npm test, npm run typecheck, npm run build and git diff
 --check. Tests must not call the hosted database or send real emails/push.
 
-## Latest checks — documentation consolidation
+## Latest checks — Walks recording/history follow-up
 
-On current source (main including #68), all **281 isolated tests in 63 files**
-passed on Node 22.23.5 with VITE_APP_URL and both Supabase browser values blank.
-TypeScript, production build and git diff --check also passed. All local
-Markdown file/heading links were checked with no broken targets.
+On `codex/walks-recording-and-history` (base main `af61194`), all
+**295 isolated tests in 67 files**
+passed on Node 22.23.5 with both Supabase browser values blank.
+TypeScript, production build and git diff --check also passed. Changed Markdown file links were checked.
 Existing node_modules were reused; this is not a fresh npm ci.
 
 Existing Zod annotation and large-bundle advisories remain; they are not failed
 checks. PGlite/minimal Auth/Storage roles cover isolation, rejected writes, retries,
 stock, routines, GPS/timeline and deletion. This is not a hosted security audit.
 
-Sample real-component browser fixtures covered routine setup/save/edit/grouping,
-stable slot IDs/manual Night checks, summary/edit transitions, corrected timeline,
-consent-before-Photon, footer credits and mobile containment at 360/390px and
-1280px desktop. NFC fixture verified disclosure opening/focus/scroll and copy
-feedback. Fixtures were removed; no fake responses are shipped as saved activity.
+Current isolated component fixtures checked routine button order/setup/cancel,
+recording-only content, inactivity Yes/No, and permanent-delete confirmation/cancel
+at 360px mobile and 1280px desktop. They block hosted access. Isolated SQL covers
+permanent-delete authorization, child cascades and linked task-source cleanup;
+pure clock tests cover 2+5 thresholds and GPS-loss rules. Fixtures were removed; no fake responses are shipped as saved activity.
 These checks are not physical tags, live account persistence or actual GPS.
 
 ## Read-only hosted evidence — 20 November
@@ -32,8 +32,8 @@ also recorded. Manual Health SQL may not be represented in that ledger.
 
 Function inspection confirms hosted set_walk_deleted remains author-only and
 set_walk_routine preserves order but permits optional/partial estimates. Proposed
-family-deletion and strict-hour/stable-ID follow-ups are not applied. No hosted
-care records were read/created/deleted or schema changed by this consolidation.
+family-deletion and strict-hour/stable-ID follow-ups are not applied. The new permanent-delete migration is also proposed only. No hosted care
+records or schema were changed by this follow-up.
 
 GitHub reports Vercel success for merged #68. Current Vercel team access is denied;
 exact production alias/READY/commit must be verified separately, not invented.
@@ -43,7 +43,7 @@ exact production alias/READY/commit must be verified separately, not invented.
 - Hosted auth/email/recovery, every invitation/onboarding/departure/deletion path.
 - Disposable multi-account writes and forbidden actions on the exact deployed UI.
 - Android/iPhone physical NFC write/tap/sign-in and permission/duplicate behaviour.
-- Outdoor GPS, pause/resume, stationary 10+2, lost signal, offline/reload/reconnect,
+- Outdoor GPS, pause/resume, stationary 2+5, lost signal, offline/reload/reconnect,
   screen lock and app switching. Follow walks-gps-testing.md; no background promise.
 - Google key/billing/domain/runtime paths and external provider availability.
 - Push sender secrets/deployment/cron, recurring materialization and iOS/Android

@@ -1,7 +1,7 @@
 import { pausedSeconds, validPauses, type WalkPause } from './pauseClock'
 import type { Walk, WalkPoint } from '../../lib/supabase/database.types'
 export type Point = Omit<WalkPoint, 'walk_id'> & { segment_start?: boolean }
-export const GPS_POLICY = { accuracy: 50, maxGap: 60_000, maxSpeed: 5, minInterval: 5000, stationaryRadius: 30, stationaryMs: 600_000, warningMs: 120_000 }
+export const GPS_POLICY = { accuracy: 50, maxGap: 60_000, maxSpeed: 5, minInterval: 5000, stationaryRadius: 30, stationaryMs: 120_000, warningMs: 300_000 }
 const rad = (n: number) => n * Math.PI / 180
 export function distance(a: Pick<Point, 'latitude' | 'longitude'>, b: Pick<Point, 'latitude' | 'longitude'>) {
  const h = Math.sin(rad(b.latitude-a.latitude)/2)**2 + Math.cos(rad(a.latitude))*Math.cos(rad(b.latitude))*Math.sin(rad(b.longitude-a.longitude)/2)**2
@@ -22,15 +22,18 @@ export function acceptable(point: Point, previous?: Point, now=Date.now()) {
 // Only continuous, fresh, reasonably accurate fixes can establish stationarity.
 export type Stationary = { anchor: Point; since: number; last: number; warnedAt: number | null }
 export function stationaryFix(state: Stationary | null, point: Point): Stationary | null {
+ if(state&&state.warnedAt!==null)return state
  if(point.accuracy>25)return null
  const time=Date.parse(point.recorded_at)
  if (!state || time-state.last>GPS_POLICY.maxGap || time<=state.last || distance(state.anchor,point)>GPS_POLICY.stationaryRadius) return {anchor:point,since:time,last:time,warnedAt:null}
  return {...state,last:time}
 }
 export function stationaryTick(state:Stationary|null,now:number,enabled:boolean,visible:boolean,recording:boolean):{state:Stationary|null;action:'none'|'warn'|'end'} {
- if(!enabled||!visible||!recording||!state||now-state.last>15000)return {state:null,action:'none'}
+ if(!enabled||!recording||!state)return {state:null,action:'none'}
+ // Once asked, an unanswered prompt has its own deadline; GPS loss is not new evidence of movement.
+ if(state.warnedAt!==null)return {state,action:now-state.warnedAt>=GPS_POLICY.warningMs?'end':'none'}
+ if(!visible||now-state.last>15000)return {state:null,action:'none'}
  if(state.warnedAt===null&&now-state.since>=GPS_POLICY.stationaryMs)return {state:{...state,warnedAt:now},action:'warn'}
- if(state.warnedAt!==null&&now-state.warnedAt>=GPS_POLICY.warningMs)return {state,action:'end'}
  return {state,action:'none'}
 }
 export function duration(walk: Pick<Walk,'started_at'|'ended_at'>,now=Date.now(),localPauses?:WalkPause[]) { const start=Date.parse(walk.started_at),end=walk.ended_at?Date.parse(walk.ended_at):now;const saved=(walk as typeof walk&{pause_intervals?:unknown}).pause_intervals;const pauses=localPauses??(validPauses(saved)?saved:[]);return Math.max(0,(end-start)/1000-pausedSeconds(pauses,start,end)) }

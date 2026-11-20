@@ -22,6 +22,16 @@ The Vercel connector last refused team access; a successful GitHub status alone
 is not independent verification of the exact production alias/READY metadata.
 Recheck current main and production before making a new release claim.
 
+## Current follow-up branch
+
+`codex/walks-recording-and-history` is based on main `af61194` (PRs #69–#72
+merged). Source changes await review/publication: Set routine beside Edit; removed
+no-routine sentence and area-names disclosure/lookups; recording-only page during
+the author’s active walk; centred GPS warning at 2 minutes, Yes/No, auto-end after
+5 unanswered minutes. Deleted cards offer author-only permanent removal with
+irreversible confirmation and proposed migration
+`20261120215833_permanently_delete_walk.sql`. No hosted changes or deployment.
+
 ## Approved behaviour to preserve
 
 - Compact, intuitive mobile-first green/cream design, following Feeding. Reduce
@@ -46,8 +56,7 @@ Recheck current main and production before making a new release claim.
 - Pause freezes elapsed time and GPS; resume creates a segment. Notes/events can
   be corrected by their author, preserving all raw GPS. Save updates timeline.
 - History uses real saved walks; Demo walks is separate and explicitly labelled.
-  Area names require account/device consent and one approximate Photon lookup;
-  no full trace is sent, and names are not persisted/shared walk titles.
+  Saved cards retain their existing titles; area-names controls/lookups are removed.
 - Open-map credits only in the small persistent footer, including active imagery
   sources; preserve Google native attribution. No style picker on a saved empty
   route. Do not hide map data/permission errors or claim fake accuracy.
@@ -64,14 +73,16 @@ Recheck current main and production before making a new release claim.
    Review/coordinate that exact migration with Laura before application; do not
    reapply old migrations. Keep author-only restoration/correction and block
    active walks, outsiders, anonymous and former members. Never delete real
-   activities as a test. This request is not fully working on hosted Supabase yet.
+   activities as a test. The permanent-delete proposal also needs review with
+   Laura and Maria because existing task links are cleared by FK/trigger rules.
+   Neither deletion change is fully working on hosted Supabase yet.
 2. **Routine SQL hardening:** client requires all hours; hosted RPC still allows
    blank/partial estimates and preserves input order. The fixed-hours and stable-
    identity proposals remain unapplied. Review the final combined result before
    rollout; never apply the old solar proposal by itself or sorting that renumbers
    manual records. Current client already works with the existing preferences RPC.
 3. **Real-device acceptance:** NFC writing/tapping/sign-in, foreground GPS,
-   permission denial, offline/reload, pause/resume and stationary 10+2 minute
+   permission denial, offline/reload, pause/resume and stationary 2+5 minute
    behaviour on Android/iPhone. Background/screen-locked reliability is unverified.
 4. Immediate NFC start after authentication/membership/location consent remains
    requested but unimplemented: current flow still asks settings/confirmation.
@@ -89,7 +100,7 @@ Hosted migration ledger and function definitions were inspected read-only on
 source/hosted version mapping. Journal/routine preferences, waste/tracking,
 deleted-owner preview, pause duration and timeline corrections are installed.
 
-Current full suite: 281 isolated tests/63 files passed on Node 22.23.5 with
+Current follow-up suite: 295 isolated tests/67 files passed on Node 22.23.5 with
 browser configuration blank; TypeScript/build and Markdown links also passed.
 See verification.md for current checks
 and evidence limits. Existing Zod annotation/bundle advisories remain.

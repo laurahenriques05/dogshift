@@ -37,10 +37,10 @@ function Tracker({user,household,dog,children}:{user:string;household:string;dog
  const [gpsEnabled,setGpsEnabled]=useState(true)
  const [paused,setPaused]=useState(false),[quality,setQuality]=useState<GpsQuality>('waiting'),[accuracy,setAccuracy]=useState<number|null>(null),[saved,setSaved]=useState(false),[recovery,setRecovery]=useState(false)
  const [tracking,setTracking]=useState(false),[points,setPoints]=useState<Point[]>([]),[pending,setPending]=useState(0),[ending,setEnding]=useState(false),[loadError,setLoadError]=useState(''),[storageError,setStorageError]=useState(''),[now,setNow]=useState(Date.now())
- const [warning,setWarning]=useState<number|null>(null),[autoEnd,setAutoEndState]=useState(false),[gpsMessage,setGpsMessage]=useState('GPS is not recording.')
+ const [warning,setWarning]=useState<number|null>(null),[autoEnd,setAutoEndState]=useState(true),[gpsMessage,setGpsMessage]=useState('GPS is not recording.')
  const active=useRef<Walk|null>(null),buffer=useRef<Buffer|null>(null),route=useRef<Point[]>([]),watch=useRef<number|null>(null)
  const watchVersion=useRef(0)
- const alive=useRef(true),operation=useRef(false),syncing=useRef<Promise<void>|null>(null),stationary=useRef<Stationary|null>(null),auto=useRef(false)
+ const alive=useRef(true),operation=useRef(false),syncing=useRef<Promise<void>|null>(null),stationary=useRef<Stationary|null>(null),auto=useRef(true)
  const loadVersion=useRef(0)
  const lockRelease=useRef<(()=>void)|null>(null),booted=useRef(false)
  const takeLock=useCallback(async(id:string)=>{
@@ -156,7 +156,7 @@ function Tracker({user,household,dog,children}:{user:string;household:string;dog
   const poll=setInterval(()=>{if(!document.hidden&&booted.current)void reload()},30000)
   const online=()=>{networkFailed.current=false;setConnectionFailed(false);void sync()}
   const offline=()=>{networkFailed.current=true;setConnectionFailed(true)}
-  const visibility=()=>{stationary.current=null;setWarning(null);if(!gpsChoice.current){setGpsMessage('Time-only walk. GPS is not used.');return}if(document.hidden)setGpsMessage('App hidden. GPS may pause; automatic ending is suspended.');else if(watch.current!==null)setGpsMessage('App visible. Waiting for fresh GPS; any interruption remains a gap.')}
+  const visibility=()=>{if(stationary.current?.warnedAt==null){stationary.current=null;setWarning(null)};if(!gpsChoice.current){setGpsMessage('Time-only walk. GPS is not used.');return}if(document.hidden)setGpsMessage('App hidden. GPS may pause; new inactivity detection is suspended. An unanswered warning still has its deadline.');else if(watch.current!==null)setGpsMessage('App visible. Waiting for fresh GPS; any interruption remains a gap.')}
   const unload=(event:BeforeUnloadEvent)=>{if(active.current){event.preventDefault();event.returnValue=''}}
   window.addEventListener('online',online);window.addEventListener('offline',offline);document.addEventListener('visibilitychange',visibility);window.addEventListener('beforeunload',unload)
   return()=>{clearInterval(timer);clearInterval(poll);window.removeEventListener('online',online);window.removeEventListener('offline',offline);document.removeEventListener('visibilitychange',visibility);window.removeEventListener('beforeunload',unload)}
@@ -224,7 +224,7 @@ function Tracker({user,household,dog,children}:{user:string;household:string;dog
     if(!next?.warnedAt)setWarning(null)
    },failure=>{
     if(!alive.current||version!==watchVersion.current)return
-    stationary.current=null;setWarning(null);setQuality(failure.code===1?'denied':'unavailable')
+    if(stationary.current?.warnedAt==null){stationary.current=null;setWarning(null)};setQuality(failure.code===1?'denied':'unavailable')
     setGpsMessage(failure.code===1?'Location denied. Enable it in browser settings, then Resume GPS.':failure.code===2?'Location unavailable. Move outside and check device location settings.':'GPS timed out. Waiting for fresh positions; no stationary assumption is made.')
     if(failure.code===1)stop()
    },{enableHighAccuracy:true,maximumAge:0,timeout:20000})

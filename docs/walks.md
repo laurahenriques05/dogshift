@@ -38,10 +38,13 @@ saves are not shown as cloud-saved. Finish freezes at its intended end instant,
 retries idempotently, then opens the saved detail. Storage/network failures stay
 visible. Cross-device transfer of an unfinished local queue is not implemented.
 
-Optional stationary warning: after 10 minutes within 30m with fresh continuous GPS,
-Keep walking clears it; two further unanswered minutes can end the walk. Hidden
-pages, gaps or lost GPS must not prove stationarity. Phone/background reliability
-is unverified; follow walks-gps-testing.md.
+GPS inactivity warning: after 2 minutes within 30m with fresh continuous GPS,
+a centred dialog asks “Still on your adventure with (dog name)?” Yes resets the
+check, No finishes, and 5 unanswered minutes automatically finishes. Once shown,
+the prompt retains its deadline even if GPS changes; gaps/hidden pages cannot
+initiate a warning. Pause clears it. Phone/background timer reliability remains
+unverified; follow walks-gps-testing.md. During a walk the recorder sees only the
+active recording, its controls and connection/save errors.
 
 ## Privacy and mutation rules
 
@@ -54,7 +57,11 @@ Approved deletion change: any current member may soft-delete a completed family
 walk; restoration/correction remain author-only. The merged UI offers it, but the
 hosted deletion RPC is still author-only until the reviewed new migration is
 applied. Deleted history remains author-only; no ongoing walk can be deleted.
-See team sync for the pending rollout. Do not broaden private-route SELECT policies.
+The author/current member can also permanently remove an already deleted,
+completed walk after confirmation. The proposed permanently_delete_walk RPC
+deletes the row and cascades GPS/waste/notes; existing task links become null
+and their completion guards remain in force. Both deletion RPC rollouts need
+team review. Do not broaden private-route SELECT policies.
 
 ## Routine, summaries and maps
 
@@ -93,6 +100,9 @@ are absent from the inspected hosted ledger:
 - 20261120152152_preserve_walk_routine_slot_identity.sql: final order-preserving
   compatibility/hardening proposal; test the combined dependency chain.
 - 20261120155307_shared_walk_history_deletion.sql: required for family deletion.
+- 20261120215833_permanently_delete_walk.sql: proposed author-only permanent
+  removal of completed, deleted walks; tested against the complete local chain,
+  including task-source cleanup. Not applied to the hosted project.
 
 For a new isolated project, review the complete migration chain and dependencies;
 for the existing hosted project, reconcile actual definitions/ledger first. Apply

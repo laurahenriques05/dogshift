@@ -89,6 +89,7 @@ export type Database = { public: { Tables: {
  append_walk_points: { Args: { p_walk: string; p_points: { seq: number; recorded_at: string; latitude: number; longitude: number; accuracy: number }[] }; Returns: number };
  finish_walk: { Args: { p_walk: string; p_ended_at: string; p_reason: string }; Returns: Walk };
  correct_walk: { Args: { p_walk: string; p_started_at: string; p_ended_at: string; p_notes: string }; Returns: Walk };
+ permanently_delete_walk: { Args: { p_walk: string }; Returns: undefined };
  set_walk_deleted: { Args: { p_walk: string; p_deleted: boolean }; Returns: undefined };
  leave_household: { Args: { p_household: string; p_new_owner?: string | null }; Returns: undefined };
  create_household_invitation: { Args: { p_household: string; p_email: string }; Returns: { id: string; token: string; expires_at: string } };
