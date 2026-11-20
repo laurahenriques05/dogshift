@@ -19,7 +19,7 @@ import { duration, acceptable, stationaryFix, stationaryTick, type Point, type S
 import { mergeBuffer, parseBuffer, type WalkBuffer as Buffer } from './buffer'
 type Value = {
  walks: Walk[]; ready: boolean; loading: boolean; error: string; busy: boolean; tracking: boolean; gpsEnabled: boolean; points: Point[]; pending: number; ending: boolean; now: number; warning: number | null; autoEnd: boolean; gpsMessage: string; paused:boolean; quality:GpsQuality; accuracy:number|null; saved:boolean; recovered:boolean; connectionFailed:boolean; elapsedSeconds:number;
- pause:()=>Promise<void>; reload: () => Promise<void>; start: (mode?: WasteMode, trackGps?: boolean) => Promise<void>; resume: () => Promise<void>; finish: (note?:NoteDraft) => Promise<void>; sync: () => Promise<void>; reconnect:()=>Promise<boolean>; keepWalking: () => void; setAutoEnd: (value:boolean)=>void;
+ pause:()=>Promise<void>; reload: () => Promise<void>; start: (mode?: WasteMode, trackGps?: boolean, taskOccurrence?:string) => Promise<void>; resume: () => Promise<void>; finish: (note?:NoteDraft) => Promise<void>; sync: () => Promise<void>; reconnect:()=>Promise<boolean>; keepWalking: () => void; setAutoEnd: (value:boolean)=>void;
 }
 const Context=createContext<Value>(null!)
 export const useWalks=()=>useContext(Context)
@@ -242,10 +242,10 @@ function Tracker({user,household,dog,children}:{user:string;household:string;dog
   }catch(e){if(alive.current)setError(errorMessage(e))}finally{operation.current=false;if(alive.current)setBusy(false)}
  }
  async function resume(){if(operation.current)return;operation.current=true;loadVersion.current++;setBusy(true);setError('');try{await record()}catch(e){setError(errorMessage(e))}finally{operation.current=false;if(alive.current)setBusy(false)}}
- async function start(mode:WasteMode='off',trackGps=true){
+ async function start(mode:WasteMode='off',trackGps=true,taskOccurrence?:string){
   if(operation.current)return;operation.current=true;loadVersion.current++;setBusy(true);setError('')
   try {
-   const walk=await startWalkWithWaste(dog,mode,trackGps)
+   const walk=await startWalkWithWaste(dog,mode,trackGps,taskOccurrence)
    if(!alive.current)return
    active.current=walk;setPaused(false);setQuality('waiting');setAccuracy(null);setSaved(false);setRecovery(false);recovered.current=walk.id;upsert(walk)
    if(buffer.current?.walk!==walk.id){buffer.current={walk:walk.id,points:[],ending:null};route.current=[];setPoints([]);setPending(0);setEnding(false)}

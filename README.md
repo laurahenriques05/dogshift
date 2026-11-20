@@ -201,3 +201,8 @@ Postgres/RPC enforces permissions; Storage remains private. Keep calm green/crea
 clear primary action, compact forms, accessible focus/touch targets and honest
 states. [UI rationale](docs/ui-design-research.md). Shared footer terms/privacy/
 security are project information, not a completed legal audit or new acceptance flow.
+### Care Tasks
+
+Feeding and Walks tasks use occurrence-specific responsibility and complete
+only after real activity is saved.
+See [flows and verification](docs/occurrence-care-tasks.md).

@@ -1,3 +1,4 @@
+import { useCareTask } from '../tasks/care'
 import { WalkTagSetup } from './WalkTagSetup'
 import { WalkDailyOverview } from './WalkDailyOverview'
 import { useDailyWalkRoutine } from './useDailyWalkRoutine'
@@ -31,6 +32,7 @@ import { StartWalkDialog } from './StartWalkDialog'
 export function WalksPage() {
  const {session}=useAuth(),{household,dog}=useHousehold(),data=useWalks(),navigate=useNavigate()
  const [search,setSearch]=useSearchParams(),[confirm,setConfirm]=useState<'start'|'end'|null>(null),[period,setPeriod]=useState<HistoryPeriod>('month')
+ const taskId=search.get('task'),care=useCareTask(taskId,household!.id,'walk')
  const [noteDraft,setNoteDraft]=useState<{walk:string;draft:NoteDraft}|null>(null)
  const [timelineRevision,setTimelineRevision]=useState(0)
  const [deleting, setDeleting] = useState<string | null>(null)
@@ -53,7 +55,7 @@ export function WalksPage() {
   const completed=data.walks.find(w=>w.id===finishingWalk&&w.ended_at&&!w.deleted_at)
   if(completed)navigate(`/walks/${completed.id}`)
  },[finishingWalk,data.walks,navigate])
- useEffect(()=>{if((search.get('action')==='start'||pendingWalkStart())&&data.ready){const tagHousehold=search.get('household')??pendingWalkHousehold();clearWalkStart();if(!collarMatchesHousehold(tagHousehold,household!.id))setNfcError('This collar tag belongs to another family. Choose the matching family before starting.');else{setNfcError('');setConfirm('start')}const next=new URLSearchParams(search);next.delete('action');next.delete('view');next.delete('household');setSearch(next,{replace:true})}},[search,setSearch,data.ready,household])
+ useEffect(()=>{if((search.get('action')==='start'||pendingWalkStart())&&data.ready&&(!taskId||care.row&&!care.row.completed_at)){const tagHousehold=search.get('household')??pendingWalkHousehold();clearWalkStart();if(!collarMatchesHousehold(tagHousehold,household!.id))setNfcError('This collar tag belongs to another family. Choose the matching family before starting.');else{setNfcError('');setConfirm('start')}const next=new URLSearchParams(search);next.delete('action');next.delete('view');next.delete('household');setSearch(next,{replace:true})}},[search,setSearch,data.ready,household,taskId,care.row])
  useEffect(()=>{
   if(confirm!=='end')return
   previousFocus.current=document.activeElement as HTMLElement
@@ -62,6 +64,7 @@ export function WalksPage() {
  },[confirm])
  if(historyView)return <WalkHistoryPage areaScope={session!.user.id} deletedHistory={walkHistory(data.walks,false,session!.user.id,true)} history={history} timezone={household!.timezone} loading={data.loading} ready={data.ready} error={data.error} onRetry={()=>data.reload()}/>
  return <div className="walk-page"><PageTitle eyebrow="A LITTLE FRESH AIR" title={`Out with ${dog!.name}.`}/>
+  {taskId&&<section className="card" aria-label="Walking task">{care.loading?<p role="status">Loading task…</p>:care.error?<><Notice error>{care.error}</Notice><Button onClick={care.reload}>Reload task</Button></>:<p>{care.row?.title} · {care.row?.completed_at?'Completed with a saved walk.':'Pending until this walk is ended and saved.'}</p>}<Link to="/tasks">Back to Tasks</Link></section>}
   {nfcError&&<Notice error>{nfcError}</Notice>}
   {data.error&&<Notice error>{isSchemaUnavailable(data.error)?'This recording is waiting to sync. Retry when the connection is ready.':data.error}<p><Button className="secondary" onClick={()=>{void data.reload();void data.sync()}}>Retry connection</Button></p></Notice>}
   {data.loading?<p role="status">Loading walks…</p>:!data.ready?<section className="card"><h2>Your walking diary is getting ready</h2><p>Walks and summaries will appear here once the connection is ready. GPS diagnostics and the walking lesson are available below.</p></section>:<>
@@ -89,7 +92,7 @@ export function WalksPage() {
   <details id="walk-nfc" ref={nfcSection} className="feeding-disclosure walk-nfc-section"><summary><span>NFC tag</span><small>Configure or replace the household walking tag</small></summary><div className="feeding-disclosure-body"><WalkTagSetup householdId={household!.id}/></div></details>
   <WalkConnectionAlert active={!!active&&mine} failed={data.connectionFailed} onReconnect={()=>data.reconnect()}/>
   {deleting&&<RestoreWalkDialog action="delete" walkId={deleting} onCancel={()=>setDeleting(null)} onRestored={async()=>{await data.reload();setDeleting(null)}}/>}
-  {confirm==='start'&&<StartWalkDialog dogName={dog!.name} busy={data.busy} blocked={active?(mine?'You already have an active walk. Close this window and resume GPS.':'Another family member is already walking your dog. Wait until they finish.'):''} onCancel={()=>setConfirm(null)} onConfirm={(mode,trackGps)=>{setConfirm(null);void data.start(mode,trackGps)}}/>}
+  {confirm==='start'&&<StartWalkDialog dogName={dog!.name} busy={data.busy} blocked={taskId&&(care.loading||!!care.error||!care.row||!!care.row.completed_at)?'Reload this task before starting.':active?(mine?'You already have an active walk. Close this window and resume GPS.':'Another family member is already walking your dog. Wait until they finish.'):''} onCancel={()=>setConfirm(null)} onConfirm={(mode,trackGps)=>{setConfirm(null);void data.start(mode,trackGps,taskId||undefined)}}/>}
   {confirm==='end'&&<div className="walk-dialog-backdrop"><div ref={dialog} className="card walk-dialog" role="dialog" aria-modal="true" aria-labelledby="walk-confirm-title" onKeyDown={e=>{if(e.key==='Escape')setConfirm(null);if(e.key==='Tab'){const buttons=dialog.current!.querySelectorAll<HTMLButtonElement>('button');if(e.shiftKey&&document.activeElement===buttons[0]){e.preventDefault();buttons[buttons.length-1].focus()}else if(!e.shiftKey&&document.activeElement===buttons[buttons.length-1]){e.preventDefault();buttons[0].focus()}}}}><h2 id="walk-confirm-title">Finish this walk?</h2><>{active&&mine&&<WalkFinishSummary timezone={household!.timezone} walk={active} user={session!.user.id} draft={noteDraft?.walk===active.id?noteDraft.draft:undefined}/>}</><div className="walk-actions"><Button className="secondary" onClick={()=>setConfirm(null)}>Cancel</Button><Button disabled={data.busy||!data.ready} onClick={()=>{setConfirm(null);if(active){setFinishingWalk(active.id);void data.finish(noteDraft?.walk===active.id?noteDraft.draft:undefined)}}}>Confirm end</Button></div></div></div>}
  </div>
 }

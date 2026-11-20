@@ -9,8 +9,9 @@ export type MedicationSchedule = { id:string; household_id:string; name:string; 
 export type MedicationDose = { id:string; schedule_id:string; scheduled_at:string; status:'scheduled'|'given'|'skipped'; administered_at:string|null; recorded_by:string|null; recorded_at:string|null; updated_at:string; notes:string }
 export type AppointmentType = 'uncategorised'|'consultation'|'vaccination'|'examination'|'surgery'|'other'
 export type VetAppointment = { appointment_type: AppointmentType; id: string; household_id: string; title: string; starts_at: string; location: string; notes: string; created_by: string|null; updated_by: string|null; created_at: string; updated_at: string }
-export type TaskSeries = { id:string;household_id:string;title:string;details:string;assigned_to:string|null;first_due_at:string;recurrence:'none'|'daily'|'weekly'|'monthly';recurrence_every:number;ends_on:string|null;archived_at:string|null;created_by:string|null;updated_by:string|null;created_at:string;updated_at:string }
-export type TaskOccurrence = { id:string;household_id:string;series_id:string;title:string;details:string;assigned_to:string|null;recurrence:'none'|'daily'|'weekly'|'monthly';recurrence_every:number;due_at:string;completed_at:string|null;completed_by:string|null;created_at:string }
+export type CareTaskFields = { care_kind?: 'feeding'|'walk'|null; care_meal_id?: string|null }
+export type TaskSeries = CareTaskFields & { id:string;household_id:string;title:string;details:string;assigned_to:string|null;first_due_at:string;recurrence:'none'|'daily'|'weekly'|'monthly';recurrence_every:number;ends_on:string|null;archived_at:string|null;created_by:string|null;updated_by:string|null;created_at:string;updated_at:string }
+export type TaskOccurrence = CareTaskFields & { care_day?:string|null; original_assigned_to?:string|null; assignment_version?:number; meal_event_id?:string|null; walk_id?:string|null; id:string;household_id:string;series_id:string;title:string;details:string;assigned_to:string|null;recurrence:'none'|'daily'|'weekly'|'monthly';recurrence_every:number;due_at:string;completed_at:string|null;completed_by:string|null;created_at:string }
 export type AcademyPractice = { id:string;household_id:string;dog_id:string;module_id:string;user_id:string|null;practiced_at:string;checklist:Record<string,boolean>;performance:string;completed:boolean;deleted_at:string|null;updated_at:string }
 export type AcademyModuleProgress = { household_id:string;dog_id:string;module_id:string;completed_at:string;completed_by:string|null }
 export type AcademySubchallengeProgress = { household_id:string;dog_id:string;module_id:string;subchallenge_id:string;completed_at:string;completed_by:string|null }
@@ -42,6 +43,7 @@ export type Database = { public: { Tables: {
  vet_appointments: Table<VetAppointment, Pick<VetAppointment,'household_id'|'title'|'starts_at'|'location'|'notes'> & {appointment_type?:AppointmentType}>;
  task_series: Table<TaskSeries, Pick<TaskSeries,'household_id'|'title'|'details'|'assigned_to'|'first_due_at'|'recurrence'|'recurrence_every'|'ends_on'>>;
  task_occurrences: Table<TaskOccurrence, never>;
+ task_assignment_history: Table<{id:string;occurrence_id:string;household_id:string;from_user:string|null;to_user:string|null;changed_by:string|null;changed_at:string;version:number},never>;
  academy_practice: Table<AcademyPractice, Pick<AcademyPractice,'household_id'|'dog_id'|'module_id'|'checklist'|'performance'|'completed'>>;
  academy_module_progress: Table<AcademyModuleProgress, never>;
  academy_subchallenge_progress: Table<AcademySubchallengeProgress, never>;
@@ -62,6 +64,11 @@ export type Database = { public: { Tables: {
  invitations: Table<Invitation & { token_hash: string }, never>;
  dogs: Table<Dog, Omit<Dog,'id'|'created_at'>>;
 }; Views: { [_ in never]: never }; Functions: {
+      save_care_task: { Args: {p_request:string;p_household:string;p_kind:'feeding'|'walk';p_title:string;p_meal:string|null;p_assigned_to:string|null;p_first_due_at:string;p_recurrence:string;p_recurrence_every:number;p_ends_on:string|null}; Returns:string }
+      assign_care_task_occurrence: { Args: {p_occurrence:string;p_assigned_to:string|null;p_expected_version:number};Returns:undefined }
+      record_task_meal: { Args:{p_occurrence:string;p_id:string;p_items:{product_id:string;quantity_grams:number;eaten_grams:number}[];p_at:string;p_outcome:string;p_notes:string};Returns:string }
+      start_task_walk: { Args:{p_occurrence:string;p_dog:string;p_mode:string;p_track_gps:boolean};Returns:Walk }
+
  leave_sole_household: {Args:{p_household:string};Returns:undefined};
  get_inactive_households: {Args:Record<string,never>;Returns:{id:string;name:string;left_at:string}[]};
  restore_inactive_household: {Args:{p_household:string};Returns:undefined};

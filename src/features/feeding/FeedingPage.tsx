@@ -1,3 +1,4 @@
+import { useCareTask } from '../tasks/care'
 import { AlertTriangle, Check, Clock3, X } from 'lucide-react'
 import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { useSearchParams } from 'react-router-dom'
@@ -30,9 +31,11 @@ function FeedingHousehold({ householdId, dogName, timezone }: { householdId: str
  const { session } = useAuth()
  const [query, setQuery] = useSearchParams()
  const quick = query.get('quick') === '1'
+ const taskId=query.get('task'),care=useCareTask(taskId,householdId,'feeding')
+ const taskMeal=data.plan.find(meal=>meal.id===care.row?.care_meal_id)
  const targetHousehold = query.get('household')
  const wrongTag = !!targetHousehold && targetHousehold !== householdId
- const [editor, setEditor] = useState<Editor>(quick && !wrongTag ? { type: 'meal' } : null)
+ const [editor, setEditor] = useState<Editor>(quick && !wrongTag && !taskId ? { type: 'meal' } : null)
  const [routineOpen,setRoutineOpen]=useState(false)
  const [stockOpen,setStockOpen]=useState(false)
  const editorTitle=!editor?'':editor.type==='product'?(editor.product?'Edit food product':'Add food product'):editor.type==='purchase'?'Add a purchase':editor.event?'Correct meal':editor.single?'Record a treat':quick?'Confirm meal':'Record meal'
@@ -72,6 +75,8 @@ function FeedingHousehold({ householdId, dogName, timezone }: { householdId: str
  if (data.loading) return <p role="status">Loading feeding and food stock…</p>
  if (data.error) return <><PageTitle eyebrow="YOUR EVERYDAY" title="Feeding"/><Notice error>{data.error}</Notice><Button onClick={data.refresh}>Retry</Button></>
  return <div className="feeding-page"><PageTitle eyebrow="TODAY’S FEEDING" title={`Meals for ${dogName}.`}>Shared with your family, updated as meals are recorded.</PageTitle>
+  {taskId&&<section className="card" aria-label="Feeding task">{care.loading?<p role="status">Loading task…</p>:care.error?<><Notice error>{care.error}</Notice><Button onClick={care.reload}>Reload task</Button></>:care.row?.completed_at?<Notice>This meal is already confirmed. No second meal was recorded.</Notice>:!taskMeal?<Notice error>The saved meal is no longer in Feeding. This task stays pending. Update the routine and create a task for the correct meal.</Notice>:null}<button className="text-link" onClick={()=>setQuery({}, {replace:true})}>Back to Feeding</button></section>}
+  {taskId&&!wrongTag&&care.row&&!care.row.completed_at&&taskMeal&&<FeedingModal title={care.row.title} onClose={()=>setQuery({}, {replace:true})}><PlannedMealForm key={taskId} householdId={householdId} products={data.products} plan={data.plan} initialMealId={taskMeal.id} taskOccurrence={taskId} source="app" onSaved={saved} onCancel={()=>setQuery({}, {replace:true})}/></FeedingModal>}
   {wrongTag && <Notice error>This feeding tag belongs to another household. Switch to that household before using its tag.</Notice>}
   {error && <Notice error>{error}</Notice>}{message && <Notice>{message}</Notice>}
   {!setupComplete&&<section className="card feeding-setup" aria-labelledby="feeding-setup-title"><p className="eyebrow">QUICK SETUP</p><h2 id="feeding-setup-title">Get ready for daily feeding</h2><p className="muted">Set this up once. Afterwards, recording the right bowl takes only a few seconds.</p><ol><li className={data.products.length?'is-complete':''}><span>{data.products.length?<Check size={16} aria-hidden="true"/>:'1'}</span><div><strong>Add the food you use</strong><small>Enter the current pack or container.</small></div>{!data.products.length&&<Button className="secondary" onClick={()=>setStockOpen(true)}>Add food</Button>}</li><li className={data.plan.length?'is-complete':''}><span>{data.plan.length?<Check size={16} aria-hidden="true"/>:'2'}</span><div><strong>Save the usual meals</strong><small>Add times, foods and portions.</small></div>{data.products.length>0&&!data.plan.length&&<button type="button" className="text-link" onClick={()=>setRoutineOpen(true)}>Set routine</button>}</li><li><span>3</span><div><strong>Feed from Today’s meals</strong><small>Confirm the saved bowl; stock updates automatically.</small></div></li></ol></section>}

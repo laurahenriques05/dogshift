@@ -6,8 +6,8 @@ export type WasteKind = 'pee' | 'poop'
 export type WasteEvent = { id: string; walk_id: string; kind: WasteKind; recorded_at: string }
 // Feature-local schema until the migration and shared type update are coordinated.
 const client = () => db() as unknown as SupabaseClient
-export async function startWalkWithWaste(dog: string, mode: WasteMode, trackGps = true): Promise<Walk> {
- const result = await client().rpc('start_walk_with_options', { p_dog: dog, p_mode: mode, p_track_gps: trackGps })
+export async function startWalkWithWaste(dog: string, mode: WasteMode, trackGps = true, taskOccurrence?:string): Promise<Walk> {
+ const result = taskOccurrence?await client().rpc('start_task_walk',{p_occurrence:taskOccurrence,p_dog:dog,p_mode:mode,p_track_gps:trackGps}):await client().rpc('start_walk_with_options', { p_dog: dog, p_mode: mode, p_track_gps: trackGps })
  if (result.error) throw result.error
  return result.data as Walk
 }
