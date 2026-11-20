@@ -1,5 +1,10 @@
 # Remaining Health and account work
 
+Current source specification; owner Beni. Hosted installation/deployed functions
+must be checked against actual definitions and Beni/Laura reports before rollout.
+A missing ledger row does not prove manual SQL was never applied. See
+health-calendar-links.md for newer source-link/modal and reported migration status.
+
 ## Scope
 
 Health now links treatment history, veterinarian contacts, private documents and weight history. All current family members may create/edit treatments, contacts and weight records; no browser deletion of those records. Documents: all current members upload/read, uploader or current owner deletes with confirmation. Account settings are under More → Account; display names stay in profiles and password updates use Supabase Auth. Notification delivery/preferences remain deferred following Beni's request not to implement notifications. No calendar or notification subsystem is introduced.
@@ -8,9 +13,9 @@ Home has a compact live Health summary (next appointment, earliest recorded vacc
 
 Weight is in kg. Editing profile weight creates a timestamped measurement; adding/editing measurements updates the profile from the newest measured_at (then creation timestamp/id as tie-breakers). Older measurements do not replace the latest weight. A profile weight cannot be cleared once history exists. Existing known weights are backfilled with an explicitly labelled baseline at migration time; no historical date is invented. No deletion of measurements. Chart spacing represents elapsed time; exact dates/values remain in the list. Shared edits are last-write-wins, without full revision history.
 
-## Coordinated rollout: NOT performed by this task
+## Schema and privileged rollout dependencies
 
-Review/apply only new migrations in order, once:
+Reconcile actual definitions and Beni/Laura reports before applying any missing capability. The deletion foundation is in the hosted ledger as 20261115152437_deletion; do not reapply it. Source dependencies:
 
 1. `20261111220000_health_records.sql`: treatments/contacts/weight, RLS, audits, baseline and weight sync triggers.
 2. `20261111220001_health_documents.sql`: private health-documents bucket, 10 MB cap, PDF/JPEG/PNG/WebP, member reads/uploads, uploader/owner deletion. Unique `<family>/<uploader>/<uuid>--<safe-name>` paths. No overwrites. Client checks size and magic bytes; bucket enforces MIME/size. Downloads use authenticated Storage API rather than public URLs. Downloaded copies cannot be revoked.
@@ -36,7 +41,7 @@ Validation: 122 tests passed with `npm test -- --maxWorkers=1 --hookTimeout=1200
 
 Before release, with disposable data only: validate both Edge Functions in Deno/Supabase, exercise successful/failed/retried Storage cleanup, Auth deletion/session expiry and retained shared records. Verify server-side environment/origin/JWT configuration; do not enable service-role access in the frontend. Test each screen at phone/desktop widths, keyboard navigation, denied access, empty/loading/errors, offline failures, family switching, profile-name propagation, Auth password policy/recent-login errors, weight historical corrections and document download/delete. Live deployment and browser interaction are not established by automated unit tests.
 
-Maria integration remains pending: agree source IDs/types, UTC instants versus date-only semantics, family timezone, deep links, audit fields, idempotent updates and cancellation. No notifications/emails or shared calendar writes are emitted.
+Maria integration uses the agreed source links in health-calendar-links.md; persistent sync/cancel, recipient and date-only reminder semantics still need integration validation. No notifications/emails or shared calendar writes are emitted.
 
 ## Weight trend presentation
 

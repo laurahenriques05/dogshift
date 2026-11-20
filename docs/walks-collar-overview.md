@@ -1,66 +1,50 @@
-# Collar overview and daily walk periods
+# Walk overview and collar NFC
 
-Walks reuses its existing provider, start dialog, daily plan/check RPCs, waste
-records and note journal. There is no new schema, framework, calendar, notification
-system or backend service. The active recording screen and history remain intact.
+Current release/pending work: [team sync](carol-walks-team-sync.md).
+The idle card follows Feeding: next-slot title/Start walk, real daily-start count
+and last recorded start, restrained collar illustration and Set up collar tag.
+No recorded start means 0 and no last-start caption. Counts may exceed plan.
+Manual checks never fabricate GPS or a recorded start. Period/slot rules are in
+walks-routine-period-names.md; hero names include Walk, circles do not.
 
-The idle card follows Feeding's green/cream layout: next routine slot on the left
-with Start walk; actual completed/marked outings in the middle with progress and
-the latest nondeleted recorded start in household-local HH:MM:SS; an animated
-line-art collar/tag/phone on the right. Counts include completed real walks and
-manual attestations, and can exceed the target without being silently capped.
-Manual attestations have no invented start time, so the caption explicitly says
-Last recorded start. Loading/missing plans do not fabricate a target or next slot.
+## NFC setup section
 
-Today's walks presents connected circles, the same dark-green completion language
-as Health, a drawn check and Summary. It omits dates, clock times and Given /
-Scheduled labels. The configured number remains unchanged. Three slots are
-Morning / Afternoon / Night; two are Morning / Night; one is the central Afternoon
-slot. Larger counts are distributed across those periods with numbered labels.
-These are presentation labels for routine slots, not inferred actual outing times
-or newly saved appointments. Existing chronological assignment of completed walks
-is preserved; the labels do not prove that a walk occurred during that daypart.
+Set up collar tag opens, focuses and scrolls to the NFC tag disclosure at the
+end of /walks. Reduced-motion is respected. The disclosure copies Feeding's
+three-step guide/layout and writer behaviour, adapted to walking; description
+normal weight, 12px between unsupported-browser notice and copy action.
 
-Selecting a pending circle explicitly records a completed manual outing via the
-existing idempotent RPC. Start walk keeps the original GPS/time-only setup. A
-completed circle or Summary opens a keyboard-accessible modal with actual waste
-totals and legacy/journal notes; pending entries remain marked pending. Pending
-slots cannot show a saved summary. Manual attestations truthfully explain that no
-detailed walk/waste/note record was collected; only their author can undo them.
-Checks and the next slot update from one shared feature-local routine hook so
-the overview and timeline do not issue duplicate routine reads.
+The exact public URL is generated from VITE_APP_URL and the current household:
+`<VITE_APP_URL>/walks?action=start&household=<UUID>`. Never write credentials,
+session tokens or localhost to everyday tags. The illustration is not proof of
+an already written tag. Legacy unscoped links remain supported.
 
-## Collar NFC
+Compatible secure browsers with NDEFReader can write a URL record. The writer
+has a 60-second timeout, Cancel, permission/error feedback and explicit opt-in
+before replacing existing tag contents. Writing does not create a walk. Other
+browsers offer Copy link for NFC Tools, with a manual-link fallback if copying
+fails. iPhone browser writing is not supported.
 
-Set up collar tag reveals a copyable public HTTPS route:
-`<VITE_APP_URL>/walks?action=start&household=<household UUID>`. It contains no
-credentials. The existing authentication/membership/confirmation flow remains
-required. Session intent preserves the household through the existing sign-in
-redirect; a mismatched selected family blocks automatic opening of start setup.
-Expired intent is discarded. A stale router effect cannot re-arm a consumed
-intent after the browser URL has changed. Legacy unscoped links remain compatible.
+### With NFC Tools
 
-The illustration animates the phone and signal with reduced-motion support. It
-is an illustration, not evidence of a connected/written tag. This change does not
-physically write a tag or add a browser NFC promise. A compatible writer/trusted
-phone app configures the collar once; everyday tapping opens PawShare. iPhone
-browser NFC writing is not claimed. The old separate leash NFC card is replaced
-by these compact collar controls. Real-device/tag scanning still needs validation.
+1. In Walks, select Set up collar tag, then Copy link for NFC Tools.
+2. In NFC Tools: Write → Add a record → Custom URL/URI. Paste the complete link
+   (or use URL/URI with https:// exactly once), then OK.
+3. Keep only the intended walking URL record, select Write and hold the writable
+   tag against the phone until success. Do not permanently lock it during setup.
+4. Close the writer, unlock the phone, tap the tag and open the URL notification.
+5. Sign in if needed, select GPS/waste options and confirm start/location.
 
-## Validation and release
+The tag is a shortcut; the phone supplies GPS. Everyday users do not need to
+open the writing app. Authentication/current membership and household mismatch
+checks remain mandatory. Sign-in intent is retained in session storage for 30
+minutes where available; expired intent is discarded. Disabled storage may
+require tapping again. Merely opening a URL never records a walk.
 
-Pure tests cover period labels, next unfinished slot, real-world day boundaries,
-deduplication, latest exact start, public scoped URLs, intent expiry, household
-mismatch and sign-in scope retention. Existing isolated backend tests cover the
-unchanged RPC permissions. No hosted account data or schema was mutated.
+## Limits
 
-A temporary browser harness used clearly labelled example responses: overview,
-Start walk opening the existing dialog, mark/undo, next-slot/progress updates,
-summary with 2 pee / 1 poop and both legacy/journal notes, manual-summary honesty,
-NFC setup link, Escape/focus and desktop/390px layouts were verified. The harness
-and viewport override were removed. Actual NFC hardware, clipboard and physical
-GPS were not tested. No fixture response is shipped.
-
-No new migration is needed, but routine/journal availability still depends on the
-previous Walks rollout. UI source does not prove those migrations are installed.
-This branch requires teammate review before merge/deployment.
+Immediate recording after required authentication/membership/consent remains
+unimplemented: current NFC opens setup/confirmation. Physical tag writing,
+tapping, phone permissions and locked-screen GPS require actual Android/iPhone
+validation. Component fixtures verified disclosure navigation, focus, copy feedback
+and narrow/desktop containment, not physical NFC. No new schema for this section.

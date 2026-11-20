@@ -1,131 +1,40 @@
-# Demo walks — current behaviour (18 November 2026)
+# Walk history, statistics and examples
 
-The three presentation routes are available explicitly through Past Adventures →
-Demo walks, including production builds, and through
-`/walks?view=history&status=examples`. Their read-only detail pages retain route
-replay and the existing sample dog-waste summaries. English display titles are
-Morning adventure, Afternoon adventure and Weekend adventure. The filter and
-DEMO WALK detail eyebrow identify the examples without extra fixture paragraphs.
+Past Adventures at /walks?view=history lists real completed nondeleted walks,
+newest first, 20 at a time. Today/week/month/year use household-local start dates
+and Monday-based weeks. Month is default. Filtering precedes pagination; an empty
+period differs from no saved history. Deleted shows only the recorder's removed
+walks and restore controls. Other household data is never queried as a fallback.
+Last Adventure on /walks shows only the latest eligible real walk.
 
-Examples never enter real household statistics, Last Adventure, saved/deleted
-walk lists or Supabase. They cannot be deleted, restored or edited as real
-records. Selecting Demo walks can show the fixtures even while saved history is
-unavailable; saved/deleted history retains its loading and error states. Demo
-period filters still use the fixtures' original dates in November 2026.
+Walking together retains real completed total, kilometres and pause-adjusted
+duration. Show statistics reveals distance/time charts only, never a count chart.
+Axes scale to actual values; empty periods show no invented data. Manual routine
+checks and active/deleted/demo walks do not inflate completed totals.
 
-This supersedes the local-only/unlabelled presentation behaviour below. No schema
-migration or hosted-data creation is needed. Release requires another team
-member's review before merge; this document does not claim production deployment.
+## Explicit Demo walks
 
-Validation: 196 isolated tests, typecheck and production build pass. The new
-production-mode regression checks explicit demo browsing while saved history and
-its totals remain unchanged. An isolated browser harness rendered the real history
-and detail components: all three examples appeared despite saved history being
-unavailable, View walk opened Morning adventure with its route and 3 pee / 1 poop
-summary, and Reproduce route entered playback. No hosted records were created.
-The temporary harness was removed after verification.
+Demo walks is a separate status in history, available in development and production
+for presentation. Benfica, Expo and Alvalade are labelled read-only examples using
+local synthetic routes, never uploaded to Supabase or mixed into real household
+history, Home, real totals, deleted entries or write actions. No demo switch should
+silently inject fixtures into real summaries. Earlier unlabelled/development-only/
+combined-statistics experiments are superseded and must not be restored.
 
-## Earlier implementation history
+## Approximate area names
 
-# Local presentation history
+Walk area names asks explicit consent, per account/device and off initially.
+Once enabled, a visible saved route supplies one actual middle sample rounded to
+0.01 degrees to Photon locality/district/city lookup. Never send full trace,
+account/walk ID, credentials or referrer. Requests serialize with at least one
+second spacing, timeout after ten seconds and cache bounded coarse labels in
+memory. Choose area/city fields, not a business/address invented as a route name.
+Labels represent one approximate area, not every place visited.
 
-The local Vite development app includes three presentation records in Past
-adventures: Benfica (8 November 2026), Expo / Parque das Nações (9 November) and
-Alvalade (10 November). Their IDs are `walk-benfica`, `walk-expo` and
-`walk-alvalade`. Legacy demo-prefixed detail URLs redirect to the canonical URLs.
+No GPS/consent/service means an honest generic fallback; failures offer Retry area.
+Revocation aborts lookups and removes labels. Names are client-side, not persisted
+or shared in hosted walk records. Public sample/CORS and stub consent checks used
+no real user route. Provider availability is best effort.
 
-These are synthetic classroom fixtures, not observed walks or real device fixes.
-At the user's explicit request their cards/detail pages have no fictional or demo
-labels. To prevent unlabelled sample history reaching real households, both the
-fixture entries and their detail-page lookup are gated by `import.meta.env.DEV`.
-A production build shows only real saved household walks. No example is inserted
-into Supabase, assigned a household/user ID or included in Home's real statistics.
-
-In local development they contribute to the selected-period Walks totals and are
-interleaved with saved walks by start date. This month contains 3 presentation
-walks, 8.32 km and 1h 59m (7,150 seconds before time formatting). Internal distance
-calculations remain in metres; displayed distances use km with two decimals. There
-is no presentation-mode switch or session preference in the current UI.
-
-## Geometry provenance and licence
-
-Coordinate arrays live in `src/features/walks/demoRoutes.json`. Synthetic fixes
-were generated approximately every 12 metres along public OpenStreetMap street
-and path geometry, assigned ten-second timestamps and 3-metre synthetic accuracy.
-`demo.ts` derives their distance/time using the same GPS calculation as the real
-feature. These routes illustrate the UI, not recommendations for pedestrian access.
-
-Public geometry was retrieved on 12 November 2026. Paths were assembled offline
-from connected street/path ways, then sampled and simplified. No routing API is
-involved and no OSM contributor account metadata is shipped.
-
-- Benfica: https://www.openstreetmap.org/api/0.6/map?bbox=-9.211,38.744,-9.193,38.756
-- Expo: https://www.openstreetmap.org/api/0.6/map?bbox=-9.101,38.757,-9.089,38.772
-- Alvalade: https://www.openstreetmap.org/api/0.6/map?bbox=-9.149,38.750,-9.135,38.761
-
-Derived geographic data © OpenStreetMap contributors, under ODbL:
-https://www.openstreetmap.org/copyright and
-https://opendatacommons.org/licenses/odbl/1-0/.
-Mandatory source attribution remains visible on each map. Explanatory provider
-banners have been removed. The muted palette is inspired by Apple Maps, not Apple
-cartography; no Apple service/token was configured. The default light vector style is stored locally, while its worldwide tiles and
-fonts are loaded online from OpenFreeMap; they are not embedded for offline use.
-Style notices are retained in `public/licenses/walk-map-style.txt`.
-
-## Try it locally
-
-Sign in, open Walks and select This month. Last Adventure previews the latest
-entry; Show more opens all records in Past Adventures. Open each
-record from history. Pinch to zoom or use explicit +/- controls;
-ordinary mouse-wheel scrolling must move the page without changing the map scale.
-Reproduce route animates the green trace with only the Start marker; Stop replay restores the full route and Finish marker. Fit route returns to the recorded trace. World and double-click zoom are removed.
-Real GPS capture and SQL permissions are unchanged. The samples cannot be edited
-or deleted as real household activities.
-
-## Walking together summary
-
-The summary selector shares the exact component and arrow styling with Past
-Adventures and supports Today, This week, This month and This year. Completed,
-non-deleted walks are selected by their start date in the household timezone
-(Monday-based weeks). Count, recorded kilometres and total duration update
-together from that selection. The bar chart counts walks by local hour for Today,
-by day for week/month and by month for year, with empty buckets retained. Hover
-or keyboard-focus a bucket for count, distance and duration. Development fixtures
-contribute to this chart just as they do to the totals; production uses saved walks
-only. No schema or hosted data changes are required.
-
-Statistics are collapsed by default. The bottom-right Show statistics button
-reveals the chart (Hide statistics collapses it). Its measure selector switches
-between completed-walk count, kilometres and minutes, retaining the summary's
-calendar period. Bars start at zero and share an automatically rounded scale with
-no fixed value ceiling. Equal counts correctly have equal heights; distance/time
-can show differences between equally frequent walking days.
-
-Today now positions bars at the household-local start minute (15:20 appears
-between 15h and 16h). Starts within the same minute are combined. Every hour is
-labelled, and month views label every calendar day, including February/leap years.
-The plot scrolls horizontally on narrow screens to keep all labels legible.
-Tooltips and accessible bar labels show only the selected measure and period.
-The measure selector uses the same divided chevron control as the period selector.
-
-Monthly tooltips prefix the day with “Day” (for example, Day 10). Time chart
-axis ticks and bar tooltips use the same hours/minutes formatter as Total time;
-bar heights continue to use the full recorded duration. The measure selector
-has a compact arrow area and larger text.
-
-When no completed walks exist in the selected period, Show statistics reveals
-only the bold “No completed walks in this period.” message and the existing Hide
-statistics button. Chart captions, controls and axes are omitted. Percentage mode
-has been removed. Completed walks still uses the existing chart; a dot timeline
-(one dot per completed walk) is a proposal awaiting the user's choice.
-
-## Synthetic dog waste summaries
-
-At the user's request, View walk also shows invented dog waste counts for the
-three development fixtures: Alvalade 3 pee / 1 poop, Expo 2 pee / 1 poop and
-Benfica 1 pee / 0 poop. At the user’s request, the summary omits the on-screen sample-record sentence;
-these remain development-only synthetic fixtures. Counts live only in the local fixture and never call the recording
-RPCs or write to Supabase. Production gating and real walk summaries are unchanged.
-
-The detail page does not show cross-links or recommendations to other example
-walks. The user explicitly requested their removal and no similar navigation.
+Reference: https://github.com/komoot/photon/blob/master/docs/api-v1.md
+Current permissions, migration rollout and release evidence: team sync / walks.md.
