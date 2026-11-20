@@ -1,3 +1,4 @@
+import { WalkTagSetup } from './WalkTagSetup'
 import { WalkDailyOverview } from './WalkDailyOverview'
 import { useDailyWalkRoutine } from './useDailyWalkRoutine'
 import { TodaysWalks } from './TodaysWalks'
@@ -33,6 +34,8 @@ export function WalksPage() {
  const [noteDraft,setNoteDraft]=useState<{walk:string;draft:NoteDraft}|null>(null)
  const [timelineRevision,setTimelineRevision]=useState(0)
  const [deleting, setDeleting] = useState<string | null>(null)
+ const nfcSection=useRef<HTMLDetailsElement>(null)
+ function openTagSetup(){const section=nfcSection.current;if(!section)return;section.open=true;section.scrollIntoView({behavior:window.matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth',block:'start'});section.querySelector('summary')?.focus({preventScroll:true})}
  const [showStatistics,setShowStatistics]=useState(false)
  const [nfcError,setNfcError]=useState('')
  const [finishingWalk,setFinishingWalk]=useState<string|null>(null)
@@ -62,7 +65,7 @@ export function WalksPage() {
   {nfcError&&<Notice error>{nfcError}</Notice>}
   {data.error&&<Notice error>{isSchemaUnavailable(data.error)?'This recording is waiting to sync. Retry when the connection is ready.':data.error}<p><Button className="secondary" onClick={()=>{void data.reload();void data.sync()}}>Retry connection</Button></p></Notice>}
   {data.loading?<p role="status">Loading walks…</p>:!data.ready?<section className="card"><h2>Your walking diary is getting ready</h2><p>Walks and summaries will appear here once the connection is ready. GPS diagnostics and the walking lesson are available below.</p></section>:<>
-   {!active&&<WalkDailyOverview routine={routine} walks={data.walks} zone={household!.timezone} dogName={dog!.name} household={household!.id} busy={data.busy} onStart={()=>setConfirm('start')}/>}
+   {!active&&<WalkDailyOverview routine={routine} walks={data.walks} zone={household!.timezone} dogName={dog!.name} busy={data.busy} onStart={()=>setConfirm('start')} onSetupTag={openTagSetup}/>}
    {active&&<section className="card walk-hero"><div className="walk-hero-header"><div className="walk-heading"><span className="icon-tile"><Footprints size={28} aria-hidden="true"/></span><div><p className="eyebrow">OUT EXPLORING</p><h2>{mine?'Your walk is in progress':'Your dog is on a walk'}</h2></div></div></div>
     <><p>Started {new Date(active.started_at).toLocaleString()}. {!mine&&'The summary becomes available after the walker finishes.'}</p>
      {mine&&<>{!data.gpsEnabled&&<div className="walk-live-metrics"><div><Clock3 size={20} aria-hidden="true"/><span><strong>{timeLabel(data.elapsedSeconds)}</strong><small>Elapsed time</small></span></div>{data.gpsEnabled&&<><div><MapPin size={20} aria-hidden="true"/><span><strong>{(meters/1000).toFixed(2)} km</strong><small>Distance</small></span></div><div><Gauge size={20} aria-hidden="true"/><span><strong>{paceLabel(meters,data.elapsedSeconds)}</strong><small>Average pace</small></span></div></>}</div>}
@@ -83,6 +86,7 @@ export function WalksPage() {
    <section className="card"><div className="walk-heading"><div><p className="eyebrow">LITTLE STEPS ADD UP</p><h2>Walking together</h2></div><WalkPeriodSelect label="Summary period" value={period} onChange={setPeriod}/></div><div className="walk-metrics"><div><strong>{summary.count}</strong><span>Completed walks</span></div><div><strong>{kilometersLabel(summary.meters)} km</strong><span>Recorded distance</span></div><div><strong>{timeLabel(summary.seconds)}</strong><span>Total time</span></div></div><div id="walk-statistics" hidden={!showStatistics}>{showStatistics&&<WalkSummaryChart history={history} period={period} timezone={household!.timezone} now={summaryNow}/>}</div><div className="walk-statistics-action"><button type="button" className="walk-statistics-toggle" aria-expanded={showStatistics} aria-controls="walk-statistics" onClick={()=>setShowStatistics(value=>!value)}>{showStatistics?'Hide statistics':'Show statistics'}</button></div></section>
    <section className="card"><div className="walk-heading walk-history-heading"><h2>Last Adventure</h2><Link className="walk-show-more" to="/walks?view=history">Show more</Link></div>{!history.length?<p className="walk-empty">Your first completed walk will appear here.</p>:<div className="walk-activity-list">{history.slice(0,1).map(w=><WalkActivityCard areaScope={session!.user.id} key={w.id} {...w} loadRoute={!w.demo} onDelete={!w.demo ? () => setDeleting(w.id) : undefined}/>)}</div>}</section>
   </>}
+  <details id="walk-nfc" ref={nfcSection} className="feeding-disclosure walk-nfc-section"><summary><span>NFC tag</span><small>Configure or replace the household walking tag</small></summary><div className="feeding-disclosure-body"><WalkTagSetup householdId={household!.id}/></div></details>
   <WalkConnectionAlert active={!!active&&mine} failed={data.connectionFailed} onReconnect={()=>data.reconnect()}/>
   {deleting&&<RestoreWalkDialog action="delete" walkId={deleting} onCancel={()=>setDeleting(null)} onRestored={async()=>{await data.reload();setDeleting(null)}}/>}
   {confirm==='start'&&<StartWalkDialog dogName={dog!.name} busy={data.busy} blocked={active?(mine?'You already have an active walk. Close this window and resume GPS.':'Another family member is already walking your dog. Wait until they finish.'):''} onCancel={()=>setConfirm(null)} onConfirm={(mode,trackGps)=>{setConfirm(null);void data.start(mode,trackGps)}}/>}

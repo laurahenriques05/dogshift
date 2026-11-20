@@ -554,3 +554,15 @@ iPhone needs a separate NFC-writing app for one-time setup. Test by tapping
 with the phone unlocked: sign in if needed, choose GPS/waste settings and
 confirm location/start. The current flow opens setup; it is not unattended
 automatic start. The phone records GPS; the tag does not track the dog.
+
+
+### Walk collar NFC section
+
+Set up collar tag now opens and scrolls to the final NFC tag disclosure on Walks,
+with keyboard focus and reduced-motion support. The section copies Feeding's
+layout, three-step instructions, replacement opt-in, cancellation/timeout and
+NFC Tools fallback. Only walking text and the existing household-scoped Walks URL
+are substituted; Feeding is unchanged. Compatible secure browsers can write the
+URL directly. Other browsers offer Copy link for NFC Tools. Writing a tag never
+starts a walk; tapping still opens the existing setup/confirmation flow.
+No new backend migration or physical NFC validation is included in this change.
