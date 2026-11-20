@@ -514,3 +514,5 @@ becomes completed with Summary after finishing; no manual circle click is requir
 The household-local start day determines the slot, including overnight walks.
 Timeline corrections appear immediately after Save and open the updated timeline.
 See [assignment rules and verification limits](docs/walks-routine-period-names.md).
+
+Password fields include an accessible show/hide control. Values start masked; toggling preserves input, validation and password-manager metadata without submitting the form. Login, sign-up, password reset and account password changes use the same control. This UI change needs no Supabase migration.

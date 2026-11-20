@@ -207,3 +207,9 @@ browser configuration blank for tests. New tests cover active/finished states,
 chronological repeated periods, overflow, duplicate IDs, manual checks, delete/
 restore and timezone/midnight boundaries. Existing Zod/bundle warnings remain.
 Source was based on main 19f8404; no unrelated team branch was overwritten.
+
+Integration check: main advanced to 27c3c95 with the team's password-visibility
+control while this PR was prepared. A README-only conflict was resolved by keeping
+both sections. The combined tree passed 269 isolated tests in 61 files, TypeScript,
+build and whitespace checks. This integrates main into the feature branch; it is
+not a feature merge into main or a production deployment.

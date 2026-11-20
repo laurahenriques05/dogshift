@@ -1,8 +1,12 @@
-import { useId, type ButtonHTMLAttributes, type InputHTMLAttributes, type ReactNode } from 'react'
-import { PawPrint } from 'lucide-react'
+import { useId, useState, type ButtonHTMLAttributes, type InputHTMLAttributes, type ReactNode } from 'react'
+import { PawPrint, Eye, EyeOff } from 'lucide-react'
 export function Brand() { return <span className="brand"><span className="brand-mark"><PawPrint size={22}/></span>PawShare<span className="brand-dot">.</span></span> }
 export function Button({ className = '', ...props }: ButtonHTMLAttributes<HTMLButtonElement>) { return <button className={`button ${className}`} {...props}/> }
-export function Field({ label, hint, ...props }: InputHTMLAttributes<HTMLInputElement> & { label: string; hint?: string }) { const id = useId(); return <div className="field"><label htmlFor={id}>{label}</label><input id={id} aria-describedby={hint ? `${id}-hint` : undefined} {...props}/>{hint && <small id={`${id}-hint`}>{hint}</small>}</div> }
+export function Field({ label, hint, type, ...props }: InputHTMLAttributes<HTMLInputElement> & { label: string; hint?: string }) {
+ const id = useId(), [visible, setVisible] = useState(false)
+ const input = <input id={id} aria-describedby={hint ? `${id}-hint` : undefined} {...props} type={type === 'password' && visible ? 'text' : type}/>
+ return <div className="field"><label htmlFor={id}>{label}</label>{type === 'password' ? <div className="password-input-group">{input}<button type="button" className="password-visibility" aria-controls={id} aria-pressed={visible} aria-label={`${visible ? 'Hide' : 'Show'} ${label.toLowerCase()}`} disabled={props.disabled} onClick={() => setVisible(value => !value)}>{visible ? <EyeOff size={19} aria-hidden="true"/> : <Eye size={19} aria-hidden="true"/>}</button></div> : input}{hint && <small id={`${id}-hint`}>{hint}</small>}</div>
+}
 export function Notice({ children, error = false }: { children: ReactNode; error?: boolean }) { return <div className={`notice ${error ? 'error' : ''}`} role={error ? 'alert' : 'status'}>{children}</div> }
 export function Loading() { return <main className="loading" role="status"><PawPrint className="animate-pulse"/><p>Getting everything ready…</p></main> }
 export function LoadingPlaceholder({ label, lines = 2 }: { label: string; lines?: number }) { return <div className="loading-placeholder" role="status"><div aria-hidden="true">{Array.from({ length: lines }, (_, index) => <span className={`loading-placeholder-line line-${index + 1}`} key={index}/>)}</div><span className="loading-placeholder-label">{label}…</span></div> }
