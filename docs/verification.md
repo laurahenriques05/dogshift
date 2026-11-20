@@ -1,58 +1,57 @@
-# Verification — 11 November 2026
+# Verification evidence and limits
 
-## Current checks
+Updated 20 November 2026. Test counts are observations, not permanent guarantees.
+Use Node 22.x >=22.12; npm test, npm run typecheck, npm run build and git diff
+--check. Tests must not call the hosted database or send real emails/push.
 
-On feature/laura-feeding, after the Feeding visual polish and team-documentation update:
+## Latest checks — documentation consolidation
 
-- `npm test`: passed **93 tests across 11 files**.
-- `npm run build`: passed TypeScript project checks and Vite production bundling.
-- Build warnings: third-party Zod annotation comments are stripped by Rollup; the main JavaScript chunk exceeds the advisory 500 kB threshold. Neither warning fails the build.
-- `git diff --check`: checked as part of documentation finalisation.
-- The automated suite uses isolated PGlite PostgreSQL, minimal Auth/Storage schemas and authenticated/anonymous roles. It does not mutate the shared hosted database.
+On current source (main including #68), all **281 isolated tests in 63 files**
+passed on Node 22.23.5 with VITE_APP_URL and both Supabase browser values blank.
+TypeScript, production build and git diff --check also passed. All local
+Markdown file/heading links were checked with no broken targets.
+Existing node_modules were reused; this is not a fresh npm ci.
 
-## What the tests cover
+Existing Zod annotation and large-bundle advisories remain; they are not failed
+checks. PGlite/minimal Auth/Storage roles cover isolation, rejected writes, retries,
+stock, routines, GPS/timeline and deletion. This is not a hosted security audit.
 
-Validation/configuration, invitation routing and authorization, household isolation and owner/member restrictions, dog-photo transformations/storage policies, food-stock calculations, routine validation, mixed-food atomic writes, meal outcomes, creator-only corrections, forbidden writes and idempotent retries. Read src/test for the exact cases; passing these tests is not a complete hosted-system security audit.
+Sample real-component browser fixtures covered routine setup/save/edit/grouping,
+stable slot IDs/manual Night checks, summary/edit transitions, corrected timeline,
+consent-before-Photon, footer credits and mobile containment at 360/390px and
+1280px desktop. NFC fixture verified disclosure opening/focus/scroll and copy
+feedback. Fixtures were removed; no fake responses are shipped as saved activity.
+These checks are not physical tags, live account persistence or actual GPS.
 
-## Prior verification evidence
+## Read-only hosted evidence — 20 November
 
-- The Feeding UI and saved routine/checklist were inspected with labelled sample-data component previews at desktop and 390px mobile widths. Edit/cancel behaviour and mobile overflow were checked. These screenshots are not live authenticated account data.
-- A prior authorized hosted Feeding transaction checked purchases, retry protection, stock deductions, duplicate warnings, corrections/removal and outsider isolation; test data was rolled back. See feeding-handoff.md.
-- Latest published application source before this documentation-only update: `c6449b205f878ce13fd8bc5a271cfba19526dcfa`, Vercel deployment `dpl_Cj3oFD5A1A51HeB7NWtxtxbdPmne`, READY. Its production URL returned successfully and its served bundle contained the Feeding refresh markers.
+Migration ledger confirms installed Walks core/waste/tracking/deleted-owner-preview,
+journal/preferences, pause/duration and correction capabilities; exact mapping is
+in walks.md. Tasks reliability/quick assignment and Tasks/Push/Academy schema are
+also recorded. Manual Health SQL may not be represented in that ledger.
 
-## Not established by these checks
+Function inspection confirms hosted set_walk_deleted remains author-only and
+set_walk_routine preserves order but permits optional/partial estimates. Proposed
+family-deletion and strict-hour/stable-ID follow-ups are not applied. No hosted
+care records were read/created/deleted or schema changed by this consolidation.
 
-- End-to-end hosted registration, email/SMTP delivery, password recovery and every onboarding/invitation path on the current release.
-- Physical NFC tags, actual iPhone/Android behaviour, or recovery of quick-action intent across sign-in.
-- Phone push, background GPS and persistent calendar delivery; these integrations are not implemented by Feeding.
-- Automatic cross-device Feeding updates; current data refresh is manual/window focus.
-- Fresh-machine installation, the separate Supabase pgTAP suite, and a full secrets-history scan.
-- That GitHub main and production are aligned. The previous deployment record above is a historical snapshot; verify the production deployment SHA against the current `main` before claiming this release is live.
+GitHub reports Vercel success for merged #68. Current Vercel team access is denied;
+exact production alias/READY/commit must be verified separately, not invented.
 
-## Release smoke test
+## Still requires explicit integration/device evidence
 
-Follow the README manual smoke test on the deployed website with separate owner/member sessions and a separate household. Test invalid input, forbidden actions, persistence/reload and network failure. Rehearse the complete university demonstration on the live URL; prepare role accounts and starting data without committing passwords. Treat device-specific NFC/push/GPS checks as pending until tested on real phones.
+- Hosted auth/email/recovery, every invitation/onboarding/departure/deletion path.
+- Disposable multi-account writes and forbidden actions on the exact deployed UI.
+- Android/iPhone physical NFC write/tap/sign-in and permission/duplicate behaviour.
+- Outdoor GPS, pause/resume, stationary 10+2, lost signal, offline/reload/reconnect,
+  screen lock and app switching. Follow walks-gps-testing.md; no background promise.
+- Google key/billing/domain/runtime paths and external provider availability.
+- Push sender secrets/deployment/cron, recurring materialization and iOS/Android
+  delivery; database queue/schema and calendar links do not establish delivery.
+- Health Storage cleanup and Auth deletion/session expiry/retry under reviewed
+  server environment, without weakening Auth/RLS or deleting real user accounts.
 
-## Academy curriculum rollout — 16 November 2026
-
-- PR #20 was approved by Beni and merged by Laura as merge commit
-  `138dc67`; GitHub showed all four checks passing.
-- Laura reports that `20261115150000_academy_curriculum.sql` was applied
-  successfully to shared Supabase. This workspace did not inspect the hosted
-  migration ledger or schema, so this is a team-reported status; do not run the
-  migration again.
-- On updated local `main` (`0d5d79d`), the Academy catalog and Tasks/Academy
-  database tests passed: 6 tests in 2 files. `npm run typecheck` and
-  `npm run build` also passed. The build retains existing dependency-comment and
-  large-chunk warnings.
-- The authenticated local UI showed the dog-trick path with 11 challenges,
-  0/11 completed and 0 XP. No practice or progress was written. The first lesson
-  loaded with its checklist and explicit save action. The multi-step `stay`
-  challenge remained locked until preceding lessons are completed, so its live
-  UI could not be inspected in this household without inventing training
-  progress. Isolated database tests cover ordered subchallenge completion and
-  one-time XP.
-- The PR preview reported READY, but that does not prove the production Vercel
-  alias serves this merge. Push delivery, live shared-schema behavior,
-  household-to-household progress, and the full challenge flow after real dog
-  practice remain unverified.
+Use designated disposable data only; record exact commit/device/environment and
+observed outcomes. Keep read-only schema, fixtures, rolled-back SQL, actual writes
+and physical-phone results distinct. Do not fabricate green checks for missing
+observations. Release procedure is in collaboration.md.

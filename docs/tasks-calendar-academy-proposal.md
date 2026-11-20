@@ -1,9 +1,8 @@
 # Maria — Tasks, calendar, Academy and notifications
 
-This document records the defaults Maria is implementing for the university
-demo. They are deliberately small and can be extended after the first release.
-The team only needs to review cross-feature interfaces and shared migration
-ordering; these product defaults do not need a team vote.
+Approved source contracts, owner Maria. Schema/queue presence is separate from
+configured phone-push delivery. Latest experience is in tasks-academy-experience.md;
+installed reliability/assignment status is in tasks-reliability.md.
 
 ## Decisions Maria has made
 
@@ -74,8 +73,7 @@ ordering; these product defaults do not need a team vote.
   progress.
 - A member can edit/delete only their own practice entries. Completion is an
   explicit action, not a side effect of opening a lesson.
-- The merged baseline includes Maria's daily care check-in and Carol's walking
-  basics. Maria's follow-up presents one progressive dog-trick course, from
+- The active Academy presents one progressive dog-trick course, from
   marker/target foundations to multi-step challenges. The two earlier non-trick
   IDs remain internally so saved history and XP are preserved, but those entries
   are no longer shown in Academy. The new module IDs are seeded by
@@ -89,8 +87,8 @@ ordering; these product defaults do not need a team vote.
 These are integration checks, not requests to decide Maria's task/reward rules:
 
 1. **Laura (integration/migrations):** PR #20 review and merge are complete; she
-   reports applying the Academy migration. The hosted schema has not been
-   independently inspected here. Confirm current migration state before future
+   reports applying the Academy migration. The 20 November ledger independently confirms Academy curriculum
+   at 20261116155146_academy_curriculum. Confirm current migration state before future
    schema work; never re-run the curriculum migration.
 2. **Beni (Health source events):** destinations are documented in
    [Health calendar links](health-calendar-links.md) and match the calendar
@@ -111,32 +109,20 @@ the shared sync/cancel RPCs. Real-device delivery also needs validation before
 push can be called functional.
 
 The 17 November task reliability follow-up is described in
-[Tasks reliability and rollout](tasks-reliability.md). Its new migration remains
-pending review and coordinated application; it is not part of Laura's earlier
-reported rollout.
+[Tasks reliability and rollout](tasks-reliability.md). Its reliability and quick-assignment migrations were subsequently confirmed
+installed in the 20 November ledger as 20261119112100 and 20261119112114;
+do not reapply them.
 
-## Laura migration and Feeding review
+## Migration and Feeding interface
 
-Laura reviewed the two migrations against the complete existing migration
-chain. The required order is the filename order:
-`20261114120000_tasks_academy.sql` first, followed by
-`20261114130000_push_notifications.sql`. The second migration depends on the
-task tables created by the first. At review time, neither migration had been
-applied. Laura later reported completing the shared rollout; this note is not
-proof of the hosted migration ledger. Verify current project state before any
-future migration.
+The Tasks/Push/Academy foundation and reliability/quick-assignment ledger entries
+were confirmed read-only on 20 November. Source timestamps differ from hosted
+versions; never rerun a file because its exact filename is absent. Deletion guards
+on newer household tables preserve freeze-during-deletion rules.
 
-The new household-scoped tables now explicitly install the existing
-`private.guard_deletion()` trigger. The original deletion migration could not
-add those triggers because these tables did not exist yet. This preserves the
-existing rule that no household data is inserted or updated after household
-deletion starts.
-
-Feeding's restocking adapter is compatible with the calendar and notification
-contracts. `occursAt` and `remindAt` are already the product's buy-by instant,
-so consumers must not subtract the seven-day lead again. For notification RPCs,
-pass the adapter's stable `id` (`food-restock:<product UUID>`) as
-`p_source_id`; retain `sourceRecordId` as the underlying product UUID. Use
-`p_recipient = null`, route `/feed`, and cancel or replace the same stable ID
-when the forecast disappears or changes. Persistent/server-side recomputation
-is still required before claiming background Feeding reminders are complete.
+Feeding's forecast adapter supplies occursAt/remindAt as the buy-by instant.
+Do not subtract the lead twice. Use stable id food-restock:<product UUID> as
+p_source_id, retain sourceRecordId as the underlying product UUID, use recipient
+null for current members and /feed. Replace/cancel when a forecast changes or
+disappears; expected daily use zero creates no forecast event. Persistent server
+recomputation remains required for true background reminders.

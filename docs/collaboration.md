@@ -1,93 +1,58 @@
-# Team collaboration and release procedure
+# Team collaboration and releases
 
-## Daily workflow
+## Workflow
 
-1. Fetch origin and start a focused branch from current main. Never discard local work to switch branches.
-2. Agree shared schema/routes/styles/contracts with Laura and affected owners before editing them.
-3. Implement one reviewable slice. Run `npm test` and `npm run build`; document manual checks and limits.
-4. Commit and push the feature branch. In GitHub Desktop, use Push origin while that branch is selected.
-5. Open a pull request targeting main. Use the repository PR template. Ask a different group member to review; add their GitHub handle as reviewer once known.
-6. The reviewer checks the diff, intended behaviour, rejected actions, tests, migration and scope. Resolve feedback. Check the Verify workflow passes.
-7. After another member approves, merge into main. Do not bypass review because an agent or author says it works.
-8. Pull the merged main locally. Deploy that exact commit, then record the production deployment ID/SHA and smoke-test the live URL.
+1. Read AGENTS.md/README/current feature state, inspect status and fetch current
+   main. One agent per checkout; never discard local or teammate work.
+2. Start a focused codex/ branch. Agree shared schema/routes/styles/types with
+   Laura and affected owners. Feature owners author their versioned migrations.
+3. Implement a reviewable slice; run appropriate isolated tests, TypeScript/build
+   and narrow/desktop checks. Separate sample fixtures from hosted/device evidence.
+4. Commit/push and open a PR with concrete scope, validation and limitations.
+5. Another member reviews; an agent cannot supply that member's approval. Resolve
+   feedback and require passing Verify. Do not merge/deploy merely because tests pass.
+6. Merge after approval; publish the exact main commit through the Git integration.
+   Confirm project, commit, READY state and production alias. Never force-push.
 
-## Release configuration
+When command-line GitHub authentication is unavailable, connected GitHub tree/
+commit/ref tools can publish the tested tree. Use expected-head leases, preserve
+parents and verify remote tree equality; do not claim a failed push succeeded.
+Do not send team messages unless explicitly asked.
 
-Production project: `pawshare`, Vercel team project ID `prj_4tp8vt9Qb3J8KgFWI9Vn5qxVEpL5`. Public URL: https://pawshare-laurahenriques05.vercel.app.
+## Project and latest evidence
 
-Preferred setup: connect the GitHub repository to this Vercel project and set Production Branch to main. Verify this in Vercel Settings → Git. Do not assume direct deployments establish a Git connection. Keep feature pushes as previews; preserve existing access protection and environment values. Do not copy secrets into workflow files.
+Repository: laurahenriques05/pawshare. Production app:
+https://pawshare-laurahenriques05.vercel.app. Vercel project pawshare,
+prj_4tp8vt9Qb3J8KgFWI9Vn5qxVEpL5, team slug lmbtah-7143.
+Preferred production branch is main. Do not change settings to bypass access.
 
-For a manual release, use a clean checkout of the pushed, reviewed main commit, run checks and deploy that exact source through Vercel with its real SHA. Never deploy a different local feature tree while labelling it main. Confirm the deployment is READY and its production alias serves the expected version.
+On 20 November, main includes PR #68 at
+72016adb6ea353f6daca5006698d34ebe8ec36a2; its GitHub Vercel status reports success.
+Connected Vercel access last returned 403 for that team, so exact current alias/
+READY/source linkage was not independently reverified. This is distinct from a
+failed build or proof of an outdated public app. Inspect the owning project when
+access is available; no manual deployment or permission change is implied.
 
-GitHub Actions already runs `npm ci`, `npm test`, and `npm run build`. The team should configure a main-branch rule requiring one other member's approval and successful Verify checks where the GitHub plan supports it. This document does not create or prove that protection. Do not request additional access or change branch protection without the repository owner's authorization.
+## Hosted migrations
 
-## Historical alignment handoff (11 November 2026; superseded)
+Reconcile actual ledger AND definitions before applying anything: some source and
+hosted timestamps differ, and manual SQL can be absent from the ledger. Never
+blindly db push/reset, edit applied migrations or repeat teammates' installations.
+Review combined behaviour/dependencies, not only conflict-free SQL text. Applying
+an RPC can affect live permissions/data; needs task-specific authorization and
+coordination, not inferred permission from a read-only inspection.
 
-The published Feeding source before this documentation update is commit `c6449b205f878ce13fd8bc5a271cfba19526dcfa`, deployment `dpl_Cj3oFD5A1A51HeB7NWtxtxbdPmne`. It was deployed directly from feature/laura-feeding. GitHub main still needs the reviewed Feeding pull request, including these documentation updates. This is a historical snapshot, not a statement that alignment is complete.
-
-At that time, the alignment PR was expected to include all Feeding commits since main and documentation updates. That integration was later completed by subsequent pull requests. Do not undo/reapply database migrations that are already installed.
-
-## Repository status (16 November 2026)
-
-The current local `main` is `0d5d79d` (PR #24). It includes Academy PR #20,
-merged by Laura as `138dc67` after Beni's approval. Laura reports that she
-applied the Academy curriculum and coordinated Tasks/Push migrations to shared
-Supabase; this workspace did not independently inspect the hosted migration
-ledger. Never apply those migrations again without first reconciling the live
-schema and ledger.
-
-PR #20's Vercel preview reported READY, and the public production site loaded
-its sign-in page during a read-only check. The production deployment's commit
-SHA was not verified, so do not claim that production serves current `main`.
-Verify Vercel's Git connection, production branch, READY deployment and served
-commit before reporting the release complete.
-
-## Shared migration ownership
-
-Feature owners propose append-only migrations; Laura is the proposed coordinator for order, dependencies and shared types. Review SQL and test locally before any shared-database application. Tell colleagues which migrations are already applied. If two branches change related schemas, resolve the combined migration behaviour before merge, not just text conflicts.
+Walks' checked mapping and pending proposals are in walks.md/team sync. Health's
+reported manual SQL and Edge Function prerequisites remain in its owner docs.
+Tasks reliability/quick assignment are installed as of the 20 November ledger
+check. Presence of a source file is never installation/delivery evidence.
 
 ## Review checklist
 
-- Does the change fulfil its request without unrelated edits or fabricated data?
-- Are validation, membership and creator/owner restrictions enforced server-side?
-- Are existing tests preserved and appropriate checks passing?
-- Are migrations reproducible and shared integration contracts coordinated?
-- Are mobile/keyboard/error states usable?
-- Do README and handoff match the final behaviour and its verified limits?
-- Are secrets absent and production data untouched except as explicitly authorized?
-
-## Feeding recovery integration (11 November 2026)
-
-`codex/restore-feeding` merges `origin/feature/laura-feeding` (24ab559) into
-current main (aa47e4a), preserving the Feeding source and migrations alongside
-Walks. The integration repairs duplicate Home preview entries and duplicate
-shared RPC type declarations from the automatic merge. Both features have active
-navigation and Home summaries. No hosted data or migrations were reapplied.
-
-Local validation: 111 tests passed, typecheck and production build passed; the
-authenticated local `/feed` screen loaded the hosted household data successfully,
-and Home displayed both Feeding and Walks. Production has not been updated by
-this recovery branch. Another group member must review the PR before merge and
-deployment of the resulting main commit.
-
-## Local team integration preview (13 November 2026)
-
-`codex/team-integration-preview` combines Walks from `daaf2f7` and Health/account
-from `e9a164d`, on the shared main base `4a474d7`. Feeding already exists in that
-base. No newer Tasks/Academy branch was available on origin at integration time.
-The two merge conflicts retained both feature documents and the equivalent
-browser-safe app URL fallback from Health. Feature branches and main are intact.
-
-Verification: 149 isolated tests across 29 suites passed with browser configuration
-variables blank, TypeScript and production build passed. The local authenticated
-Health screen exposes all six care sections and the Treatment history read returned
-an empty state without an error. This is read-only browser evidence, not proof of
-all writes or Edge Functions. Node 26.13.0 was used locally; CI uses Node 22.
-
-Five Health migrations and two deletion Edge Functions are included as source from
-the feature branch. This integration did not apply migrations, deploy functions,
-change Auth, modify hosted data, merge main or deploy production. Follow
-`docs/remaining-health-account.md` for review and rollout requirements; do not infer
-hosted migration status from the presence of files. Main/production updates still
-require another group member's review and passing CI. The local Vite application
-at http://127.0.0.1:5173 now runs this combined branch.
+- Fulfil the approved request, without superseded templates/features or fake data.
+- Enforce membership/ownership/validation on the server, including rejected cases.
+- Preserve tests, private Storage, secrets and unrelated feature owners' work.
+- Verify compact mobile, keyboard, focus, error/empty/loading and retry behaviour.
+- Describe source, hosted contracts, device validation and deployment separately.
+- Keep README/current feature docs concise; replace stale claims rather than
+  appending another chronological diary. Git is the historical record.

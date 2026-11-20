@@ -1,6 +1,8 @@
 # Tasks reliability — 17 November 2026
 
-Base: `origin/main` at `9958938`. Work branch: `codex/tasks-reliability`.
+Integrated source. Read-only hosted ledger inspection on 20 November confirms
+20261119112100_tasks_reliability and 20261119112114_task_quick_assignment installed.
+Do not reapply the source migrations. This does not establish push delivery.
 
 ## Reproduced failures
 
@@ -51,7 +53,7 @@ notifications UI is preserved. The calendar/Home implementation is unchanged.
 
 ## Verification
 
-- Full isolated suite: 202 tests in 43 files passed.
+- Feature regression tests run in the isolated full suite; see verification.md.
 - TypeScript and production build passed; existing dependency-comment and bundle
   size warnings remain.
 - Regression coverage: distant dates, stopped tasks, departure/recipient
@@ -59,26 +61,13 @@ notifications UI is preserved. The calendar/Home implementation is unchanged.
   pagination including interrupted loads. Existing deletion tests still pass.
 - The local authenticated Tasks page loaded its empty state, populated due time
   and view controls. No task was created or completed in a real household.
-- Hosted migration execution, multi-user browser writes and real-device push
-  delivery remain unverified by this change.
+- Hosted ledger installation was subsequently confirmed; multi-user browser
+  writes and real-device push delivery remain unverified by these local checks.
 
-## Review and rollout
+## Remaining integration validation
 
-1. Laura reviews the task migrations and task API behavior. Beni should include the
-   family departure/account-deletion interaction in her review.
-2. Review CI and the preview, then merge the reviewed branch.
-3. Laura checks the hosted schema and migration ledger. Apply only
-   `20261117140000_tasks_reliability.sql` if it is still absent, followed by the
-   experience update's `20261118230000_task_quick_assignment.sql`, after the team's
-   backup/recovery step. Do not repeat the existing Tasks/Push/Academy migrations,
-   edit applied migrations, reset the database or run an automatic `db push` over
-   the unreconciled history.
-4. Validate with designated test accounts: create, reload, complete, undo, stop,
-   edit recurring work, depart and verify cross-household isolation. Test data is
-   explicitly disposable; it is not actual dog-care activity.
-5. Confirm the production deployment serves the reviewed merge commit.
-
-Notifications still require a separate sender/configuration audit, recurring
-materialization beyond the existing horizon, source adapters for Feeding/Health,
-and iPhone/Android delivery tests. Passing these task tests does not close those
-items.
+With designated disposable accounts: create/reload/complete/undo/stop, edit recurring
+work, change occurrence assignee, depart and verify cross-household isolation.
+Installed schema is not proof of populated multi-user browser writes. Confirm
+exact production commit separately. Sender/configuration, recurrence beyond the
+materialized horizon and real-device push delivery remain separate.

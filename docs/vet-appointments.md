@@ -1,14 +1,19 @@
 # Veterinary appointments
 
+Current source specification; owner Beni. Hosted installation/deployed functions
+must be checked against actual definitions and Beni/Laura reports before rollout.
+A missing ledger row does not prove manual SQL was never applied. See
+health-calendar-links.md for newer source-link/modal and reported migration status.
+
 Scope: create, list, edit and explicitly confirm deletion of shared appointments via Health. No reminders, calendar writes, medical advice or other Health modules.
 
-Review and coordinate application of `supabase/migrations/202611110002_vet_appointments.sql` after the initial schema. It has NOT been applied by this change. No environment changes. An unapplied migration produces a visible error with retry, not demo records.
+Review and coordinate application of `supabase/migrations/202611110002_vet_appointments.sql` after the initial schema. Its hosted definition must be reconciled before any application. No environment changes. An unapplied migration produces a visible error with retry, not demo records.
 
 Each appointment belongs to a household (one dog per household). All current members can create/read/edit, including another member’s records. RLS checks live membership. Column grants prevent reassignment and audit spoofing. Browser deletion is available only after the separate appointment-deletion migration; RLS restricts it to current members. Database triggers set creator/editor and timestamps. UTC timestamptz storage; input and 24-hour display use household.timezone, independent of the device. Missing or ambiguous DST times are rejected with an instruction to choose another time. Editing is last-write-wins; concurrent conflict resolution is not included.
 
 ## Maria integration pending agreement
 
-No shared calendar schema, event API or reminder scheduler exists in this checkout. Walks has its own notification adapter and summaries; that is not a general calendar contract. No event or notification is emitted here. Agree on household ID, appointment ID as stable source ID, source feature, title, instant, family timezone, deep link `/health/appointments`, optional responsible member and author/editor timestamps. Agree on upsert uniqueness (source + source ID), edits/cancellation, recipient preferences, timezone changes and scheduling ownership before integration. Do not create duplicate calendar records or a second delivery system. No Home summary in this step.
+Maria owns the existing shared calendar/reminder contracts; Health source links are documented in health-calendar-links.md. A source link does not itself enqueue a push reminder. Walks has its own notification adapter and summaries; that is not a general calendar contract. No event or notification is emitted here. Agree on household ID, appointment ID as stable source ID, source feature, title, instant, family timezone, deep link `/health/appointments`, optional responsible member and author/editor timestamps. Agree on upsert uniqueness (source + source ID), edits/cancellation, recipient preferences, timezone changes and scheduling ownership before integration. Do not create duplicate calendar records or a second delivery system. Home includes a real Health summary; its presence does not establish reminder delivery.
 
 ## Verification
 
@@ -16,10 +21,8 @@ No shared calendar schema, event API or reminder scheduler exists in this checko
 
 After coordinated migration application: run `npm run dev`, sign in and open Health. Create a visit, reload and edit it. Use another member to edit the same visit; a different family must see none. Switch families and confirm the list resets. Test empty state, offline load/save and retry. Remove a disposable member and verify reads/writes are denied. Test a device timezone different from the family, DST transitions, keyboard use and 375px width. Use disposable accounts/data; send no emails or notifications.
 
-Repository discrepancies: README milestone sections still describe Walks/invitations as unavailable or owner-only; later migrations/code implement Walks, member invitations and leaving with ownership transfer. Account display names use profiles. No public deployment comparison or hosted authentication/email verification was performed; local Git cannot establish what Vercel currently runs. Existing Lost Dog preview is outside this task and has not been extended.
-
 Health now opens a month calendar of veterinary records, using the same table. Choose a day, press +, and save; select a listed visit to edit. Today and month navigation are available. This is a Health presentation only, with no shared calendar writes or reminder delivery.
 
 ## Appointment deletion
 
-All current family members may permanently delete appointments after explicit confirmation, as agreed. Apply `20261111220003_appointment_deletion.sql` once after review; it is not applied by this change. Select a date and choose Delete, or open a calendar appointment and choose Delete appointment. Confirm/Keep appointment controls prevent accidental deletion; failed requests retain the confirmation and allow retry. Calendar and list reload after success. No shared calendar or reminder delivery exists to cancel in this checkout; future Maria integration must propagate deletion by source ID.
+All current family members may permanently delete appointments after explicit confirmation, as agreed. Appointment deletion is recorded in the hosted ledger as 20261115152455_appointment_deletion; do not reapply the source file. Select a date and choose Delete, or open a calendar appointment and choose Delete appointment. Confirm/Keep appointment controls prevent accidental deletion; failed requests retain the confirmation and allow retry. Calendar and list reload after success. Maria's shared source contract exists; actual Health sync/cancel integration must propagate deletion by source ID before reminder delivery is claimed.

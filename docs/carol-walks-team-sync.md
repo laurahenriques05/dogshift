@@ -1,302 +1,98 @@
-# Current follow-up — 19 November 2026
+# Walks — current state and next work
 
-The explicit routine/map requests are implemented in source on
-`codex/walk-routine-map-details`; see [the request-by-request handoff](walks-routine-map-details.md).
-This adds one proposed, unapplied migration:
-`20261119165100_walk_routine_preferences.sql`, after the journal/daily-plan file.
-No shared Supabase migration, merge or production deployment was performed.
-The older snapshots below do not describe these new behaviours or establish
-that the requested public app has been updated.
+Updated 20 November 2026. This is the existing current-state register, not a chat
+transcript. Read AGENTS.md, README.md and this file first. Detailed behaviour is
+in walks.md and the focused documents linked there. Git retains old decisions;
+do not resurrect superseded requirements from old commits or chat previews.
 
-# Carol Walks / team synchronization — 19 November 2026
+## Confirmed repository state
 
-## Repository evidence
+Main includes these merged PRs:
 
-A successful `git fetch origin` confirmed local HEAD and `origin/main` at
-`890c904e9ff74e68d3d900c7cb481447db326833` (merge of PR #48). The checkout was
-clean on `codex/docs-current-state` before this documentation update. Remote
-branches were not merged indiscriminately. This Git evidence does not identify
-the production deployment or prove hosted migrations were installed.
+| PR | Scope | Merge commit |
+| --- | --- | --- |
+| #65 | Grouped estimates, stable routine slots, mobile layout, footer-only credits, consent-based area names |  e4b7d392732abe3bba869afb5d407c9dac3d802e |
+| #66 | Remove approximate-location warning; family-history deletion UI and proposed RPC migration | 856fab93157cd30ab475022e5f5b0b426ead6afc |
+| #67 | Feeding-style walking NFC section at page end; collar button opens/scrolls to it | a898ecad69b8d9ebfef126fed10cbf7024e89623 |
+| #68 | NFC spacing/normal description weight, full hero names, no map-style picker without GPS | 72016adb6ea353f6daca5006698d34ebe8ec36a2 |
 
-## Implemented in source
+These statuses were read from GitHub. #68 is merged, not an outstanding UI task.
+Its Vercel commit status is success (deployment 3Zc1PJBeExETi67Jeqk1JGZCLMoM).
+The Vercel connector last refused team access; a successful GitHub status alone
+is not independent verification of the exact production alias/READY metadata.
+Recheck current main and production before making a new release claim.
 
-- GPS/location confirmation and time-only walks, dog-waste recording, private
-  active routes, completed history, corrections and author-only delete/restore.
-- Explicit Demo walks history, including production builds, isolated from real
-  household statistics and records. The earlier development-only statement below
-  is superseded; see [demo behaviour](walks-demo.md).
-- Map controls, optional nearby places, timeline, durable point/finish recovery,
-  segmented pause and paused-time calculations. Pause requires schema support.
-- Timestamped note journal and daily shared count/manual checks, followed by the
-  collar overview and period labels (PR #48). Missing backend support is reported;
-  the presence of UI does not prove persistence works on the shared project.
-- Scoped public NFC URL `/walks?action=start&household=<UUID>`, retained sign-in
-  intent and household checks. Setup/location confirmation is still required;
-  this is not an immediate-start NFC implementation or physical tag validation.
+## Approved behaviour to preserve
 
-See [map controls](walks-map-controls.md), [journal/daily plan](walks-journal-daily.md)
-and [collar overview](walks-collar-overview.md) for behaviour and local evidence.
+- Compact, intuitive mobile-first green/cream design, following Feeding. Reduce
+  unnecessary scrolling; do not add either rejected styling template (compact
+  dashboard or task tabs). A carousel selection did not override that rejection.
+- Routine is optional. Walking routine/Set routine without a complete plan;
+  Today's walk after save. Edit disabled until complete and during the form.
+  Remove only in edit mode, between Save routine and Cancel. No opt-out button.
+- Every slot requires Estimated hours. Fixed periods: Morning 07:00–12:00,
+  Afternoon 12:00–20:00, Night 20:00–07:00, end-exclusive. No sunrise, sunset or
+  location in routine setup. Hours are estimates, not exact walking obligations.
+- Progressive names only after an hour is entered. Group periods immediately;
+  numbers only for repeats, in stable planning/insertion order. New 15:00 added
+  after an existing 17:00 is Afternoon 2, displayed after Afternoon 1. Preserve
+  saved slot indexes/manual check identities; never sort the submitted array.
+- Circles are 96px, short names (Afternoon 1), no estimated clock times. Hero
+  names include Walk (Afternoon Walk 1). Real starts fill matching-period slots
+  automatically; in-progress is not completed and has no Summary.
+- Walk Summary is centred; actual notes/waste symbols, truthful manual-outing
+  explanation, aligned Undo/Close. Empty diary counts 0; no false last start.
+- Walking together retains completed total. Charts offer distance/time only.
+- Pause freezes elapsed time and GPS; resume creates a segment. Notes/events can
+  be corrected by their author, preserving all raw GPS. Save updates timeline.
+- History uses real saved walks; Demo walks is separate and explicitly labelled.
+  Area names require account/device consent and one approximate Photon lookup;
+  no full trace is sent, and names are not persisted/shared walk titles.
+- Open-map credits only in the small persistent footer, including active imagery
+  sources; preserve Google native attribution. No style picker on a saved empty
+  route. Do not hide map data/permission errors or claim fake accuracy.
+- Set up collar tag opens/focuses/scrolls to the final NFC disclosure. It copies
+  Feeding's section, including browser writer/fallback; 12px notice/action gap,
+  normal-weight description. The tag opens setup, not unattended recording.
 
-## Pending work and ownership
+## Genuine pending work
 
-The following files exist in source; this check did **not** apply them or verify
-shared Supabase installation. Earlier handoffs identify them as unapplied by the
-implementing agent. Laura must reconcile the actual schema/ledger and coordinate
-review/dependencies before any application; never blindly rerun these files.
+1. **Family deletion rollout:** the UI exposes deletion of other members'
+   completed walks, but read-only inspection on 20 November confirms hosted
+   set_walk_deleted still requires the author. Proposed
+   20261120155307_shared_walk_history_deletion.sql is absent from hosted ledger.
+   Review/coordinate that exact migration with Laura before application; do not
+   reapply old migrations. Keep author-only restoration/correction and block
+   active walks, outsiders, anonymous and former members. Never delete real
+   activities as a test. This request is not fully working on hosted Supabase yet.
+2. **Routine SQL hardening:** client requires all hours; hosted RPC still allows
+   blank/partial estimates and preserves input order. The fixed-hours and stable-
+   identity proposals remain unapplied. Review the final combined result before
+   rollout; never apply the old solar proposal by itself or sorting that renumbers
+   manual records. Current client already works with the existing preferences RPC.
+3. **Real-device acceptance:** NFC writing/tapping/sign-in, foreground GPS,
+   permission denial, offline/reload, pause/resume and stationary 10+2 minute
+   behaviour on Android/iPhone. Background/screen-locked reliability is unverified.
+4. Immediate NFC start after authentication/membership/location consent remains
+   requested but unimplemented: current flow still asks settings/confirmation.
+   Agree the consent experience before changing it. No Walks server push/calendar
+   producer is implemented; future contracts belong with Maria.
+5. Exact production alias/commit verification needs appropriate Vercel access.
 
-| Migration | Capability requiring it |
-| --- | --- |
-| `20261116170000_walk_dog_waste.sql` | Waste preferences, start/save contracts |
-| `20261116190000_walk_tracking_choice.sql` | Persisted GPS/time-only choice |
-| `20261117130000_deleted_walk_owner_preview.sql` | Author's deleted-route preview |
-| `20261118200000_walk_pause_and_notes.sql` | Segment boundaries and legacy note RPC |
-| `20261118223000_walk_paused_duration.sql` | Saved pause intervals and duration |
-| `20261119001000_walk_journal_and_daily_plan.sql` | Note journal, daily plan/manual checks |
+No missing task should be inferred solely from an old screenshot. Ask about a
+new discrepancy only after checking current code, hosted contracts and release.
 
-Remaining validation requires two authorised test accounts and real phones/tags:
-GPS consent/denial, start retry/duplicate protection, motion and stationary warning
-(10 minutes, then 2 minutes unanswered), Keep walking, pause/resume, offline sync,
-reload, locked-screen behaviour and NFC/sign-in on Android/iPhone. Local fixtures
-and isolated PostgreSQL tests do not establish these results. Background GPS is
-not guaranteed. Follow [device checklist](walks-gps-testing.md).
+## Hosted evidence and validation
 
-Immediate NFC start after required consent remains a requested behaviour; the
-current setup/confirmation flow must not be described as fulfilling it. Agree the
-route/consent experience with Laura before changing the shared NFC contract or
-writing tags. Walks calendar events/server push are not implemented and are not
-new work authorised by an available shared RPC; future integration needs Maria's
-explicit contract. Academy remains dog-trick training, not walking lessons.
+Hosted migration ledger and function definitions were inspected read-only on
+20 November; no data/schema mutation was performed. See walks.md for the exact
+source/hosted version mapping. Journal/routine preferences, waste/tracking,
+deleted-owner preview, pause duration and timeline corrections are installed.
 
-Release verification remains separate: confirm teammate review/CI, Vercel Git
-linkage, main production branch, READY deployment, exact commit and alias. This
-update neither merges nor deploys code, changes hosted data, sends team messages,
-nor supplies another member's approval.
-
-## Local checks for this update
-
-`npm test`: 245 tests passed across 56 files. `npm run typecheck`,
-`npm run build` and `git diff --check` passed. Existing dependencies were reused;
-this was not a fresh `npm ci`. Local runtime was Node 26.13.0, while project/CI
-uses Node 22; no new Node 22 execution is claimed. Build retained Zod annotation
-and bundle-size warnings. No browser flow changed, so no new screenshots/device
-checks were performed. No live connectivity/schema check was run in this update.
-
-## Historical snapshot — 17 November 2026 (superseded)
-
-
-The current Walks source integrates team main at
-`a3ec4f2` (Health/account settings PR #31), including the reviewed Feeding,
-Academy, dashboard, navigation and Health improvements. All remote branches
-were fetched; branches not merged into main were not combined indiscriminately.
-
-Merge resolution preserves Carol's location confirmation, optional GPS/time-only
-walks, dog waste preferences/summary, history delete/restore dialogs, deleted
-filters and the current approved styling/copy. Team LoadingPlaceholder/EmptyState
-components are retained in history, and the shared Academy routing from main is
-preserved. No teammate feature directory was replaced by an older local version.
-
-Verification on the integrated tree: 194 isolated tests passed; typecheck and
-production build passed. Local and live GPS evidence remain distinct. No hosted
-schema/data changes or production deployment were performed.
-
-Carol's migrations remain proposed and unapplied by this agent:
-- 20261116170000_walk_dog_waste.sql
-- 20261116190000_walk_tracking_choice.sql
-- 20261117130000_deleted_walk_owner_preview.sql
-
-Coordinate ordering/shared generated types with Laura and affected owners before
-application. The app's new start RPCs require the first two migrations; deleted
-route previews require the last policy migration. Background/locked-screen GPS
-is not guaranteed by this web implementation. The demo history is development-only.
-
-Publication uses the connected GitHub service because command-line HTTPS push
-has no credentials. The feature is for another member's review, without merging
-into main or deploying unreviewed changes. Prior local commits are preserved
-in the local integration branch when a consolidated publication commit is used.
-
-## Subsequent editing refinements
-
-See [walk editing and live metrics](walks-editing-refinements.md) for the source
-implementation and hosted rollout. Following specific user confirmation of team
-approval, pause/notes, paused-duration and correction migrations were applied as
-`20261119192900`, `20261119192909` and `20261119192918`; do not reapply them.
-No real activity write or additional frontend deployment was performed.
-
-## Estimated-time naming follow-up — fixed periods supersede sunrise
-
-The user withdrew the solar/location requirement. Current source uses Morning
-07:00–12:00, Afternoon 12:00–20:00 and Night 20:00–07:00; all end boundaries are
-exclusive. See [routine naming and verification](walks-routine-period-names.md).
-Set routine reads only existing preferences fields, fixing its disappearance
-when the unapplied solar columns were selected. No routine geolocation remains.
-Setup and edit are separate: no Remove during setup, no Edit until a complete
-saved routine, no pending Summary or circle time labels. Short period names are
-assigned only from entered times; numbering appears only within repeated periods.
-
-`20261119195302_walk_routine_schedule.sql` remains historical and unapplied.
-New `20261119203310_fixed_walk_routine_periods.sql` supersedes its requirements;
-this append-only proposal also works without solar columns. Neither was applied
-to the hosted project in this follow-up. Do not apply the historical solar file
-alone. Existing recorded walks, checks, GPS and household routines are preserved.
-
-## Save routine button follow-up
-
-Save stays clickable except while saving. Required browser validation plus explicit
-submission validation retain mandatory estimates; FormData reads actual controls
-instead of using React preview state to gate the button. A temporary local fixture
-verified empty-field rejection and correct saved values on desktop/mobile; no
-hosted writes or SQL changes. 263 isolated tests, typecheck and build passed on
-Node 22. Existing build warnings remain. See walks-routine-period-names.md.
-
-## Routine summary visual follow-up
-
-Walk Summary is centred with a centred title/close action, smaller matching bold
-Dog waste/Notes headings, existing waste symbols and no separator. Summary link
-spacing increased; removed the saved sentence. Start walk matches Feeding's pale
-green once the routine is complete. Edit actions: Save routine, Remove routine,
-Cancel. Progressive naming was checked during each hour selection. Desktop/mobile
-fixture verification is recorded in walks-routine-period-names.md. No SQL changes.
-
-## Compact routine, footer and timeline — 20 November 2026
-
-The routine edit action moved inside the compact card's top-right header and
-remains disabled until saved, including during setup/editing. Manual-summary
-message/actions are centred; all waste count displays now use existing symbols
-without the lower line. Start/Finish correction boxes contain their own times;
-Event text labels and the device-time-zone sentence were removed. Payload names,
-permissions and saved GPS are unchanged.
-
-Shared AppShell now includes a small footer linking project terms, privacy/data
-and security information. It describes existing project behaviour without adding
-an acceptance flow, asserting legal certification or inventing a contact address,
-retention period or automatic deletion capability. The team should maintain this
-copy as the product's data practices change; it is not a completed legal audit.
-
-Open map attributions moved from overlays to visible lines immediately below
-each map and also appear in the footer. Merely placing them at the distant page
-bottom would not cover full-screen map dialogs. Google native credits remain.
-OSM permits adjacent attribution: https://osmfoundation.org/wiki/Licence/Attribution_Guidelines
-OpenFreeMap requires OpenMapTiles/OSM credits: https://openfreemap.org/
-Satellite credits are preserved when imagery is selected. No SQL migration or
-hosted schema/data mutation is part of this follow-up.
-
-Follow-up verification: 263 isolated tests in 59 files, TypeScript, production
-build and whitespace checks passed on Node 22.23.5. Browser fixtures covered
-1280px/390px; no real Supabase data was read or changed. Existing Zod annotation
-and bundle-size warnings remain. Dependencies were reused, not reinstalled.
-
-## Automatic routine progress and final spacing follow-up
-
-Routine slots now react to real start/finish records in the matching fixed period
-and household-local start day. Ongoing slots show in progress; only completed/manual
-slots expose Summary. Matching does not impose exact scheduled start times or
-create manual daily checks. Raw GPS/private route permissions are unchanged.
-Repeated-period overflow remains in activity totals/history, not another period.
-Legacy incomplete plans retain previous handling until completed.
-
-Manual-summary sentences/buttons, Set routine alignment, map-credit alignment,
-scale/metrics placement, waste/timeline gaps and deleted-walk spacing were adjusted.
-Removed visible Note text and Walk updated. The detail timeline opens and rerenders
-returned corrections on Save, with refreshed waste events. Browser fixture edits
-were visible immediately without refresh. See walks-routine-period-names.md for
-assignment rules, isolated/fixture evidence and limits. No hosted writes or SQL.
-
-Validation for automatic-progress follow-up: 268 isolated tests in 60 files,
-TypeScript, production build and whitespace checks passed on Node 22.23.5, with
-browser configuration blank for tests. New tests cover active/finished states,
-chronological repeated periods, overflow, duplicate IDs, manual checks, delete/
-restore and timezone/midnight boundaries. Existing Zod/bundle warnings remain.
-Source was based on main 19f8404; no unrelated team branch was overwritten.
-
-Integration check: main advanced to 27c3c95 with the team's password-visibility
-control while this PR was prepared. A README-only conflict was resolved by keeping
-both sections. The combined tree passed 269 isolated tests in 61 files, TypeScript,
-build and whitespace checks. This integrates main into the feature branch; it is
-not a feature merge into main or a production deployment.
-
-## Unpushed local follow-up: grouped hours, footer-only credits and area names
-
-The user asked for these refinements locally without push. Work is isolated in
-codex/walk-grouping-and-mobile-local, with no new remote branch/PR/release.
-Grouped editing and slot display, 96px circles, Estimated hours wording and mobile
-centering are implemented locally. Non-Google map credits now exist only in the
-persistent app footer, not inside or under map components; imagery attribution
-tracks active sources. Google attribution remains native. Shared footer/store
-changes need team review before release. No hosted schema/data change.
-
-History area names use Photon only after explicit account/device consent, as
-confirmed by the user. Only one rounded route sample is sent; no trace or identity.
-Lookup failures/no route retain honest generic titles, with retry; names are not
-saved to hosted walk records. Detailed behaviour, public sample integration and
-fixture evidence: walks-routine-period-names.md. These changes are local source,
-not a claim that the production app already has them.
-
-A related local compatibility migration, 20261120152152_preserve_walk_routine_slot_identity.sql,
-removes estimate sorting from the prior unapplied SQL proposal while retaining
-permissions and mandatory-hour validation. Submitted slot identities stay stable;
-display grouping does not move a manual Night check to an Afternoon slot. It has
-not been applied or pushed. A read-only hosted function inspection confirmed the
-currently hosted routine function does not contain the sorting statement. Coordinate
-this append-only proposal with Laura before applying the later migration chain.
-
-Final local verification: 279 isolated tests across 62 files passed with browser
-configuration blank on Node 22.23.5. The stable-ID browser fixture also added a
-15:00 outing after an existing 17:00 Afternoon 1: the new entry remained Afternoon 2,
-sat immediately after it and saved successfully while a prior manual Night record
-remained Night. No private user route was used in provider tests, and no hosted
-write, git commit/push, PR or deployment was performed for this follow-up.
-TypeScript, production build and whitespace checks also passed after the final
-stable-slot correction. Existing Zod annotation and bundle-size warnings remain.
-Temporary fixture pages/servers were removed; only requested source/docs/tests and
-the unapplied compatibility proposal remain locally modified.
-
-
-## Shared walk deletion follow-up — 20 November 2026
-
-Carol explicitly requested that current household members can remove completed
-walks recorded by other members. This supersedes the author-only deletion rule
-for Walks only; correction and restoration remain author-only. Ongoing walks
-cannot be deleted. The new versioned migration
-`20261120155307_shared_walk_history_deletion.sql` is proposed and unapplied;
-coordinate/review it before hosted application. UI controls in full history,
-Last Adventure and detail expose deletion for saved completed family walks.
-The location-accuracy warning paragraph was removed; numeric accuracy, errors
-and GPS permission/confirmation remain. No existing activities were deleted.
-
-280 isolated tests across 63 files, TypeScript and production build passed on
-Node 22. Existing Zod annotation/bundle warnings remain. Permission tests use
-a temporary local database, not the hosted project; cover member deletion,
-author restoration, outsider/former-member/anonymous denial and active walks.
-No physical NFC or new real-device verification is claimed.
-
-NFC setup: open Walks → Set up collar tag → Copy collar link. Write that exact
-household-scoped HTTPS URL as a URL/URI record to a writable NFC tag using a
-compatible writer. Walks currently provides the link, not an in-app tag writer.
-iPhone needs a separate NFC-writing app for one-time setup. Test by tapping
-with the phone unlocked: sign in if needed, choose GPS/waste settings and
-confirm location/start. The current flow opens setup; it is not unattended
-automatic start. The phone records GPS; the tag does not track the dog.
-
-
-### Walk collar NFC section
-
-Set up collar tag now opens and scrolls to the final NFC tag disclosure on Walks,
-with keyboard focus and reduced-motion support. The section copies Feeding's
-layout, three-step instructions, replacement opt-in, cancellation/timeout and
-NFC Tools fallback. Only walking text and the existing household-scoped Walks URL
-are substituted; Feeding is unchanged. Compatible secure browsers can write the
-URL directly. Other browsers offer Copy link for NFC Tools. Writing a tag never
-starts a walk; tapping still opens the existing setup/confirmation flow.
-No new backend migration or physical NFC validation is included in this change.
-
-NFC section verification: 280 tests/63 files, TypeScript and production build
-passed on Node 22. A temporary real-component fixture verified opening/focus/scroll
-and copy feedback at 390px, plus no horizontal page overflow at 390/1280px.
-This is sample UI evidence, not physical tag or hosted integration validation.
-The temporary fixture was removed. No Feeding files, shared contracts or schema
-were changed for this NFC section follow-up.
-
-NFC visual follow-up: add a 12px gap between the unsupported-browser notice and
-copy action; the disclosure description uses normal weight. The next-walk hero
-uses Morning Walk/Afternoon Walk 1/Night Walk while routine circles retain short
-names. Saved maps without points hide map-style preferences; live maps keep them.
+Current full suite: 281 isolated tests/63 files passed on Node 22.23.5 with
+browser configuration blank; TypeScript/build and Markdown links also passed.
+See verification.md for current checks
+and evidence limits. Existing Zod annotation/bundle advisories remain.
+Fixtures checked narrow 360/390px and desktop layouts, grouping/slot identity,
+summary/timeline UI, consent and NFC disclosure/copy feedback. Fixture evidence
+is not hosted persistence, physical GPS or physical tag validation.

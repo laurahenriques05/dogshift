@@ -1,12 +1,17 @@
 # Vaccination records
 
+Current source specification; owner Beni. Hosted installation/deployed functions
+must be checked against actual definitions and Beni/Laura reports before rollout.
+A missing ledger row does not prove manual SQL was never applied. See
+health-calendar-links.md for newer source-link/modal and reported migration status.
+
 Health → Vaccination records (`/health/vaccinations`). Current family members may create/read/edit all records, as agreed. Confirmed deletion is available after the separate vaccination-deletion migration. Preserves medication and appointment work.
 
-Fields: vaccine name, date given, optional veterinarian-supplied next due date, veterinarian/clinic, batch number, notes. These are date-only records, stored as Postgres dates. The family timezone determines today, future-date validation and due/overdue labels. No vaccination recommendations or automatic intervals. Server and client reject future given dates and next dates on/before given dates. Creator/editor and audit timestamps are set by a database trigger. Household reassignment and audit spoofing are blocked by column grants. Edits use last-write-wins; no full revision history.
+Fields: vaccine name, given date for administered records, optional veterinarian-supplied next due date, veterinarian/clinic, batch number, notes. Upcoming vaccinations can have a due date without a given date after the summary-followups contract; they are excluded from administered history. These are date-only records, stored as Postgres dates. The family timezone determines today, future-date validation and due/overdue labels. No vaccination recommendations or automatic intervals. Server and client reject future given dates and next dates on/before given dates. Creator/editor and audit timestamps are set by a database trigger. Household reassignment and audit spoofing are blocked by column grants. Edits use last-write-wins; no full revision history.
 
-## Pending migration
+## Schema dependency and rollout verification
 
-Review and coordinate application of `supabase/migrations/202611110004_vaccinations.sql` once. It depends only on the initial household schema/helpers and has not been applied by this task. Do not rerun earlier migrations. No environment changes. Existing medication changes remain local and uncommitted from the previous step.
+Review and coordinate application of `supabase/migrations/202611110004_vaccinations.sql` once. It depends only on the initial household schema/helpers and its hosted installation must be reconciled before any application. Do not rerun earlier migrations. No environment changes.
 
 ## Verification
 
@@ -22,4 +27,4 @@ Next due dates now appear as date-only entries on the Health calendar, derived d
 
 ## Remove a mistaken record
 
-All current members may delete vaccinations after explicit confirmation. Apply `20261111220004_vaccination_deletion.sql` once after coordinated review (not applied by this task). Delete is available beside each history record and within its edit form; cancellation leaves it untouched, errors allow retry. Successful deletion reloads the history; next-due calendar entries disappear on the next Health load because they are derived from the source record. No separate calendar rows require cleanup.
+All current members may delete vaccinations after explicit confirmation. The schema dependency is `20261111220004_vaccination_deletion.sql`; reconcile actual definitions/reports before applying it. Delete is available beside each history record and within its edit form; cancellation leaves it untouched, errors allow retry. Successful deletion reloads the history; next-due calendar entries disappear on the next Health load because they are derived from the source record. No separate calendar rows require cleanup.

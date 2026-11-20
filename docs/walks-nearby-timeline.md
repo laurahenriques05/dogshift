@@ -59,33 +59,17 @@ the dog relieved itself. During mode uses the saved server timestamps and update
 the timeline after confirmation; retry IDs remain idempotent. Existing SQL/RPC
 permissions remain unchanged; this is a display/timeline change.
 
-## Verification and release
+## Verification and limits
 
-Tests are isolated: parsing/filtering worldwide points, malformed/private records,
-query privacy, date-line proximity, source failures, waste recording modes,
-chronological events, deduplication and accepted-distance/gap milestones. Browser
-verification uses an example route and intercepted account responses; no hosted
-walk is created. Physical movement, background GPS, mobile network changes and
-Google Maps runtime still require real-device/project validation. The public
-Overpass service may return temporary errors; report those separately from fixture
-marker validation. Another teammate reviews before merge and deployment.
+Parser/filter/privacy and timeline tests use synthetic/public examples. Public
+Overpass requests previously failed/timed out; successful fixture markers do not
+prove provider availability. Google/Leaflet runtime, physical motion, network
+changes and background GPS remain separate device checks. No place visit is
+inferred from proximity. Event/note corrections now overlay the derived timeline
+without changing GPS; see walks-editing-refinements.md.
 
-Live connectivity evidence: the primary Overpass instance returned HTTP 406 and
-the identified Private.coffee instance timed out in the test environment. The
-advanced nearby-search success path must therefore be distinguished from fixture
-marker tests. Existing-tile dog POIs and GPS rendering remain independent of that
-service. Provider availability is not a verified integration guarantee.
-
-Earlier browser evidence (before the opt-in display change): the real visible vector-tile data exposed Vet Planet and
-FishPlanet in the example area with additional search disabled. The isolated
-search response then displayed a labelled example veterinary hospital and dog
-park at their computed distances. End mode hid both controls and a simulated
-waste event; switching to During showed Pee/Poop and the timestamped event in
-order. Mobile stacking and a 1100px desktop layout were checked with the existing
-PawShare styles; the viewport override and temporary harness were removed. No
-fixture response is committed or used in the product. Google and Leaflet overlay
-code passed typecheck, but their runtime paths were not browser-verified here.
-
-Final checks: all 207 isolated tests, npm run typecheck, npm run build and git diff --check passed. Existing dependency annotation and chunk-size build warnings remain. No migration or production deployment was performed.
-
-Current map controls supersede the earlier always-visible tile POIs: dog-related layers and labels are hidden while the checkbox is off. Provider credits remain accessible through a compact information control. See [current verification](walks-map-controls.md).
+Dog layers are hidden until opt-in. Already observed POIs are retained in bounded
+session memory (250) from zoom 10 to moderate zoom-out; detailed tiles take over
+near zoom 16 and very distant views hide extra markers. Unknown/unmapped places
+are never invented. Credits are only in the persistent footer (Google native
+credits remain), not an information control. Current status: team sync.
