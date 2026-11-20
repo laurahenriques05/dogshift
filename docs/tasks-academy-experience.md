@@ -88,3 +88,9 @@ task and Academy actions keep their existing RPCs.
 - Real-device tests and populated multi-user browser writes remain unverified.
   Existing PGlite permission, deletion, XP and recurrence tests remain required.
 - No external images, videos, packages, framework or hosted service were added.
+
+### Challenge reading layout
+
+Challenges retain their existing saved-practice flow, ownership rules, shared XP and prerequisites. The green illustrated guide now shows a larger, concise instruction per step; “How to do it” retains the complete original instruction, while explicit safety cautions remain visible. Sources, the knowledge reminder and family history remain expandable. Draft checklist progress is distinct from saved achievement; viewing steps never completes a challenge.
+
+Challenge quick actions open native dialogs for practice, the existing knowledge reminder and family notes. Closing the practice dialog preserves its draft; saving keeps the existing RPC/XP rules and is protected from dismissal while busy. The guide uses the same Lucide dog as the Academy journey, with audio and bone icons and the app's sage palette.
