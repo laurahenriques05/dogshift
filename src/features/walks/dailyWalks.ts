@@ -1,15 +1,27 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
 import { db } from '../../lib/supabase/client'
 import type { Walk } from '../../lib/supabase/database.types'
-import { validRoutineTimes } from './routineSchedule'
+import { routinePeriod, validRoutineTimes } from './routineSchedule'
 import { localDay } from './gps'
 export type DailyCheck={id:string;dog_id:string;local_day:string;slot:number;member_id:string;recorded_at:string;deleted_at:string|null}
 export type DailySlot={number:number;walk?:Walk;manual?:DailyCheck}
 const client=()=>db() as unknown as SupabaseClient
-export function dailySlots(count:number,walks:Walk[],checks:DailyCheck[],day:string,zone:string):DailySlot[]{
- const completed=[...new Map(walks.map(w=>[w.id,w])).values()].filter(w=>w.ended_at&&!w.deleted_at&&localDay(w.ended_at,zone)===day).sort((a,b)=>a.ended_at!.localeCompare(b.ended_at!)||a.id.localeCompare(b.id))
- let next=0
- return Array.from({length:count},(_,index)=>{const number=index+1,manual=checks.find(c=>c.local_day===day&&c.slot===number&&!c.deleted_at);return manual?{number,manual}:{number,walk:completed[next++]}})
+export function dailySlots(count:number,walks:Walk[],checks:DailyCheck[],day:string,zone:string,times:string[]=[]):DailySlot[]{
+ const slots:DailySlot[]=Array.from({length:count},(_,index)=>{const number=index+1,manual=checks.find(c=>c.local_day===day&&c.slot===number&&!c.deleted_at);return manual?{number,manual}:{number}})
+ const unique=[...new Map(walks.map(w=>[w.id,w])).values()].filter(w=>!w.deleted_at)
+ // Legacy count-only plans retain their completed-outing order until configured.
+ if(!validRoutineTimes(times,count)){
+  const completed=unique.filter(w=>w.ended_at&&localDay(w.ended_at,zone)===day).sort((a,b)=>a.ended_at!.localeCompare(b.ended_at!)||a.id.localeCompare(b.id))
+  let next=0
+  return slots.map(slot=>slot.manual?slot:{...slot,walk:completed[next++]})
+ }
+ const clock=new Intl.DateTimeFormat('en-GB',{timeZone:zone,hour:'2-digit',minute:'2-digit',hourCycle:'h23'})
+ for(const walk of unique.filter(w=>localDay(w.started_at,zone)===day).sort((a,b)=>a.started_at.localeCompare(b.started_at)||a.id.localeCompare(b.id))){
+  const period=routinePeriod(clock.format(new Date(walk.started_at)))
+  const slot=slots.find(item=>!item.walk&&!item.manual&&routinePeriod(times[item.number-1])===period)
+  if(slot)slot.walk=walk
+ }
+ return slots
 }
 export async function readDailyWalks(dog:string,day:string){
  const [plan,checks]=await Promise.all([client().from('walk_daily_plans').select('required_count,routine_enabled,estimated_times').eq('dog_id',dog).maybeSingle(),client().from('walk_daily_checks').select('id,dog_id,local_day,slot,member_id,recorded_at,deleted_at').eq('dog_id',dog).eq('local_day',day).is('deleted_at',null).order('slot')]);if(plan.error)throw plan.error;if(checks.error)throw checks.error

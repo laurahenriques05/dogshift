@@ -203,3 +203,26 @@ dialog.walk-routine-summary{position:fixed;inset:0;margin:auto;height:fit-conten
 .walk-details-editor .walk-edit-events .field input{width:100%;max-width:100%;box-sizing:border-box;font-size:13px;padding:10px 8px}
 @media(max-width:450px){.walk-page .walk-routine-layout>section.card.walk-today{padding:14px}.walk-details-editor .walk-edit-events{grid-template-columns:1fr}}
 .walk-routine-layout .walk-routine-edit-tile{flex-direction:row}
+
+/* Calm alignment and tighter grouping between walk controls. */
+.walk-routine-manual-message{max-width:none}
+.walk-routine-manual-message>span{display:block}
+.walk-routine-manual-message>span+span{margin-top:8px}
+.walk-routine-summary-actions>.button{min-height:46px;padding:11px 16px;font-size:13px}
+.walk-page .walk-today.is-unconfigured .walk-routine-setup{justify-content:flex-start;justify-self:start}
+.walk-map-credits{text-align:left}
+.walk-live-map.has-route>.walk-live-metrics{top:calc(var(--walk-live-map-height) - 70px);left:auto;right:10px;bottom:auto;gap:6px;justify-content:flex-end}
+.walk-live-map.has-route>.walk-live-metrics>div{padding:7px 9px}
+.walk-live-map.has-route>.walk-live-metrics strong{font-size:15px}
+.walk-live-side .walk-waste{margin:0 0 14px;padding:0 0 4px}
+.walk-live-side .walk-timeline{margin-top:12px}
+.walk-page .walk-summary-card>.walk-waste{margin:10px 0;padding:0}
+.walk-page .walk-summary-card>.walk-completed-timeline{margin:10px 0 14px}
+.walk-map-tools{margin-top:8px;margin-bottom:8px;gap:10px}
+.walk-deleted-state{display:grid;justify-items:start;gap:18px;margin-top:20px}
+.walk-deleted-state .notice{margin:0;width:100%}
+.walk-today .walk-period-bubble.is-in-progress{background:#244d3c;color:#fff;opacity:1;border-color:#244d3c}
+.walk-routine-line>li.is-in-progress::before{background:#244d3c}
+@media(max-width:600px){.walk-live-map.has-route>.walk-live-metrics{top:calc(var(--walk-live-map-height) - 62px);left:90px;right:6px;gap:4px;flex-wrap:nowrap}.walk-live-map.has-route>.walk-live-metrics>div{padding:5px;gap:4px}.walk-live-map.has-route>.walk-live-metrics strong{font-size:11px}.walk-live-map.has-route>.walk-live-metrics small{font-size:9px}.walk-live-map.has-route>.walk-live-metrics svg{width:14px;height:14px}}
+.walk-live-side .walk-waste .walk-actions{margin-bottom:0}
+.walk-page .walk-summary-card>.walk-waste .walk-waste-icon-counts{margin:8px 0}

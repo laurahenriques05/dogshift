@@ -36,3 +36,9 @@ it('shows Summary only for completed routine slots',()=>{
  expect(html.match(/>Summary</g)).toHaveLength(1)
  expect(html).not.toContain('<time>')
 })
+
+it('shows a filled in-progress circle without claiming completion or exposing Summary',()=>{
+ const plan={...routine,count:1,scheduleComplete:true,times:['09:00'],names:['Morning'],slots:[{number:1,walk:{id:'active',started_at:'2026-11-20T09:00Z',ended_at:null} as Walk}]}
+ const html=renderToStaticMarkup(<TodaysWalks routine={plan} user="user" zone="Europe/Lisbon"/>)
+ expect(html).toContain('Morning in progress');expect(html).toContain('is-in-progress');expect(html).not.toContain('>Summary<')
+})

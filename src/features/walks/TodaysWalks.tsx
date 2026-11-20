@@ -34,10 +34,10 @@ export function TodaysWalks({routine,user,zone}:{routine:DailyWalkRoutine;user:s
      {!editing&&<div className="walk-routine-setup"><Button disabled={routine.busy} onClick={()=>edit('setup')}>Set routine</Button></div>}
     </>:<ol className="walk-routine-line dose-bubbles" aria-label="Today's walk routine">
      {routine.slots.map(item=>{
-      const complete=!!(item.walk||item.manual),label=name(item.number)
-      return <li key={`${routine.day}-${item.number}`} className={`dose-step${complete?' is-given':''}`}>
-       <button type="button" className={`dose-bubble walk-period-bubble${complete?' is-given':''}`} disabled={routine.busy}
-        aria-label={complete?`${label||'Walk'} recorded. View summary`:`Mark ${label||'Walk'} as done`} aria-busy={saving===item.number}
+      const complete=!!(item.walk?.ended_at||item.manual),inProgress=!!item.walk&&!item.walk.ended_at,label=name(item.number)
+      return <li key={`${routine.day}-${item.number}`} className={`dose-step${complete?' is-given':inProgress?' is-in-progress':''}`}>
+       <button type="button" className={`dose-bubble walk-period-bubble${complete?' is-given':inProgress?' is-in-progress':''}`} disabled={routine.busy||inProgress}
+        aria-label={inProgress?`${label} in progress`:complete?`${label||'Walk'} recorded. View summary`:`Mark ${label||'Walk'} as done`} aria-busy={saving===item.number}
         onClick={async()=>{
          if(complete){setSelected(item.number);return}
          if(routine.busy)return
@@ -45,7 +45,7 @@ export function TodaysWalks({routine,user,zone}:{routine:DailyWalkRoutine;user:s
          try{await routine.mark(item.number)}finally{setSaving(null)}
         }}>
         {label&&<strong>{label}</strong>}
-        <span className="dose-bubble-mark" aria-hidden="true">{saving===item.number?<LoaderCircle size={19} className="walk-routine-saving"/>:complete?<Check size={23} strokeWidth={1.8} className="walk-check-mark"/>:<Circle size={17} strokeWidth={1.8}/>}</span>
+        <span className="dose-bubble-mark" aria-hidden="true">{inProgress?<LoaderCircle size={19} className="walk-routine-saving"/>:saving===item.number?<LoaderCircle size={19} className="walk-routine-saving"/>:complete?<Check size={23} strokeWidth={1.8} className="walk-check-mark"/>:<Circle size={17} strokeWidth={1.8}/>}</span>
        </button>
        {complete&&<button type="button" className="dose-detail-link" aria-expanded={selected===item.number} onClick={()=>setSelected(item.number)}>Summary</button>}
       </li>
@@ -71,6 +71,6 @@ export function TodaysWalks({routine,user,zone}:{routine:DailyWalkRoutine;user:s
     </form>}
    </>}
   </>}
-  {slot&&routine.count!==undefined&&(slot.walk||slot.manual)&&<WalkRoutineSummary key={`${routine.day}-${slot.number}`} slot={slot} user={user} zone={zone} routine={routine} onClose={()=>setSelected(null)}/>}
+  {slot&&routine.count!==undefined&&(slot.walk?.ended_at||slot.manual)&&<WalkRoutineSummary key={`${routine.day}-${slot.number}`} slot={slot} user={user} zone={zone} routine={routine} onClose={()=>setSelected(null)}/>}
  </section></div>
 }
