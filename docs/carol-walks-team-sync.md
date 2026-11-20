@@ -24,13 +24,17 @@ Recheck current main and production before making a new release claim.
 
 ## Current follow-up branch
 
-`codex/walks-recording-and-history` is based on main `af61194` (PRs #69–#72
-merged). Source changes await review/publication: Set routine beside Edit; removed
-no-routine sentence and area-names disclosure/lookups; recording-only page during
-the author’s active walk; centred GPS warning at 2 minutes, Yes/No, auto-end after
-5 unanswered minutes. Deleted cards offer author-only permanent removal with
-irreversible confirmation and proposed migration
-`20261120215833_permanently_delete_walk.sql`. No hosted changes or deployment.
+Main includes #73 at `c271766`: recording-only active page, 2+5 minute GPS
+warning, routine controls and permanent-delete UI. Its deletion migrations still
+need hosted rollout; merged UI is not proof of installed permissions.
+
+`codex/walks-summary-columns` implements the approved layout below the unchanged
+Today's walk: Walking together left, Last Adventure right, stacked on mobile.
+Statistics open by default and fit the column; existing period/measure selectors
+remain. The text toggle has its chart icon at bottom left; History is a text link
+at top right. Last Adventure retains its horizontal top-left icon/date/title and
+real compact map. No schema, permission, tracking or hosted changes in this branch.
+Source awaits team review/publication.
 
 ## Approved behaviour to preserve
 

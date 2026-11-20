@@ -107,6 +107,8 @@ persistent forecast recomputation is separate from in-app stock notices.
   actual form, rather than remaining disabled with completed inputs.
 - Centred Walk Summary with real waste symbols/notes and truthful manual checks.
   Walking together retains real completed total; charts offer distance/time only.
+  The approved follow-up places it beside Last Adventure below the unchanged
+  routine, with statistics visible by default, a text toggle and History link.
 - Full history and author event/note corrections preserve raw GPS; timeline updates
   immediately. Explicit Demo walks never mix into real totals/data.
 - Saved cards use existing walk titles. The area-names disclosure and automatic
@@ -119,12 +121,12 @@ persistent forecast recomputation is separate from in-app stock notices.
   normal weight; 12px between warning and Copy action. URL:
   /walks?action=start&household=<UUID>. It opens setup, not unattended recording.
 
-The current Walks follow-up branch adds a recording-only page while walking,
+Main includes a recording-only page while walking,
 a centred inactivity prompt after 2 stationary minutes (Yes continues, No finishes;
 5 unanswered minutes finishes), and permanent deletion from the author’s Deleted
 list with confirmation. The new permanent-delete RPC is proposed, not hosted.
 
-Main includes PRs #65–#72; #68 merged as
+Main includes PRs #65–#73; #68 merged as
 72016adb6ea353f6daca5006698d34ebe8ec36a2. The four final screenshot adjustments
 are implemented, not outstanding. Neither rejected styling template was added.
 
