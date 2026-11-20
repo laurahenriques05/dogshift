@@ -1,7 +1,7 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
 import { db } from '../../lib/supabase/client'
 import type { Walk } from '../../lib/supabase/database.types'
-import { routinePeriod, validRoutineTimes } from './routineSchedule'
+import { routineOrder, routinePeriod, validRoutineTimes } from './routineSchedule'
 import { localDay } from './gps'
 export type DailyCheck={id:string;dog_id:string;local_day:string;slot:number;member_id:string;recorded_at:string;deleted_at:string|null}
 export type DailySlot={number:number;walk?:Walk;manual?:DailyCheck}
@@ -15,10 +15,11 @@ export function dailySlots(count:number,walks:Walk[],checks:DailyCheck[],day:str
   let next=0
   return slots.map(slot=>slot.manual?slot:{...slot,walk:completed[next++]})
  }
+ const orderedSlots=routineOrder(times).map(index=>slots[index])
  const clock=new Intl.DateTimeFormat('en-GB',{timeZone:zone,hour:'2-digit',minute:'2-digit',hourCycle:'h23'})
  for(const walk of unique.filter(w=>localDay(w.started_at,zone)===day).sort((a,b)=>a.started_at.localeCompare(b.started_at)||a.id.localeCompare(b.id))){
   const period=routinePeriod(clock.format(new Date(walk.started_at)))
-  const slot=slots.find(item=>!item.walk&&!item.manual&&routinePeriod(times[item.number-1])===period)
+  const slot=orderedSlots.find(item=>!item.walk&&!item.manual&&routinePeriod(times[item.number-1])===period)
   if(slot)slot.walk=walk
  }
  return slots
@@ -28,7 +29,7 @@ export async function readDailyWalks(dog:string,day:string){
  return {count:plan.data?.routine_enabled?plan.data.required_count as number:undefined,times:(plan.data?.estimated_times??[]) as string[],decided:!!plan.data,checks:checks.data as DailyCheck[]}
 }
 export async function saveDailyCount(dog:string,count:number|undefined,times:string[]=[]){
- if(count!==undefined&&!validRoutineTimes(times,count))throw new Error('Choose an estimated time for every walk.')
+ if(count!==undefined&&!validRoutineTimes(times,count))throw new Error('Choose an estimated hour for every walk.')
  const result=await client().rpc('set_walk_routine',{p_dog:dog,p_count:count??null,p_times:count===undefined?[]:times});if(result.error)throw result.error
 }
 

@@ -213,3 +213,39 @@ control while this PR was prepared. A README-only conflict was resolved by keepi
 both sections. The combined tree passed 269 isolated tests in 61 files, TypeScript,
 build and whitespace checks. This integrates main into the feature branch; it is
 not a feature merge into main or a production deployment.
+
+## Unpushed local follow-up: grouped hours, footer-only credits and area names
+
+The user asked for these refinements locally without push. Work is isolated in
+codex/walk-grouping-and-mobile-local, with no new remote branch/PR/release.
+Grouped editing and slot display, 96px circles, Estimated hours wording and mobile
+centering are implemented locally. Non-Google map credits now exist only in the
+persistent app footer, not inside or under map components; imagery attribution
+tracks active sources. Google attribution remains native. Shared footer/store
+changes need team review before release. No hosted schema/data change.
+
+History area names use Photon only after explicit account/device consent, as
+confirmed by the user. Only one rounded route sample is sent; no trace or identity.
+Lookup failures/no route retain honest generic titles, with retry; names are not
+saved to hosted walk records. Detailed behaviour, public sample integration and
+fixture evidence: walks-routine-period-names.md. These changes are local source,
+not a claim that the production app already has them.
+
+A related local compatibility migration, 20261120152152_preserve_walk_routine_slot_identity.sql,
+removes estimate sorting from the prior unapplied SQL proposal while retaining
+permissions and mandatory-hour validation. Submitted slot identities stay stable;
+display grouping does not move a manual Night check to an Afternoon slot. It has
+not been applied or pushed. A read-only hosted function inspection confirmed the
+currently hosted routine function does not contain the sorting statement. Coordinate
+this append-only proposal with Laura before applying the later migration chain.
+
+Final local verification: 279 isolated tests across 62 files passed with browser
+configuration blank on Node 22.23.5. The stable-ID browser fixture also added a
+15:00 outing after an existing 17:00 Afternoon 1: the new entry remained Afternoon 2,
+sat immediately after it and saved successfully while a prior manual Night record
+remained Night. No private user route was used in provider tests, and no hosted
+write, git commit/push, PR or deployment was performed for this follow-up.
+TypeScript, production build and whitespace checks also passed after the final
+stable-slot correction. Existing Zod annotation and bundle-size warnings remain.
+Temporary fixture pages/servers were removed; only requested source/docs/tests and
+the unapplied compatibility proposal remain locally modified.

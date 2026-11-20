@@ -1,21 +1,30 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { Check, Circle, Footprints, LoaderCircle, Pencil } from 'lucide-react'
 import { Button, Field } from '../../components/ui'
 import type { DailyWalkRoutine } from './useDailyWalkRoutine'
-import { routineNames, validRoutineTimes } from './routineSchedule'
+import { routineNames, routineOrder, validRoutineTimes } from './routineSchedule'
 import { WalkRoutineSummary } from './WalkRoutineSummary'
 
 export function TodaysWalks({routine,user,zone}:{routine:DailyWalkRoutine;user:string;zone:string}){
  const [mode,setMode]=useState<'setup'|'edit'|null>(null)
  const editing=mode!==null
- const [value,setValue]=useState('3'),[times,setTimes]=useState<string[]>([])
+ const [value,setValue]=useState('3'),[draft,setDraft]=useState<{id:number;time:string}[]>([])
+ const nextId=useRef(0)
+ const times=draft.map(item=>item.time)
  const [selected,setSelected]=useState<number|null>(null),[saving,setSaving]=useState<number|null>(null),[feedback,setFeedback]=useState('')
  const name=(number:number)=>routine.names?.[number-1]??''
- const preview=routineNames(Array.from({length:Math.max(1,Math.min(12,Number(value)||1))},(_,i)=>times[i]??''))
+ const preview=routineNames(times),orderedDraft=routineOrder(times)
+ const visibleSlots=routineOrder(routine.times).map(index=>routine.slots.find(item=>item.number===index+1)).filter(item=>item!==undefined)
  const slot=routine.slots.find(item=>item.number===selected)
- function edit(next:'setup'|'edit'){setValue(String(routine.count??3));setTimes(routine.times);setMode(next);setFeedback('')}
- function changeTime(index:number,time:string){
-  setTimes(previous=>Array.from({length:Math.max(previous.length,index+1)},(_,i)=>i===index?time:previous[i]??''))
+ function edit(next:'setup'|'edit'){
+  const count=routine.count??3
+  setValue(String(count));setDraft(Array.from({length:count},(_,i)=>({id:nextId.current++,time:routine.times[i]??''})));setMode(next);setFeedback('')
+ }
+ function changeTime(id:number,time:string){setDraft(previous=>previous.map(item=>item.id===id?{...item,time}:item))}
+ function changeCount(value:string){
+  setValue(value)
+  const count=Number(value)
+  if(Number.isInteger(count)&&count>=1&&count<=12){setDraft(Array.from({length:count},(_,i)=>draft[i]??{id:nextId.current++,time:''}))}
  }
  async function withoutRoutine(){
   if(await routine.saveCount(undefined)){setMode(null);setFeedback('Walking without a routine. You can set one anytime.')}
@@ -29,11 +38,11 @@ export function TodaysWalks({routine,user,zone}:{routine:DailyWalkRoutine;user:s
    {feedback&&<p role="status">{feedback}</p>}
    {routine.error&&<p role="alert">{routine.error} <button type="button" className="walk-text-action" onClick={routine.retry}>Retry</button></p>}
    {routine.ready&&<>
-    {routine.count!==undefined&&!routine.scheduleComplete&&!editing&&<p role="status">Complete your routine’s estimated times to name each walk.</p>}
+    {routine.count!==undefined&&!routine.scheduleComplete&&!editing&&<p role="status">Complete your routine’s estimated hours to name each walk.</p>}
     {routine.count===undefined||!routine.scheduleComplete?<>
      {!editing&&<div className="walk-routine-setup"><Button disabled={routine.busy} onClick={()=>edit('setup')}>Set routine</Button></div>}
     </>:<ol className="walk-routine-line dose-bubbles" aria-label="Today's walk routine">
-     {routine.slots.map(item=>{
+     {visibleSlots.map(item=>{
       const complete=!!(item.walk?.ended_at||item.manual),inProgress=!!item.walk&&!item.walk.ended_at,label=name(item.number)
       return <li key={`${routine.day}-${item.number}`} className={`dose-step${complete?' is-given':inProgress?' is-in-progress':''}`}>
        <button type="button" className={`dose-bubble walk-period-bubble${complete?' is-given':inProgress?' is-in-progress':''}`} disabled={routine.busy||inProgress}
@@ -54,14 +63,14 @@ export function TodaysWalks({routine,user,zone}:{routine:DailyWalkRoutine;user:s
     {editing&&<form className="walk-plan-form" onSubmit={async event=>{
      event.preventDefault()
      if(routine.busy)return
-     const form=new FormData(event.currentTarget),count=Number(form.get('walk-count')),estimates=form.getAll('walk-time').map(String)
-     if(!validRoutineTimes(estimates,count)){setFeedback('Choose an estimated time for every walk.');return}
+     const form=new FormData(event.currentTarget),count=Number(form.get('walk-count')),estimates=draft.map(item=>String(form.get(`walk-time-${item.id}`)??''))
+     if(!validRoutineTimes(estimates,count)){setFeedback('Choose an estimated hour for every walk.');return}
      if(await routine.saveCount(count,estimates)){setMode(null);setFeedback('')}
     }}>
-     <Field label="Walks per day" name="walk-count" type="number" min={1} max={12} step={1} required disabled={routine.busy} value={value} onChange={event=>setValue(event.target.value)}/>
-     <div className="walk-routine-times"><p>Estimated times</p>
-      {Array.from({length:Math.max(1,Math.min(12,Number(value)||1))},(_,i)=><Field key={i} label={preview[i]||`Estimated time ${i+1}`} name="walk-time" type="time" required disabled={routine.busy} value={times[i]??''}
-       onInput={event=>changeTime(i,event.currentTarget.value)} onChange={event=>changeTime(i,event.target.value)} onBlur={event=>changeTime(i,event.target.value)}/>)}
+     <Field label="Walks per day" name="walk-count" type="number" min={1} max={12} step={1} required disabled={routine.busy} value={value} onChange={event=>changeCount(event.target.value)}/>
+     <div className="walk-routine-times"><p>Estimated hours</p>
+      {orderedDraft.map(i=><Field key={draft[i].id} label={preview[i]||`Estimated hours ${i+1}`} name={`walk-time-${draft[i].id}`} type="time" required disabled={routine.busy} value={draft[i].time}
+       onInput={event=>changeTime(draft[i].id,event.currentTarget.value)} onChange={event=>changeTime(draft[i].id,event.target.value)}/>)}
      </div>
      <div className="walk-actions">
       <Button type="submit" disabled={routine.busy}>Save routine</Button>

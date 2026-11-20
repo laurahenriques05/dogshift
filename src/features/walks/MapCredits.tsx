@@ -1,6 +1,7 @@
-import type { MapViewMode } from './mapPresentation'
-import { SATELLITE_CREDITS } from './mapPresentation'
-/** Visible immediately below each non-Google map, including fullscreen dialogs. */
-export function MapCredits({mode='standard',raster=false}:{mode?:MapViewMode;raster?:boolean}){
- return <div className="walk-map-credits">{mode==='satellite'?<>{SATELLITE_CREDITS} · </>:!raster&&<><a href="https://openfreemap.org/">OpenFreeMap</a> · <a href="https://openmaptiles.org/">© OpenMapTiles</a> · </>}<a href="https://www.openstreetmap.org/copyright">© OpenStreetMap contributors</a></div>
+import {useEffect} from 'react'
+import {registerMapCredits,type MapCreditMode} from '../../lib/mapCredits'
+/** Publish sources to the app footer; render nothing in or alongside the map. */
+export function MapCredits({mode='standard'}:{mode?:MapCreditMode;raster?:boolean}){
+ useEffect(()=>registerMapCredits(mode),[mode])
+ return null
 }

@@ -147,3 +147,23 @@ it('also runs the fixed routine RPC on a schema without any solar columns',async
  await sql.query("select public.set_walk_routine($1,1,array['07:00'])",[dog])
  expect((await sql.query('select required_count,estimated_times from public.walk_daily_plans where dog_id=$1',[dog])).rows[0]).toEqual({required_count:1,estimated_times:['07:00']})
 })
+
+it('preserves stable manual slots when appending a grouped outing and rejects unauthorised saves',async()=>{
+ await sql.exec('reset role')
+ await sql.exec(readFileSync('supabase/migrations/20261120152152_preserve_walk_routine_slot_identity.sql','utf8'))
+ await asUser(a)
+ await sql.query("select public.set_walk_routine($1,3,array['09:00','15:00','21:00'])",[dog])
+ await sql.exec('reset role')
+ const home=(await sql.query<{household_id:string}>('select household_id from public.dogs where id=$1',[dog])).rows[0].household_id
+ const id='84000000-0000-0000-0000-000000000001'
+ await sql.query("insert into public.walk_daily_checks(id,dog_id,household_id,member_id,local_day,slot) values($1,$2,$3,$4,'2026-11-20',3)",[id,dog,home,a])
+ const before=(await sql.query('select * from public.walk_daily_checks where id=$1',[id])).rows[0]
+ await asUser(b)
+ await sql.query("select public.set_walk_routine($1,4,array['09:00','15:00','21:00','17:00'])",[dog])
+ expect((await sql.query('select estimated_times from public.walk_daily_plans where dog_id=$1',[dog])).rows[0]).toEqual({estimated_times:['09:00','15:00','21:00','17:00']})
+ expect((await sql.query('select * from public.walk_daily_checks where id=$1',[id])).rows[0]).toEqual(before)
+ await expect(sql.query("select public.set_walk_routine($1,2,array['09:00',''])",[dog])).rejects.toThrow('estimated time')
+ await asUser(c);await expect(sql.query("select public.set_walk_routine($1,1,array['09:00'])",[dog])).rejects.toThrow('access')
+ await sql.exec('reset role;set role anon');await expect(sql.query("select public.set_walk_routine($1,1,array['09:00'])",[dog])).rejects.toThrow()
+ await asUser(a)
+})

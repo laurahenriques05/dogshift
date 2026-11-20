@@ -14,7 +14,7 @@ it('loads Set routine against the existing schema without solar columns',async()
 it('saves required estimates through the existing location-free RPC and clears times on removal',async()=>{
  await saveDailyCount('dog',2,['09:30','11:30'])
  expect(mocks.rpc).toHaveBeenCalledWith('set_walk_routine',{p_dog:'dog',p_count:2,p_times:['09:30','11:30']})
- await expect(saveDailyCount('dog',2,['09:30',''])).rejects.toThrow('estimated time')
+ await expect(saveDailyCount('dog',2,['09:30',''])).rejects.toThrow('estimated hour')
  expect(mocks.rpc).toHaveBeenCalledTimes(1)
  await saveDailyCount('dog',undefined,['09:30'])
  expect(mocks.rpc).toHaveBeenLastCalledWith('set_walk_routine',{p_dog:'dog',p_count:null,p_times:[]})

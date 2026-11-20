@@ -30,3 +30,9 @@ it('uses household-local start day and period, with no duplicate carryover after
  expect(dailySlots(1,[{...w,ended_at:'2026-11-21T00:30:00Z'}],[],'2026-11-21','Europe/Lisbon',['21:00'])[0].walk).toBeUndefined()
  expect(dailySlots(1,[w],[],'2026-11-21','Pacific/Kiritimati',['15:00'])[0].walk?.id).toBe('night')
 })
+
+it('assigns the first planned afternoon even when estimates are not in clock order',()=>{
+ const slots=dailySlots(4,[walk('afternoon','15:30')],[],day,zone,['21:00','17:00','09:00','15:00'])
+ expect(slots[1].walk?.id).toBe('afternoon')
+ expect(slots[3].walk).toBeUndefined()
+})
