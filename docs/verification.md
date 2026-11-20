@@ -6,7 +6,7 @@ Use Node 22.x >=22.12; npm test, npm run typecheck, npm run build and git diff
 
 ## Latest checks — Walks recording/history follow-up
 
-On `codex/walks-recording-and-history` (base main `a0cb569`), all
+On `codex/walks-recording-and-history` (base main `af61194`), all
 **295 isolated tests in 67 files**
 passed on Node 22.23.5 with both Supabase browser values blank.
 TypeScript, production build and git diff --check also passed. Changed Markdown file links were checked.

@@ -24,7 +24,7 @@ Recheck current main and production before making a new release claim.
 
 ## Current follow-up branch
 
-`codex/walks-recording-and-history` is based on main `a0cb569` (PRs #69–#71
+`codex/walks-recording-and-history` is based on main `af61194` (PRs #69–#72
 merged). Source changes await review/publication: Set routine beside Edit; removed
 no-routine sentence and area-names disclosure/lookups; recording-only page during
 the author’s active walk; centred GPS warning at 2 minutes, Yes/No, auto-end after

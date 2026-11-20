@@ -124,7 +124,7 @@ a centred inactivity prompt after 2 stationary minutes (Yes continues, No finish
 5 unanswered minutes finishes), and permanent deletion from the author’s Deleted
 list with confirmation. The new permanent-delete RPC is proposed, not hosted.
 
-Main includes PRs #65–#71; #68 merged as
+Main includes PRs #65–#72; #68 merged as
 72016adb6ea353f6daca5006698d34ebe8ec36a2. The four final screenshot adjustments
 are implemented, not outstanding. Neither rejected styling template was added.
 
