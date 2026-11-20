@@ -3,7 +3,7 @@ import { timeLabel } from './gps'
 import { WalkFilterSelect } from './WalkFilterSelect'
 import { dailyHistoryChart, historyChart, type HistoryEntry, type HistoryPeriod } from './history'
 
-export function WalkSummaryChart({history, period, timezone, now}: {history: HistoryEntry[]; period: HistoryPeriod; timezone: string; now: Date}) {
+export function WalkSummaryChart({history, period, timezone, now, compact=false}: {compact?:boolean; history: HistoryEntry[]; period: HistoryPeriod; timezone: string; now: Date}) {
  const buckets = period==='day' ? dailyHistoryChart(history,timezone,now) : historyChart(history,period,timezone,now)
  const [metric,setMetric] = useState<'meters'|'seconds'>('meters')
  const valueOf = (bucket: typeof buckets[number]) => metric==='meters' ? bucket.meters/1000 : bucket.seconds/60
@@ -22,17 +22,17 @@ export function WalkSummaryChart({history, period, timezone, now}: {history: His
  const axisLabel = (value:number) => metric==='seconds' ? timeLabel(value*60) : format(value)
  const total = buckets.reduce((sum,bucket)=>sum+bucket.count,0)
  if(!total)return <p className="walk-chart-empty" role="status"><strong>No completed walks in this period.</strong></p>
- return <figure className="walk-summary-chart" aria-label={`${label} by ${unit}`}>
+ return <figure className={`walk-summary-chart${compact?' is-compact':''}`} aria-label={`${label} by ${unit}`}>
   <figcaption><span>Walks by {unit}</span><WalkFilterSelect className="walk-measure-select" label="Statistics measure" value={metric} onChange={value=>setMetric(value as typeof metric)} options={[{value:'meters',label:'Distance (km)'},{value:'seconds',label:'Time'}]}/></figcaption>
   <div className="walk-chart-scroll"><div className={`walk-chart-plot walk-chart-plot-${period}`}>
   <div className="walk-chart-grid" aria-hidden="true">{ticks.map(tick=><div key={tick} style={{bottom:`${tick/max*100}%`}}><span>{axisLabel(tick)}</span></div>)}</div>
   <div className={`walk-chart-bars ${period==='day'?'walk-chart-daily':''}`} style={period==='day'?undefined:{gridTemplateColumns:`repeat(${buckets.length}, minmax(0, 1fr))`}}>
    {buckets.map((bucket)=><div className="walk-chart-column" key={bucket.label} style={'minute' in bucket?{left:`${Number(bucket.minute)/1440*100}%`}:undefined}>
     <div className="walk-chart-track" tabIndex={0} role="img" aria-label={`${periodLabel(bucket.label)}: ${tooltipValue(bucket)}`}><span className="walk-chart-bar" style={{height:`${valueOf(bucket)/max*100}%`}}/><span className="walk-chart-tooltip">{periodLabel(bucket.label)} · {tooltipValue(bucket)}</span></div>
-    {period!=='day'&&<span className="walk-chart-tick" aria-hidden="true">{bucket.label}</span>}
+    {period!=='day'&&<span className="walk-chart-tick" aria-hidden="true">{!compact||period==='week'||period==='year'||Number(bucket.label)===1||Number(bucket.label)%5===0||Number(bucket.label)===buckets.length?bucket.label:''}</span>}
    </div>)}
   </div>
-  {period==='day'&&<div className="walk-chart-hour-ticks" aria-hidden="true">{Array.from({length:24},(_,hour)=><span key={hour} style={{left:`${hour/24*100}%`}}>{hour===0?'00':hour}h</span>)}</div>}
+  {period==='day'&&<div className="walk-chart-hour-ticks" aria-hidden="true">{Array.from({length:24},(_,hour)=>(!compact||hour%4===0)&&<span key={hour} style={{left:`${hour/24*100}%`}}>{hour===0?'00':hour}h</span>)}</div>}
   </div></div><p className="walk-chart-unit">{label}</p>
  </figure>
 }

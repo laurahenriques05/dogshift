@@ -1,3 +1,4 @@
+import { WalkHistoryOverview } from './WalkHistoryOverview'
 import { useCareTask } from '../tasks/care'
 import { StationaryWalkDialog } from './StationaryWalkDialog'
 import { WalkTagSetup } from './WalkTagSetup'
@@ -22,24 +23,19 @@ import { useWalks } from './WalkProvider'
 import { paceLabel, routeDistance, timeLabel } from './gps'
 import { RouteMap } from './RouteMap'
 import { clearWalkStart, pendingWalkStart, pendingWalkHousehold, collarMatchesHousehold } from './nfc'
-import { walkHistory, summarizeHistory, type HistoryPeriod } from './history'
-import { kilometersLabel } from './mapGestures'
-import { WalkActivityCard } from './WalkActivityCard'
-import { WalkPeriodSelect } from './WalkPeriodSelect'
-import { WalkSummaryChart } from './WalkSummaryChart'
+import { walkHistory } from './history'
 import { WalkHistoryPage } from './WalkHistoryPage'
 import { StartWalkDialog } from './StartWalkDialog'
 
 export function WalksPage() {
  const {session}=useAuth(),{household,dog}=useHousehold(),data=useWalks(),navigate=useNavigate()
- const [search,setSearch]=useSearchParams(),[confirm,setConfirm]=useState<'start'|'end'|null>(null),[period,setPeriod]=useState<HistoryPeriod>('month')
+ const [search,setSearch]=useSearchParams(),[confirm,setConfirm]=useState<'start'|'end'|null>(null)
  const taskId=search.get('task'),care=useCareTask(taskId,household!.id,'walk')
  const [noteDraft,setNoteDraft]=useState<{walk:string;draft:NoteDraft}|null>(null)
  const [timelineRevision,setTimelineRevision]=useState(0)
  const [deleting, setDeleting] = useState<string | null>(null)
  const nfcSection=useRef<HTMLDetailsElement>(null)
  function openTagSetup(){const section=nfcSection.current;if(!section)return;section.open=true;section.scrollIntoView({behavior:window.matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth',block:'start'});section.querySelector('summary')?.focus({preventScroll:true})}
- const [showStatistics,setShowStatistics]=useState(false)
  const [nfcError,setNfcError]=useState('')
  const [finishingWalk,setFinishingWalk]=useState<string|null>(null)
  const active=data.walks.find(w=>!w.ended_at&&!w.deleted_at),mine=active?.walker_id===session!.user.id
@@ -47,8 +43,6 @@ export function WalksPage() {
  const routine=useDailyWalkRoutine({dog:dog!.id,walks:data.walks,zone:household!.timezone,now:data.now,enabled:!historyView&&!(active&&mine)})
  useEffect(()=>{window.scrollTo(0,0)},[historyView])
  const history=walkHistory(data.walks,false,session!.user.id)
- const summaryNow=new Date(data.now)
- const summary=summarizeHistory(history,period,household!.timezone,summaryNow)
  const meters=mine?routeDistance(data.points):0
  const dialog=useRef<HTMLDivElement>(null),previousFocus=useRef<HTMLElement|null>(null)
  useEffect(()=>{
@@ -87,8 +81,7 @@ export function WalksPage() {
    </section>}
    {!(active&&mine)&&<>
    <TodaysWalks routine={routine} user={session!.user.id} zone={household!.timezone}/>
-   <section className="card"><div className="walk-heading"><div><p className="eyebrow">LITTLE STEPS ADD UP</p><h2>Walking together</h2></div><WalkPeriodSelect label="Summary period" value={period} onChange={setPeriod}/></div><div className="walk-metrics"><div><strong>{summary.count}</strong><span>Completed walks</span></div><div><strong>{kilometersLabel(summary.meters)} km</strong><span>Recorded distance</span></div><div><strong>{timeLabel(summary.seconds)}</strong><span>Total time</span></div></div><div id="walk-statistics" hidden={!showStatistics}>{showStatistics&&<WalkSummaryChart history={history} period={period} timezone={household!.timezone} now={summaryNow}/>}</div><div className="walk-statistics-action"><button type="button" className="walk-statistics-toggle" aria-expanded={showStatistics} aria-controls="walk-statistics" onClick={()=>setShowStatistics(value=>!value)}>{showStatistics?'Hide statistics':'Show statistics'}</button></div></section>
-   <section className="card"><div className="walk-heading walk-history-heading"><h2>Last Adventure</h2><Link className="walk-show-more" to="/walks?view=history">Show more</Link></div>{!history.length?<p className="walk-empty">Your first completed walk will appear here.</p>:<div className="walk-activity-list">{history.slice(0,1).map(w=><WalkActivityCard areaScope={session!.user.id} key={w.id} {...w} loadRoute={!w.demo} onDelete={!w.demo ? () => setDeleting(w.id) : undefined}/>)}</div>}</section>
+   <WalkHistoryOverview history={history} timezone={household!.timezone} now={new Date(data.now)} onDelete={setDeleting}/>
    </>}
   </>}
   {!(active&&mine)&&<details id="walk-nfc" ref={nfcSection} className="feeding-disclosure walk-nfc-section"><summary><span>NFC tag</span><small>Configure or replace the household walking tag</small></summary><div className="feeding-disclosure-body"><WalkTagSetup householdId={household!.id}/></div></details>}

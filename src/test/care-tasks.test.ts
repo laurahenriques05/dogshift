@@ -117,7 +117,8 @@ it('matches ordinary Feeding to its task without a second bowl, preserves stock,
  expect((await f.sql.query('select completed_at from public.task_occurrences where id=$1',[id])).rows[0]).toMatchObject({completed_at:null})
 })
 it('preserves linked active walks when stopping future dates, and releases departing assignees without losing original responsibility',async()=>{
- const id=await create('walk',member,"clock_timestamp()+interval '1 hour'")
+ // Keep a future due time on today's UTC date, including after 23:00.
+ const id=await create('walk',member,"clock_timestamp()+(date_trunc('day',clock_timestamp())+interval '1 day'-clock_timestamp())/2")
  await f.user(member)
  const walk=(await f.sql.query<{id:string}>("select (public.start_task_walk($1,$2,'off',false)).id",[id,dog])).rows[0].id
  const series=(await f.sql.query<{series_id:string}>('select series_id from public.task_occurrences where id=$1',[id])).rows[0].series_id

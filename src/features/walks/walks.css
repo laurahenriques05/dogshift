@@ -259,3 +259,35 @@ dialog.walk-routine-summary{position:fixed;inset:0;margin:auto;height:fit-conten
 .walk-nfc-section .feeding-tag-setup>.notice+.feeding-actions{margin-top:12px}
 
 .walk-routine-header-actions{display:flex;align-items:center;justify-content:flex-end;gap:8px;flex-wrap:wrap}.walk-routine-header-actions>.button{min-height:44px;padding:8px 12px;font-size:12px}.walk-routine-layout .walk-today.is-unconfigured{display:block}.walk-routine-layout .walk-today-heading .walk-routine-header-actions{margin-left:auto}
+
+/* Approved summary/history layout; routine and full-history cards keep their styles. */
+.walk-history-overview{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px;align-items:start;min-width:0}
+.walk-history-overview>.card{min-width:0;padding:20px}
+.walk-history-overview .walk-metrics{grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:20px 0}
+.walk-history-overview .walk-metrics strong{font-size:22px;overflow-wrap:anywhere}
+.walk-together .walk-statistics-action{justify-content:flex-start;margin-top:12px}
+.walk-together .walk-statistics-toggle{display:inline-flex;align-items:center;gap:7px;min-height:44px;padding:8px 0}
+.walk-last-adventure .walk-history-heading{flex-wrap:nowrap}
+.walk-last-adventure .walk-show-more{margin-left:auto;min-height:44px;display:inline-flex;align-items:center;font-size:13px}
+.walk-last-adventure .walk-activity-list{margin:16px 0 0}
+.walk-last-adventure .walk-activity-card{padding:16px}
+.walk-last-adventure .walk-activity-heading{align-items:center;text-align:left;gap:12px;padding-right:16px}
+.walk-last-adventure .walk-activity-heading>div{min-width:0}
+.walk-last-adventure .walk-activity-heading .icon-tile{width:56px;height:56px;border-radius:16px}
+.walk-last-adventure .walk-activity-heading .icon-tile svg{width:32px;height:32px}
+.walk-last-adventure .walk-activity-heading h3{font-size:17px;overflow-wrap:anywhere}
+.walk-last-adventure .walk-activity-stats{grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:18px 0}
+.walk-last-adventure .walk-activity-stats dd{font-size:21px;white-space:normal}
+.walk-last-adventure .walk-route-map.compact .walk-map-canvas{height:200px;width:100%}
+.walk-last-adventure .walk-map-with-places,.walk-last-adventure .walk-saved-route{min-width:0;max-width:100%}
+.walk-summary-chart.is-compact{min-width:0;padding-left:48px}
+.walk-summary-chart.is-compact .walk-chart-scroll{overflow:visible;padding:18px 0 0 48px;margin-left:-48px}
+.walk-summary-chart.is-compact .walk-chart-plot{min-width:0;width:100%}
+.walk-summary-chart.is-compact .walk-chart-track,.walk-summary-chart.is-compact .walk-chart-daily{height:144px}
+.walk-summary-chart.is-compact .walk-chart-bars{gap:3px}
+.walk-summary-chart.is-compact .walk-chart-tick,.walk-summary-chart.is-compact .walk-chart-grid span,.walk-summary-chart.is-compact .walk-chart-hour-ticks>span{font-size:11px}
+.walk-summary-chart.is-compact .walk-chart-plot-year .walk-chart-column:nth-child(even) .walk-chart-tick{visibility:hidden}
+.walk-summary-chart.is-compact figcaption{flex-wrap:wrap}
+@media(max-width:800px){.walk-history-overview{grid-template-columns:minmax(0,1fr);gap:16px}}
+@media(max-width:400px){.walk-history-overview>.card{padding:16px}.walk-history-overview .walk-metrics strong{font-size:19px}.walk-history-overview .walk-metrics{gap:8px}.walk-last-adventure .walk-activity-card{padding:12px}.walk-last-adventure .walk-activity-stats dd{font-size:19px}}
+@media(max-width:600px){.walk-together .walk-heading>div{flex:1 0 100%}.walk-together .walk-heading h2{overflow-wrap:anywhere}}

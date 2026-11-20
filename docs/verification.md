@@ -4,23 +4,28 @@ Updated 20 November 2026. Test counts are observations, not permanent guarantees
 Use Node 22.x >=22.12; npm test, npm run typecheck, npm run build and git diff
 --check. Tests must not call the hosted database or send real emails/push.
 
-## Latest checks — Walks recording/history follow-up
+## Latest checks — Walks summary columns
 
-On `codex/walks-recording-and-history` (base main `af61194`), all
+On `codex/walks-summary-columns` (base main `c271766`), all
 **295 isolated tests in 67 files**
 passed on Node 22.23.5 with both Supabase browser values blank.
 TypeScript, production build and git diff --check also passed. Changed Markdown file links were checked.
-Existing node_modules were reused; this is not a fresh npm ci.
+Existing node_modules were reused; this is not a fresh npm ci. The care-task
+fixture now picks a future time within the current UTC day: the former +1 hour
+failed after 23:00 because starting a future-day walk is correctly forbidden.
+Assertions and production task rules are unchanged.
 
 Existing Zod annotation and large-bundle advisories remain; they are not failed
 checks. PGlite/minimal Auth/Storage roles cover isolation, rejected writes, retries,
 stock, routines, GPS/timeline and deletion. This is not a hosted security audit.
 
-Current isolated component fixtures checked routine button order/setup/cancel,
-recording-only content, inactivity Yes/No, and permanent-delete confirmation/cancel
-at 360px mobile and 1280px desktop. They block hosted access. Isolated SQL covers
-permanent-delete authorization, child cascades and linked task-source cleanup;
-pure clock tests cover 2+5 thresholds and GPS-loss rules. Fixtures were removed; no fake responses are shipped as saved activity.
+Current isolated real-component fixtures checked the two-column layout at 1280px
+and stacked layout at 360px, default-open statistics, distance/time, monthly/daily
+filters, hide/show preserving the selected measure, and honest empty states. The
+real map rendered a repository demo route inside its 200px-high area and resized
+with the column; no household data was used. Browser console had no errors.
+The temporary fixture blocked hosted database access and was removed. Today's
+walk and GPS/queue/provider source were unchanged.
 These checks are not physical tags, live account persistence or actual GPS.
 
 ## Read-only hosted evidence — 20 November
