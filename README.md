@@ -527,3 +527,30 @@ A local, unapplied compatibility proposal preserves stable routine slot identiti
 when later SQL migrations are rolled out: 20261120152152_preserve_walk_routine_slot_identity.sql.
 It needs team review before application. Adding an outing appends its number within
 its period; existing period numbers and manual outing records are retained.
+
+
+## Shared walk deletion follow-up — 20 November 2026
+
+Carol explicitly requested that current household members can remove completed
+walks recorded by other members. This supersedes the author-only deletion rule
+for Walks only; correction and restoration remain author-only. Ongoing walks
+cannot be deleted. The new versioned migration
+`20261120155307_shared_walk_history_deletion.sql` is proposed and unapplied;
+coordinate/review it before hosted application. UI controls in full history,
+Last Adventure and detail expose deletion for saved completed family walks.
+The location-accuracy warning paragraph was removed; numeric accuracy, errors
+and GPS permission/confirmation remain. No existing activities were deleted.
+
+280 isolated tests across 63 files, TypeScript and production build passed on
+Node 22. Existing Zod annotation/bundle warnings remain. Permission tests use
+a temporary local database, not the hosted project; cover member deletion,
+author restoration, outsider/former-member/anonymous denial and active walks.
+No physical NFC or new real-device verification is claimed.
+
+NFC setup: open Walks → Set up collar tag → Copy collar link. Write that exact
+household-scoped HTTPS URL as a URL/URI record to a writable NFC tag using a
+compatible writer. Walks currently provides the link, not an in-app tag writer.
+iPhone needs a separate NFC-writing app for one-time setup. Test by tapping
+with the phone unlocked: sign in if needed, choose GPS/waste settings and
+confirm location/start. The current flow opens setup; it is not unattended
+automatic start. The phone records GPS; the tag does not track the dog.

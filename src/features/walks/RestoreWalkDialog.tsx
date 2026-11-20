@@ -20,7 +20,7 @@ export function RestoreWalkDialog({ walkId, onCancel, onRestored, action = 'rest
   finally { pending.current = false; setBusy(false) }
  }
  return <dialog ref={dialog} tabIndex={-1} className="walk-restore-dialog" aria-labelledby="walk-restore-message" onCancel={event => { event.preventDefault(); if (!pending.current) onCancel() }}>
-  <p id="walk-restore-message">{action === 'delete' ? "This walk will be deleted from family walks' history." : 'This walk was deleted from family history.'}</p>
+  <p id="walk-restore-message">{action === 'delete' ? "This walk will be removed from the family history. Its author can restore it." : 'This walk was deleted from family history.'}</p>
   {error && <Notice error>{error}</Notice>}
   <div className="walk-restore-actions"><Button disabled={busy} onClick={() => void confirm()}>{busy ? (action === 'delete' ? 'Deleting walk…' : 'Restoring walk…') : action === 'delete' ? 'Confirm delete' : 'Confirm walk restoration'}</Button><Button className="secondary" disabled={busy} onClick={onCancel}>Cancel</Button></div>
  </dialog>
