@@ -34,7 +34,7 @@ export function WalkDetailsEditor({walk,points,onSaved,onCancel}:{walk:Walk;poin
     <input className="walk-event-description" aria-label={`${entry.id==='start'?'Start':entry.id==='finish'?'Finish':entry.label} description`} name={`event-label-${entry.id}`} defaultValue={entry.label} required maxLength={200}/>
    </fieldset>)}</div>
    {walk.notes&&<label>Existing walk note<textarea name="legacy" defaultValue={walk.notes} maxLength={2000} disabled={busy}/></label>}
-   {data.notes.map((note,index)=><fieldset key={note.id} disabled={busy}><legend>Recorded note {index+1}</legend><label>Note text<textarea name={`note-${note.id}`} defaultValue={note.text} maxLength={2000} required/></label><Field label="Note time" name={`note-time-${note.id}`} type="datetime-local" required step="0.001" defaultValue={localWalkInput(note.recorded_at)}/></fieldset>)}
+   {data.notes.map((note,index)=><fieldset key={note.id} disabled={busy}><legend>Recorded note {index+1}</legend><label className="walk-note-text-field"><span className="sr-only">Recorded note {index+1} text</span><textarea name={`note-${note.id}`} defaultValue={note.text} maxLength={2000} required/></label><Field label="Note time" name={`note-time-${note.id}`} type="datetime-local" required step="0.001" defaultValue={localWalkInput(note.recorded_at)}/></fieldset>)}
   </>}
   <div className="walk-actions"><Button disabled={busy||!data}>{busy?'Saving…':'Save'}</Button><Button type="button" className="secondary" disabled={busy} onClick={onCancel}>Cancel</Button></div>
  </form>

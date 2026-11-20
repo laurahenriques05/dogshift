@@ -184,3 +184,32 @@ Follow-up verification: 263 isolated tests in 59 files, TypeScript, production
 build and whitespace checks passed on Node 22.23.5. Browser fixtures covered
 1280px/390px; no real Supabase data was read or changed. Existing Zod annotation
 and bundle-size warnings remain. Dependencies were reused, not reinstalled.
+
+## Automatic routine progress and final spacing follow-up
+
+Routine slots now react to real start/finish records in the matching fixed period
+and household-local start day. Ongoing slots show in progress; only completed/manual
+slots expose Summary. Matching does not impose exact scheduled start times or
+create manual daily checks. Raw GPS/private route permissions are unchanged.
+Repeated-period overflow remains in activity totals/history, not another period.
+Legacy incomplete plans retain previous handling until completed.
+
+Manual-summary sentences/buttons, Set routine alignment, map-credit alignment,
+scale/metrics placement, waste/timeline gaps and deleted-walk spacing were adjusted.
+Removed visible Note text and Walk updated. The detail timeline opens and rerenders
+returned corrections on Save, with refreshed waste events. Browser fixture edits
+were visible immediately without refresh. See walks-routine-period-names.md for
+assignment rules, isolated/fixture evidence and limits. No hosted writes or SQL.
+
+Validation for automatic-progress follow-up: 268 isolated tests in 60 files,
+TypeScript, production build and whitespace checks passed on Node 22.23.5, with
+browser configuration blank for tests. New tests cover active/finished states,
+chronological repeated periods, overflow, duplicate IDs, manual checks, delete/
+restore and timezone/midnight boundaries. Existing Zod/bundle warnings remain.
+Source was based on main 19f8404; no unrelated team branch was overwritten.
+
+Integration check: main advanced to 27c3c95 with the team's password-visibility
+control while this PR was prepared. A README-only conflict was resolved by keeping
+both sections. The combined tree passed 269 isolated tests in 61 files, TypeScript,
+build and whitespace checks. This integrates main into the feature branch; it is
+not a feature merge into main or a production deployment.

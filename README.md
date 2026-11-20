@@ -508,4 +508,11 @@ opens project terms, privacy/data and security information. Open-map credits sit
 below maps and in the footer; Google credits remain with its provider map. See
 [team handoff and attribution sources](docs/carol-walks-team-sync.md).
 
+Saved walking routines now fill automatically from actual walk starts in the
+matching morning/afternoon/night period. An active walk shows in progress and
+becomes completed with Summary after finishing; no manual circle click is required.
+The household-local start day determines the slot, including overnight walks.
+Timeline corrections appear immediately after Save and open the updated timeline.
+See [assignment rules and verification limits](docs/walks-routine-period-names.md).
+
 Password fields include an accessible show/hide control. Values start masked; toggling preserves input, validation and password-manager metadata without submitting the form. Login, sign-up, password reset and account password changes use the same control. This UI change needs no Supabase migration.

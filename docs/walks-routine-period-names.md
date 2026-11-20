@@ -117,3 +117,38 @@ cards, aligned manual-summary actions, footer dialogs and timeline layout on
 1280px/390px widths. Public sample map tiles loaded with visible attribution
 immediately below the map and no MapLibre attribution overlay. These are local
 fixtures, not real household persistence or phone background-GPS validation.
+
+## Automatic routine progress and spacing — 20 November 2026
+
+Complete routines now derive slot progress directly from real walks, including
+an ongoing walk, using its household-local start day and fixed Morning/Afternoon/
+Night period. The earliest unoccupied slot of that period is assigned in real
+start order; estimated hours remain approximate. Repeated records are deduplicated
+by walk ID. Manual outings retain their slots and are not counted twice. Extra
+walks after that period's slots are filled do not incorrectly fill another period.
+They remain in real activity totals/history. Deleted walks free their slot and
+restored walks are reassigned. Overnight walks belong to their start day, avoiding
+a second routine slot on the finish day. Legacy count-only plans retain their
+old completed-outing order until configured with valid estimates.
+
+An active slot is filled dark green with an in-progress indicator and no Summary.
+Finishing the same saved walk replaces that indicator with completion/summary
+without requiring a manual click. No extra daily-check RPC or hosted schema is
+needed. Done totals exclude ongoing walks. Existing duplicate-start protection
+and private live-GPS rules are unchanged.
+
+Manual summary explanations are two separate centred sentences; buttons are
+slightly larger. Set routine and map credits are left-aligned. Live metrics sit
+at the lower-right of the map beside the lower-left scale, with mobile sizing to
+avoid overlap. Waste/timeline and route-tools/summary gaps are reduced. Deleted
+walk headings, notices and Restore are separated; the notice/button gap is 18px.
+Removed visible Note text and Walk updated text, keeping an accessible note label.
+After timeline save, the detail timeline opens with the returned corrected walk
+and refreshed waste events; edits remain separate from raw GPS coordinates.
+
+Verification includes real component fixtures, local start/finish transitions,
+period/date-boundary/deduplication/delete/restore tests, and a local correction RPC
+stub. The browser showed Left home at 09:25 and Pee by the garden at 09:41 as soon
+as Save returned, without reload. Public sample maps loaded with right-hand metrics
+beside the scale on 1280px/390px; no mobile page overflow. Fixtures are not live
+household data writes or actual phone GPS evidence. No new SQL migration.
