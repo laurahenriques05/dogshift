@@ -45,9 +45,9 @@ Preserve RLS and private storage. Enforce permissions in SQL/RPC, not only by hi
 
 ## Shared product rules
 
-One dog per household. Members edit only their own activities; shared purchases/products and shared routine may be corrected by household members. Stock equals opening baseline + purchases - food served, including discarded food. Skipped meals serve nothing. Duplicate-meal warnings concern only regular meals too soon after the previous regular meal; treats remain separate. Persist mixed-food meals atomically and make retries idempotent.
+One dog per household. Members edit only their own activities; shared purchases/products and shared routine may be corrected by household members. Approved Walks exception: current members may remove completed family walks, while correction/restoration stay author-only. Its UI is merged, but hosted permission rollout is still pending; consult docs/carol-walks-team-sync.md before claiming it works. Stock equals opening baseline + purchases - food served, including discarded food. Skipped meals serve nothing. Duplicate-meal warnings concern only regular meals too soon after the previous regular meal; treats remain separate. Persist mixed-food meals atomically and make retries idempotent.
 
-Preserve private email-bound invitation codes and explicit acceptance. Join-another-family controls appear after leaving on onboarding, not while a current household is active. Last-person departure is planned, not implemented by the current transfer-only RPC.
+Preserve private email-bound invitation codes and explicit acceptance. Join-another-family controls appear after leaving on onboarding, not while a current household is active. Source includes a separate preserving sole-member departure/inactive-family recovery flow; hosted installation must be verified. Multi-member owner departure still requires transfer. Never treat this as permission for permanent family/account deletion.
 
 ## Calendar / notification interface agreement
 
@@ -63,7 +63,7 @@ Phone push is intended. Defaults: tasks 1 hour before, appointments 1 day before
 
 Two household tags: Feeding and Start Walk. Tags store public HTTPS routes plus household identifier, never credentials. Membership/auth checks remain mandatory. Feeding opens a prefilled confirmation; opening/tapping a URL must not record food. Current Feeding URL: `<VITE_APP_URL>/feed?quick=1&household=<UUID>`. Preserve planned foods/amounts, source attribution and atomic stock deduction. If sign-in loses intent, current fallback is tapping again; do not claim automatic recovery.
 
-Walks should start immediately after required authentication, membership and location consent, with duplicate-start protection. Carol owns the future walk route; agree it before writing tags. GPS route is shared after the walk, not live location. Warn after 10 minutes stationary, allow Keep walking, and end after 2 more minutes unanswered; background/iPhone reliability requires real-device validation.
+Walks should start immediately after required authentication, membership and location consent, with duplicate-start protection. Carol owns `/walks?action=start&household=<UUID>`. Set up collar tag opens the final Feeding-style NFC disclosure, with supported-browser writing and NFC Tools fallback. Current tapping opens setup/confirmation; immediate start remains pending. GPS route is shared after the walk, not live location. Warn after 10 minutes stationary, allow Keep walking, and end after 2 more minutes unanswered; background/iPhone reliability requires real-device validation.
 
 Use Web NFC writing only when the browser supports it (compatible Android Chrome). iPhone browsers cannot write tags: an optional trusted writing app can configure the URL once; everyday tapping opens PawShare without that writer. Do not promise browser NFC support or background GPS that devices have not demonstrated.
 
@@ -86,3 +86,11 @@ Treat the Feeding tab as the reference interaction for the whole product: calm, 
 ## Handoff
 
 Update README and relevant docs when workflows/status change. Report exactly what changed, checks run, remaining limits, migration status, remote branch/PR and deployment state. Keep unfinished capabilities distinct from implemented and verified ones.
+
+## Current context across chats
+
+Read README.md and docs/carol-walks-team-sync.md before continuing Carol's work.
+They distinguish merged source, installed hosted contracts and real pending work.
+Do not reimplement merged requests or either rejected Walks layout template.
+Keep documentation concise/current; Git holds historical iterations. A new chat
+has this repository and needs no duplicate handoff document.

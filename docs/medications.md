@@ -1,8 +1,13 @@
 # Medication schedules and dose logs
 
-Health → Medication schedules & dose logs (`/health/medications`). All current family members may create/edit shared schedules and reschedule unlogged doses, as agreed with Beni. All may read. Only the recorder may correct a given/skipped log. No deletion is implemented.
+Current source specification; owner Beni. Hosted installation/deployed functions
+must be checked against actual definitions and Beni/Laura reports before rollout.
+A missing ledger row does not prove manual SQL was never applied. See
+health-calendar-links.md for newer source-link/modal and reported migration status.
 
-## Pending migration
+Health → Medication schedules & dose logs (`/health/medications`). All current family members may create/edit shared schedules and reschedule unlogged doses, as agreed with Beni. All may read. Only the recorder may correct a given/skipped log. Schedule/dose deletion is not the same as Undo dose: the recorder-only undo RPC is reported installed; see health-calendar-links.md.
+
+## Schema dependency and rollout verification
 
 Review and coordinate `supabase/migrations/202611110003_medications.sql` before applying it once to the shared project. This task does not apply it, deploy, send notifications, or change Auth. The existing appointments migration is unchanged. No environment changes or new dependencies.
 
@@ -10,7 +15,7 @@ Schedules contain the medication name and prescribed instructions entered by the
 
 Given/skipped are stored states; overdue is derived from scheduled_at for unlogged doses and refreshes in the interface every 30 seconds. Actual administration time is separate from planned time, required for given and cannot be future. Skipped has no administration timestamp. recorded_by and recorded_at are server-set, with updated_at for corrections. Initial recording time is retained on correction. Schedule audit records the latest editor; there is no full revision history. Editing prescribed instructions updates the shared schedule display; dose logs do not snapshot old prescription text.
 
-RLS restricts reads to current members. Browser roles have no direct table writes. Scoped RPCs check membership, lock a dose row before logging, and reject another recorder even on a competing request. A unique schedule/time constraint prevents duplicate planned doses within a schedule; deliberate creation of separate schedules is not deduplicated. A recorder can correct their log between given/skipped but cannot erase it or transfer authorship. Shared schedule edits are last-write-wins.
+RLS restricts reads to current members. Browser roles have no direct table writes. Scoped RPCs check membership, lock a dose row before logging, and reject another recorder even on a competing request. A unique schedule/time constraint prevents duplicate planned doses within a schedule; deliberate creation of separate schedules is not deduplicated. A recorder may correct given/skipped or explicitly Undo through the guarded undo RPC; authorship cannot be transferred. Undo resets scheduled state, not a hard delete. Shared schedule edits are last-write-wins.
 
 ## Tests and manual checks
 

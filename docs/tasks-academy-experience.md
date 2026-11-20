@@ -1,8 +1,7 @@
 # Tasks and Academy experience
 
-18 November 2026. Based on team main `be08940`, preserving its Tasks/Calendar
-planning hub and its removal of notifications UI. The earlier PR #35 reliability
-work is integrated into this branch so the task UI has one reviewable result.
+Current source integrated into main; owner: Maria. No notifications UI or new
+notification delivery is enabled by this presentation.
 
 ## Tasks
 
@@ -52,10 +51,10 @@ Two new migrations relative to the team main at this review base:
 1. `20261117140000_tasks_reliability.sql` — PR #35's earlier date/departure fixes.
 2. `20261118230000_task_quick_assignment.sql` — protected occurrence assignment.
 
-Neither migration was applied to hosted Supabase by this work. Laura must inspect
-the real ledger/schema, coordinate review and backup, then apply only missing
-migrations in that order after approval. Do not reset, edit applied migrations,
-repeat prior Tasks/Academy/Push migrations or deploy unreviewed source.
+Read-only ledger inspection on 20 November confirms these installed as
+20261119112100_tasks_reliability and 20261119112114_task_quick_assignment.
+Do not reapply source timestamps. No sender/phone delivery evidence follows
+from that installation; future changes still require review/coordination.
 
 The new assignment RPC locks the occurrence, verifies membership, validates the
 recipient and checks the expected old assignee to reject conflicting edits.
@@ -67,13 +66,13 @@ obsolete pending recipients, preserving sent history. This is compatibility with
 the existing database contract, not delivery work. No push sender, keys, cron,
 subscription UI or notification preference functionality is added or enabled.
 
-Quick assignment needs its new RPC to be installed. A missing RPC reports an
+Quick assignment has its hosted ledger entry. On other/older projects a missing RPC reports an
 unavailable action; it must not show fake assignment success. Other existing
 task and Academy actions keep their existing RPCs.
 
 ## Validation and limits
 
-- Final integrated suite: 236 tests passed in 52 files with one worker.
+- Feature regression tests run in the isolated full suite; see verification.md.
 - TypeScript and production build passed; existing dependency annotation and
   bundle-size warnings remain. `git diff --check` passed.
 
