@@ -27,12 +27,12 @@ export function WalkDetailsEditor({walk,points,onSaved,onCancel}:{walk:Walk;poin
  const available=typeof (walk as Walk&{edit_revision?:number}).edit_revision==='number'
  if(!available)return <div role="status"><p>Timeline editing is waiting for the database update. Your saved walk is unchanged.</p><Button className="secondary" onClick={onCancel}>Cancel</Button></div>
  return <form className="form-stack walk-details-editor" onSubmit={save}>
-  <p className="muted">Times shown in this device’s time zone.</p>
   {error&&<p role="alert">{error}</p>}
   {!data?<><p role="status">{error?'Could not load saved events and notes.':'Loading saved events and notes…'}</p>{error&&<Button type="button" className="secondary" onClick={()=>setRetry(value=>value+1)}>Retry</Button>}</>:<>
-   <Field label="Starting Time" name="start" type="datetime-local" required step="0.001" disabled={busy} defaultValue={localWalkInput(walk.started_at)}/>
-   <Field label="Finishing Time" name="end" type="datetime-local" required step="0.001" disabled={busy} defaultValue={localWalkInput(walk.ended_at!)}/>
-   <div className="walk-edit-events">{data.events.map(entry=><fieldset key={entry.id} disabled={busy}><legend>{entry.id==='start'?'Start':entry.id==='finish'?'Finish':entry.label}</legend><Field label="Event text" name={`event-label-${entry.id}`} defaultValue={entry.label} required maxLength={200}/>{!['start','finish'].includes(entry.id)&&<Field label="Event time" name={`event-time-${entry.id}`} type="datetime-local" required step="0.001" defaultValue={localWalkInput(entry.at)}/>}</fieldset>)}</div>
+   <div className="walk-edit-events">{data.events.map(entry=><fieldset key={entry.id} disabled={busy}><legend>{entry.id==='start'?'Start':entry.id==='finish'?'Finish':entry.label}</legend>
+    <Field label={entry.id==='start'?'Starting Time':entry.id==='finish'?'Finishing Time':'Event time'} name={entry.id==='start'?'start':entry.id==='finish'?'end':`event-time-${entry.id}`} type="datetime-local" required step="0.001" defaultValue={localWalkInput(entry.at)}/>
+    <input className="walk-event-description" aria-label={`${entry.id==='start'?'Start':entry.id==='finish'?'Finish':entry.label} description`} name={`event-label-${entry.id}`} defaultValue={entry.label} required maxLength={200}/>
+   </fieldset>)}</div>
    {walk.notes&&<label>Existing walk note<textarea name="legacy" defaultValue={walk.notes} maxLength={2000} disabled={busy}/></label>}
    {data.notes.map((note,index)=><fieldset key={note.id} disabled={busy}><legend>Recorded note {index+1}</legend><label>Note text<textarea name={`note-${note.id}`} defaultValue={note.text} maxLength={2000} required/></label><Field label="Note time" name={`note-time-${note.id}`} type="datetime-local" required step="0.001" defaultValue={localWalkInput(note.recorded_at)}/></fieldset>)}
   </>}

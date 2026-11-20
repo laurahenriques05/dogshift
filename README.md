@@ -500,3 +500,10 @@ Routine summaries now open centred as Walk Summary, with existing dog-waste
 symbols and matching smaller Dog waste/Notes headings. A complete routine gives
 the Start walk card Feeding's pale green background. Routine edit actions are
 Save routine, Remove routine, Cancel; setup does not offer removal.
+
+The routine card is compact with an in-card Edit routine action, disabled until
+saved and during editing. Timeline Start/Finish boxes contain their times; event
+text retains accessible names without repeated visible labels. The shared footer
+opens project terms, privacy/data and security information. Open-map credits sit
+below maps and in the footer; Google credits remain with its provider map. See
+[team handoff and attribution sources](docs/carol-walks-team-sync.md).

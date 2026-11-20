@@ -1,3 +1,4 @@
+import { AppFooter } from '../components/ui/AppFooter'
 import { NavLink, Outlet, useLocation } from 'react-router-dom'
 import { Home, Utensils, Footprints, GraduationCap, Ellipsis, LogOut, HeartPulse, ListChecks } from 'lucide-react'
 import { Brand, Button, Notice } from '../components/ui'
@@ -34,6 +35,7 @@ export function AppShell() {
         <div className="household-label"><span className="status-dot"/>{households.length > 1 ? <select aria-label="Active household" value={household?.id} onChange={event => select(event.target.value)}>{households.map(h => <option key={h.id} value={h.id}>{h.name}</option>)}</select> : household?.name}<span className="avatar">{household?.name.charAt(0).toUpperCase()}</span></div>
       </header>
       <main id="main-content" className="main-content">{error && <Notice error>{error}</Notice>}<Outlet/></main>
+      <AppFooter/>
     </div>
     <nav className="bottom-nav" aria-label="Mobile navigation">
       <NavLink to="/" end><Home/><span>Home</span></NavLink>

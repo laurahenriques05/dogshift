@@ -1,0 +1,14 @@
+import { useState } from 'react'
+import { Modal } from './Modal'
+import './app-footer.css'
+export function AppFooter(){
+ const [page,setPage]=useState<'terms'|'privacy'|'security'|null>(null)
+ const titles={terms:'Terms of use',privacy:'Privacy & data',security:'Account security'}
+ return <><footer className="app-footer" aria-label="PawShare information"><span>PawShare</span><nav aria-label="Terms and privacy"><button onClick={()=>setPage('terms')}>Terms of use</button><button onClick={()=>setPage('privacy')}>Privacy & data</button><button onClick={()=>setPage('security')}>Security</button></nav><small>Maps: <a href="https://openfreemap.org/">OpenFreeMap</a> · <a href="https://openmaptiles.org/">© OpenMapTiles</a> · <a href="https://www.openstreetmap.org/copyright">© OpenStreetMap contributors</a></small></footer>
+ {page&&<Modal title={titles[page]} onClose={()=>setPage(null)}><div className="app-footer-information">
+ {page==='terms'&&<><p>PawShare is a student project for coordinating your dog’s daily care with your household.</p><p>Keep records accurate and use only information and files you have permission to share. Household members can see shared care records; keep invitation codes private.</p><p>Care records and Academy content do not replace advice from a veterinarian. Maps, GPS and background recording depend on your device and connection; check your surroundings and confirm recorded information.</p></>}
+ {page==='privacy'&&<><p>PawShare processes account details, household membership and the dog-care records and files you choose to save. Authentication, saved records and private files use Supabase.</p><p>Walk recording asks for location permission when GPS is selected. Walking routines use estimated hours and do not request location. Saved routes are shared with household members after a walk.</p><p>The browser may keep pending walk points or notes on this device for retry when the connection returns. Use your own device for private information.</p><p>Map and place requests contact external providers, which can receive your IP address and the map area requested. Depending on the selected map, providers include OpenFreeMap, OpenStreetMap, Esri, Google, Photon and Overpass.</p><p>For questions about project data, correction or deletion requests, contact your PawShare project team.</p></>}
+ {page==='security'&&<><p>Use a unique password and sign out on shared devices. Do not share passwords, sign-in links or private household invitation codes.</p><p>Household access is checked by the service. Only invite people you intend to share dog-care records with. Review browser location permission in your device settings.</p><p>If you suspect unwanted access, change your password through account settings and contact your PawShare project team.</p></>}
+ </div><button className="button secondary" onClick={()=>setPage(null)}>Close</button></Modal>}
+ </>
+}

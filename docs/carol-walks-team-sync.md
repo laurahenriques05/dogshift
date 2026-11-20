@@ -156,3 +156,31 @@ spacing increased; removed the saved sentence. Start walk matches Feeding's pale
 green once the routine is complete. Edit actions: Save routine, Remove routine,
 Cancel. Progressive naming was checked during each hour selection. Desktop/mobile
 fixture verification is recorded in walks-routine-period-names.md. No SQL changes.
+
+## Compact routine, footer and timeline — 20 November 2026
+
+The routine edit action moved inside the compact card's top-right header and
+remains disabled until saved, including during setup/editing. Manual-summary
+message/actions are centred; all waste count displays now use existing symbols
+without the lower line. Start/Finish correction boxes contain their own times;
+Event text labels and the device-time-zone sentence were removed. Payload names,
+permissions and saved GPS are unchanged.
+
+Shared AppShell now includes a small footer linking project terms, privacy/data
+and security information. It describes existing project behaviour without adding
+an acceptance flow, asserting legal certification or inventing a contact address,
+retention period or automatic deletion capability. The team should maintain this
+copy as the product's data practices change; it is not a completed legal audit.
+
+Open map attributions moved from overlays to visible lines immediately below
+each map and also appear in the footer. Merely placing them at the distant page
+bottom would not cover full-screen map dialogs. Google native credits remain.
+OSM permits adjacent attribution: https://osmfoundation.org/wiki/Licence/Attribution_Guidelines
+OpenFreeMap requires OpenMapTiles/OSM credits: https://openfreemap.org/
+Satellite credits are preserved when imagery is selected. No SQL migration or
+hosted schema/data mutation is part of this follow-up.
+
+Follow-up verification: 263 isolated tests in 59 files, TypeScript, production
+build and whitespace checks passed on Node 22.23.5. Browser fixtures covered
+1280px/390px; no real Supabase data was read or changed. Existing Zod annotation
+and bundle-size warnings remain. Dependencies were reused, not reinstalled.
