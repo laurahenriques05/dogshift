@@ -17,7 +17,7 @@ export async function taskFixture(includeFix = true, includeReliability = true) 
  grant select,insert,update,delete on storage.objects to authenticated;`)
  for (const file of readdirSync('supabase/migrations').filter(file => file.endsWith('.sql')).sort()) {
   if (!includeFix && file === '20261115140000_task_review_fixes.sql') continue
-  if (!includeReliability && file === '20261117140000_tasks_reliability.sql') continue
+  if (!includeReliability && (file === '20261117140000_tasks_reliability.sql' || file === '20261120140000_occurrence_care_tasks.sql')) continue
   await sql.exec(readFileSync(`supabase/migrations/${file}`, 'utf8'))
  }
  await sql.exec(`insert into auth.users(id,email,email_confirmed_at) values('${owner}','a@example.test',now()),('${member}','b@example.test',now()),('${outsider}','c@example.test',now())`)

@@ -571,3 +571,8 @@ NFC visual follow-up: add a 12px gap between the unsupported-browser notice and
 copy action; the disclosure description uses normal weight. The next-walk hero
 uses Morning Walk/Afternoon Walk 1/Night Walk while routine circles retain short
 names. Saved maps without points hide map-style preferences; live maps keep them.
+
+Care Tasks now support occurrence-specific responsibility and verified Feeding /
+Walks completion. See [flows, verification and rollout](docs/occurrence-care-tasks.md).
+Requires proposed migration `20261120140000_occurrence_care_tasks.sql`; it has not
+been applied to hosted Supabase by this implementation.

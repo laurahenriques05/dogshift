@@ -1,3 +1,6 @@
+import { readTaskPages } from './data'
+import type { TaskOccurrence } from '../../lib/supabase/database.types'
+import { careHref } from './care'
 import { db } from '../../lib/supabase/client'
 import type { FeedingEntry, FoodProduct } from '../feeding/types'
 import { foodRestockingEvents } from '../feeding/integrations'
@@ -21,7 +24,7 @@ export async function loadCalendarEvents(householdId:string,zone:string,month:st
  const generated=await db().rpc('generate_task_occurrences',{p_household:householdId,p_from:from,p_until:until})
  if(generated.error)throw generated.error
  const [occurrenceResult,appointmentsResult,vaccinationsResult,schedulesResult,productsResult,entries]=await Promise.all([
-  db().from('task_occurrences').select('*').eq('household_id',householdId).gte('due_at',from).lt('due_at',until),
+  readTaskPages<TaskOccurrence>((start,end)=>db().from('task_occurrences').select('*').eq('household_id',householdId).gte('due_at',from).lt('due_at',until).order('due_at').order('id').range(start,end)).then(data=>({data,error:null})),
   db().from('vet_appointments').select('id,title,starts_at').eq('household_id',householdId).gte('starts_at',from).lt('starts_at',until),
   db().from('vaccinations').select('id,name,next_due_on').eq('household_id',householdId).not('next_due_on','is',null).gte('next_due_on',`${month}-01`).lt('next_due_on',nextMonth(month)+'-01'),
   db().from('medication_schedules').select('id,name').eq('household_id',householdId),
@@ -29,7 +32,9 @@ export async function loadCalendarEvents(householdId:string,zone:string,month:st
   feedingLedger(householdId),
  ])
  for(const result of [occurrenceResult,appointmentsResult,vaccinationsResult,schedulesResult,productsResult])if(result.error)throw result.error
- const events:CalendarEvent[]=(occurrenceResult.data||[]).map(row=>({id:`task:${row.id}`,source:'task',sourceRecordId:row.id,title:row.title,occursAt:row.due_at,remindAt:new Date(Date.parse(row.due_at)-3600000).toISOString(),assignedTo:row.assigned_to,href:`/tasks?occurrence=${encodeURIComponent(row.id)}`,completed:!!row.completed_at}))
+ const people=await db().rpc('get_household_members',{p_household:householdId});if(people.error)throw people.error
+ const names=new Map((people.data||[]).map(person=>[person.user_id,person.display_name]))
+ const events:CalendarEvent[]=(occurrenceResult.data||[]).map(row=>({id:`task:${row.id}`,source:'task',sourceRecordId:row.id,title:row.title,occursAt:row.due_at,remindAt:new Date(Date.parse(row.due_at)-3600000).toISOString(),assignedTo:row.assigned_to,href:careHref(row),careKind:row.care_kind,assigneeName:names.get(row.assigned_to||'')||'Unassigned',completed:!!row.completed_at}))
  for(const visit of appointmentsResult.data||[])events.push({id:`health:appointment:${visit.id}`,source:'health',sourceRecordId:visit.id,title:visit.title,occursAt:visit.starts_at,remindAt:new Date(Date.parse(visit.starts_at)-86400000).toISOString(),assignedTo:null,href:'/health/appointments'})
  for(const vaccine of vaccinationsResult.data||[])if(vaccine.next_due_on){const at=toInstant(`${vaccine.next_due_on}T12:00`,zone);events.push({id:`health:vaccination:${vaccine.id}`,source:'health',sourceRecordId:vaccine.id,title:`Vaccination · ${vaccine.name}`,occursAt:at,remindAt:null,assignedTo:null,href:`/health/vaccinations?record=${encodeURIComponent(vaccine.id)}`,allDay:true})}
  const schedules=schedulesResult.data||[]

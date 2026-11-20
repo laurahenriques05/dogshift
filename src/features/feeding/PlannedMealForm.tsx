@@ -1,33 +1,35 @@
+import { careError } from '../tasks/care'
 import { useState,type FormEvent } from 'react'
 import { Button,Field,Notice,errorMessage } from '../../components/ui'
 import { db } from '../../lib/supabase/client'
 import { categories,formatGrams,localDateTime } from './model'
 import type { FeedingEntry,FoodProduct,PlannedMeal,MealEvent,MealOutcome } from './types'
 type Line={product_id:string;quantity_grams:number;eaten_grams:number}
-export function PlannedMealForm({householdId,products,plan,source,initialMealId,startSingle=false,event,entries=[],onSaved,onCancel}:{householdId:string;products:FoodProduct[];plan:PlannedMeal[];source:'app'|'nfc';initialMealId?:string;startSingle?:boolean;event?:MealEvent;entries?:FeedingEntry[];onSaved:()=>void;onCancel:()=>void}) {
+export function PlannedMealForm({householdId,products,plan,source,initialMealId,taskOccurrence,startSingle=false,event,entries=[],onSaved,onCancel}:{householdId:string;products:FoodProduct[];plan:PlannedMeal[];source:'app'|'nfc';initialMealId?:string;taskOccurrence?:string;startSingle?:boolean;event?:MealEvent;entries?:FeedingEntry[];onSaved:()=>void;onCancel:()=>void}) {
  const [id]=useState(()=>event?.id||crypto.randomUUID())
  const first=startSingle?undefined:plan.find(p=>p.id===(event?.routine_meal_id||initialMealId))||plan[0]
  const [selected,setSelected]=useState(event?.routine_meal_id||(startSingle?'':first?.id)||'')
  const [items,setItems]=useState<Line[]>(()=>event&&event.outcome!=='skipped'?entries.filter(e=>e.event_id===event.id&&!e.deleted_at).map(e=>({product_id:e.product_id,quantity_grams:Number(e.quantity_grams),eaten_grams:Number(e.eaten_grams??e.quantity_grams)})):(first?.items||[{product_id:products[0]?.id||'',quantity_grams:Number(products[0]?.portion_grams||100)}]).map(i=>({...i,eaten_grams:Number(i.quantity_grams)})))
  const [outcome,setOutcome]=useState<MealOutcome>(event?.outcome||'given')
- const [expanded,setExpanded]=useState(source!=='nfc'||!!event)
+ const [expanded,setExpanded]=useState(!taskOccurrence&&(source!=='nfc'||!!event))
  const [busy,setBusy]=useState(false),[error,setError]=useState(''),[duplicate,setDuplicate]=useState(false),[removing,setRemoving]=useState(false)
  const meal=plan.find(p=>p.id===selected)
  function chooseFood(lines:{product_id:string;quantity_grams:number}[]) {setItems(lines.map(i=>({...i,eaten_grams:outcome==='refused'?0:Number(i.quantity_grams)})))}
  async function submit(formEvent:FormEvent<HTMLFormElement>) {
   formEvent.preventDefault();const form=new FormData(formEvent.currentTarget);setBusy(true);setError('')
   try {
-   const {error}=await db().rpc('save_meal_result',{p_household:householdId,p_id:id,p_items:outcome==='skipped'?[]:items.map(i=>({...i,eaten_grams:outcome==='given'?i.quantity_grams:outcome==='refused'?0:i.eaten_grams})),p_at:new Date(String(form.get('at'))).toISOString(),p_source:event?.source||source,p_allow_duplicate:form.get('extra')==='on',p_routine_meal:selected||null,p_outcome:outcome,p_notes:String(form.get('notes')||'')})
+   const payload={p_household:householdId,p_id:id,p_items:outcome==='skipped'?[]:items.map(i=>({...i,eaten_grams:outcome==='given'?i.quantity_grams:outcome==='refused'?0:i.eaten_grams})),p_at:new Date(String(form.get('at'))).toISOString(),p_source:event?.source||source,p_allow_duplicate:form.get('extra')==='on',p_routine_meal:selected||null,p_outcome:outcome,p_notes:String(form.get('notes')||'')};
+   const {error}=taskOccurrence?await db().rpc('record_task_meal',{p_occurrence:taskOccurrence,p_id:id,p_items:payload.p_items,p_at:payload.p_at,p_outcome:outcome,p_notes:payload.p_notes}):await db().rpc('save_meal_result',payload)
    if(error){if(error.message.includes('DUPLICATE_MEAL')){setDuplicate(true);setExpanded(true)}throw error}
    onSaved()
-  }catch(error){setError(errorMessage(error).replace('DUPLICATE_MEAL: ',''))}finally{setBusy(false)}
+  }catch(error){setError(taskOccurrence?careError(error):errorMessage(error).replace('DUPLICATE_MEAL: ',''))}finally{setBusy(false)}
  }
  async function remove() {
   if(!event)return
   setBusy(true);setError('')
   try{const{error}=await db().rpc('save_meal_result',{p_household:householdId,p_id:id,p_items:[],p_at:event.occurred_at,p_remove:true});if(error)throw error;onSaved()}catch(error){setError(errorMessage(error))}finally{setBusy(false)}
  }
- if(source==='nfc'&&!event&&!expanded)return <form className="feeding-nfc-quick-confirm" onSubmit={submit}>
+ if((source==='nfc'||taskOccurrence)&&!event&&!expanded)return <form className="feeding-nfc-quick-confirm" onSubmit={submit}>
   <div className="feeding-nfc-quick-heading"><p className="eyebrow">READY TO CONFIRM</p><h2>{meal?.name||'Planned meal'}</h2>{meal?.time&&<time>{meal.time}</time>}</div>
   <ul>{items.map(item=><li key={item.product_id}><strong>{formatGrams(item.quantity_grams)}</strong><span>{products.find(product=>product.id===item.product_id)?.name||'Food'}</span></li>)}</ul>
   <input type="hidden" name="at" value={localDateTime()}/>
@@ -37,7 +39,7 @@ export function PlannedMealForm({householdId,products,plan,source,initialMealId,
   <p className="feeding-nfc-quick-note">Nothing is recorded until you confirm.</p>
  </form>
  return <form className={`form-stack${source==='nfc'&&!event?' feeding-nfc-confirm':''}`} onSubmit={submit}><h2>{event?'Correct feeding record':source==='nfc'?'Change feeding details':'Record feeding'}</h2>{source==='nfc'&&!event&&<Notice><strong>{meal?.name||'Planned meal'}{meal?.time?` · ${meal.time}`:''}</strong><br/>Review the saved bowl and change only what is different.</Notice>}
- <label className="field">Which meal?<select value={selected} disabled={busy} onChange={e=>{setSelected(e.target.value);chooseFood(plan.find(p=>p.id===e.target.value)?.items||[{product_id:products[0]?.id||'',quantity_grams:Number(products[0]?.portion_grams||100)}]);setDuplicate(false)}}>{event?.routine_meal_id&&!meal&&<option value={event.routine_meal_id}>{event.meal_name} (previous routine)</option>}{plan.map(p=><option key={p.id} value={p.id}>{p.name} · {p.time}</option>)}<option value="">Single food or treat</option></select></label>
+ <label className="field">Which meal?<select value={selected} disabled={busy||!!taskOccurrence} onChange={e=>{setSelected(e.target.value);chooseFood(plan.find(p=>p.id===e.target.value)?.items||[{product_id:products[0]?.id||'',quantity_grams:Number(products[0]?.portion_grams||100)}]);setDuplicate(false)}}>{event?.routine_meal_id&&!meal&&<option value={event.routine_meal_id}>{event.meal_name} (previous routine)</option>}{plan.map(p=><option key={p.id} value={p.id}>{p.name} · {p.time}</option>)}<option value="">Single food or treat</option></select></label>
  {meal?.notes&&<p className="photo-hint">Preparation: {meal.notes}</p>}
  <label className="field">What happened?<select value={outcome} disabled={busy} onChange={e=>{const next=e.target.value as MealOutcome;setOutcome(next);setItems(old=>old.map(i=>({...i,eaten_grams:next==='refused'?0:next==='given'?i.quantity_grams:i.eaten_grams})))}}><option value="given">Given — eaten in full</option><option value="partial">Partially eaten</option><option value="refused">Refused — served but not eaten</option><option value="skipped">Skipped — no food served</option></select></label>
  {outcome==='skipped'?<Notice>No food served, so this record will not reduce stock.</Notice>:<>
@@ -46,7 +48,7 @@ export function PlannedMealForm({householdId,products,plan,source,initialMealId,
  <p className="photo-hint">Stock decreases by food served, including leftovers discarded. Eaten quantities are tracked separately.</p>
  </>}
  {source==='nfc'&&!event?<details className="feeding-routine-details"><summary>Change time or add a note</summary><Field label="Actual time (your device’s local time)" name="at" type="datetime-local" defaultValue={localDateTime()} required disabled={busy}/><Field label="Note (optional)" name="notes" maxLength={500} placeholder="e.g. Left some wet food in the bowl" disabled={busy}/></details>:<><Field label="Actual time (your device’s local time)" name="at" type="datetime-local" defaultValue={localDateTime(event?new Date(event.occurred_at):new Date())} required disabled={busy}/><Field label="Note (optional)" name="notes" maxLength={500} defaultValue={event?.notes||''} placeholder="e.g. Left some wet food in the bowl" disabled={busy}/></>}
- {error&&<Notice error>{error}</Notice>}{duplicate&&<label className="feeding-check"><input name="extra" type="checkbox" required/>I checked the recent feeding history and want to record an intentional extra meal.</label>}
+ {error&&<Notice error>{error}</Notice>}{duplicate&&!taskOccurrence&&<label className="feeding-check"><input name="extra" type="checkbox" required/>I checked the recent feeding history and want to record an intentional extra meal.</label>}
  <div className="family-name-actions"><Button disabled={busy||(!items.length&&outcome!=='skipped')}>{busy?'Saving…':event?'Save correction':source==='nfc'?'Confirm meal':'Confirm meal record'}</Button>{source==='nfc'&&!event?<Button type="button" className="secondary" disabled={busy} onClick={()=>{setExpanded(false);setError('');setDuplicate(false)}}>Back</Button>:<Button type="button" className="secondary" disabled={busy} onClick={onCancel}>Cancel</Button>}{event&&<Button type="button" className="secondary" disabled={busy} onClick={()=>setRemoving(true)}>Remove record</Button>}</div>
  {removing&&<div><Notice>Remove the whole meal record? All its served food will be restored to tracked stock.</Notice><Button type="button" disabled={busy} onClick={()=>void remove()}>Confirm removal</Button><Button type="button" className="secondary" disabled={busy} onClick={()=>setRemoving(false)}>Keep record</Button></div>}
  </form>
