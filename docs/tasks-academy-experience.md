@@ -90,6 +90,11 @@ task and Academy actions keep their existing RPCs.
 
 ### Challenge reading layout
 
-Challenges retain their existing saved-practice flow, ownership rules, shared XP and prerequisites. The green illustrated guide now shows a larger, concise instruction per step; “How to do it” retains the complete original instruction, while explicit safety cautions remain visible. Sources, the knowledge reminder and family history remain expandable. Draft checklist progress is distinct from saved achievement; viewing steps never completes a challenge.
+Challenges retain their existing saved-practice flow, ownership rules, shared XP and prerequisites. The green illustrated guide now shows a compact, concise instruction per step; “How to do it” retains the complete original instruction, while explicit safety cautions remain visible. Sources, the knowledge reminder and family history remain expandable. Draft checklist progress is distinct from saved achievement; viewing steps never completes a challenge.
 
-Challenge quick actions open native dialogs for practice, the existing knowledge reminder and family notes. Closing the practice dialog preserves its draft; saving keeps the existing RPC/XP rules and is protected from dismissal while busy. The guide uses the same Lucide dog as the Academy journey, with audio and bone icons and the app's sage palette.
+Challenge quick actions open native dialogs for practice, the existing knowledge reminder and family notes. Closing the practice dialog preserves its draft; saving keeps the existing RPC/XP rules and is protected from dismissal while busy. The guide keeps its three illustrations in a horizontal sequence, using consistent green Lucide outlines and a specific icon set for each of the 11 challenges across five course levels. Advanced challenges show the same diagram above their existing saved-part path. Full instructions, suitability warnings, practice dialogs, prerequisites and XP rules are preserved. Reading a step or viewing an icon never saves practice. This is a client-only change; no migration is required.
+
+Compact-guide validation: 10 Academy tests across three files, TypeScript and
+production build passed. Isolated browser checks covered desktop, 390px mobile,
+step navigation, practice-dialog opening/Escape, the advanced saved-part path,
+and icon rows across all five levels. No real practice or hosted data was saved.
