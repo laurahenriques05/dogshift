@@ -1,16 +1,76 @@
-import { useEffect, useRef, useState } from 'react'
-import { Check, Footprints, Settings2 } from 'lucide-react'
-import type { Walk } from '../../lib/supabase/database.types'
+import { useState } from 'react'
+import { Check, Circle, Footprints, LoaderCircle, Pencil } from 'lucide-react'
 import { Button, Field } from '../../components/ui'
-import { localDay } from './gps'
-import { dailySlots, readDailyWalks, saveDailyCount, markDailyWalk, undoDailyWalk, type DailyCheck } from './dailyWalks'
-export function TodaysWalks({dog,user,walks,zone,now,onStart}:{dog:string;user:string;walks:Walk[];zone:string;now:number;onStart:()=>void}){
- const day=localDay(new Date(now).toISOString(),zone)
- const [count,setCount]=useState<number|undefined>(),[checks,setChecks]=useState<DailyCheck[]>([]),[loading,setLoading]=useState(true),[ready,setReady]=useState(false),[editing,setEditing]=useState(false),[value,setValue]=useState('3'),[busy,setBusy]=useState(false),[error,setError]=useState(''),[revision,setRevision]=useState(0)
- const lock=useRef(false),pending=useRef<{id:string;slot:number;day:string}|null>(null)
- useEffect(()=>{let alive=true;setLoading(true);void readDailyWalks(dog,day).then(data=>{if(alive){setCount(data.count);setChecks(data.checks);setValue(String(data.count??3));setReady(true);setError('')}}).catch(()=>{if(alive){setReady(false);setError('Daily walks are unavailable. Retry shortly.')}}).finally(()=>{if(alive)setLoading(false)});return()=>{alive=false}},[dog,day,revision])
- useEffect(()=>{const refresh=()=>setRevision(n=>n+1);const timer=setInterval(()=>{if(!document.hidden)refresh()},30000);window.addEventListener('online',refresh);window.addEventListener('focus',refresh);return()=>{clearInterval(timer);window.removeEventListener('online',refresh);window.removeEventListener('focus',refresh)}},[])
- async function act(action:()=>Promise<void>){if(lock.current)return;lock.current=true;setBusy(true);setError('');try{await action();setRevision(n=>n+1)}catch{setError('Could not save. Please retry.')}finally{lock.current=false;setBusy(false)}}
- const slots=dailySlots(count??0,walks,checks,day,zone),done=slots.filter(slot=>slot.walk||slot.manual).length
- return <section className="card walk-today"><header className="walk-today-heading"><h2><Footprints size={24} aria-hidden="true"/>Today’s walks</h2>{count!==undefined&&ready&&<div className="walk-today-progress"><span>{done} of {count} recorded</span><progress max={count} value={done} aria-label="Today's walks completed"/></div>}</header>{loading?<p role="status">Loading today’s walks…</p>:<>{error&&<p role="alert">{error} <button type="button" className="walk-text-action" onClick={()=>setRevision(n=>n+1)}>Retry</button></p>}{ready&&<>{count===undefined?<p>Choose how many walks to plan each day.</p>:<div className="walk-today-list">{slots.map(slot=><article key={slot.number} className={(slot.walk||slot.manual)?'recorded':''}><div><span className="walk-today-state">{slot.walk||slot.manual?<><Check size={16} aria-hidden="true"/>Recorded</>:'To do'}</span><h3>Walk {slot.number}</h3>{slot.walk&&<time dateTime={slot.walk.ended_at!}>{new Date(slot.walk.ended_at!).toLocaleTimeString('en',{timeZone:zone,hour:'2-digit',minute:'2-digit'})}</time>}{slot.manual&&<span>Recorded without GPS</span>}</div>{slot.manual?.member_id===user?<Button className="secondary" disabled={busy} onClick={()=>void act(()=>undoDailyWalk(slot.manual!.id))}>Undo</Button>:!slot.walk&&!slot.manual?<div className="walk-actions"><Button disabled={busy} onClick={onStart}>Start walk</Button><Button className="secondary" disabled={busy} onClick={()=>void act(async()=>{if(!pending.current||pending.current.slot!==slot.number||pending.current.day!==day)pending.current={id:crypto.randomUUID(),slot:slot.number,day};await markDailyWalk(pending.current.id,dog,day,slot.number);pending.current=null})}>Mark as done</Button></div>:null}</article>)}</div>}<Button className="secondary walk-plan-edit" disabled={busy} onClick={()=>setEditing(v=>!v)}><Settings2 size={16} aria-hidden="true"/>{count===undefined?'Set daily walks':'Edit daily walks'}</Button>{editing&&<form className="walk-plan-form" onSubmit={event=>{event.preventDefault();void act(async()=>{await saveDailyCount(dog,Number(value));setEditing(false)})}}><Field label="Walks per day" type="number" min={1} max={12} step={1} required value={value} onChange={event=>setValue(event.target.value)}/><Button disabled={busy}>Save daily walks</Button></form>}</>}</>}</section>
+import type { DailyWalkRoutine } from './useDailyWalkRoutine'
+import { routineNames, validRoutineTimes } from './routineSchedule'
+import { WalkRoutineSummary } from './WalkRoutineSummary'
+
+export function TodaysWalks({routine,user,zone}:{routine:DailyWalkRoutine;user:string;zone:string}){
+ const [mode,setMode]=useState<'setup'|'edit'|null>(null)
+ const editing=mode!==null
+ const [value,setValue]=useState('3'),[times,setTimes]=useState<string[]>([])
+ const [selected,setSelected]=useState<number|null>(null),[saving,setSaving]=useState<number|null>(null),[feedback,setFeedback]=useState('')
+ const name=(number:number)=>routine.names?.[number-1]??''
+ const preview=routineNames(Array.from({length:Math.max(1,Math.min(12,Number(value)||1))},(_,i)=>times[i]??''))
+ const slot=routine.slots.find(item=>item.number===selected)
+ function edit(next:'setup'|'edit'){setValue(String(routine.count??3));setTimes(routine.times);setMode(next);setFeedback('')}
+ function changeTime(index:number,time:string){
+  setTimes(previous=>Array.from({length:Math.max(previous.length,index+1)},(_,i)=>i===index?time:previous[i]??''))
+ }
+ async function withoutRoutine(){
+  if(await routine.saveCount(undefined)){setMode(null);setFeedback('Walking without a routine. You can set one anytime.')}
+ }
+ return <div className="walk-routine-layout"><section className={`card walk-today${routine.ready&&!routine.scheduleComplete&&!editing?' is-unconfigured':''}`}>
+  <header className="walk-today-heading">
+   <h2><span className="icon-tile"><Footprints size={28} aria-hidden="true"/></span>{routine.count===undefined||!routine.scheduleComplete?'Walking routine':'Today’s walk'}</h2>
+   <button type="button" className="walk-routine-edit-tile" disabled={!routine.ready||!routine.scheduleComplete||routine.busy||editing} onClick={()=>edit('edit')}><Pencil size={28} aria-hidden="true"/><span>Edit routine</span></button>
+  </header>
+  {routine.loading?<p role="status">Loading today’s walks…</p>:<>
+   {feedback&&<p role="status">{feedback}</p>}
+   {routine.error&&<p role="alert">{routine.error} <button type="button" className="walk-text-action" onClick={routine.retry}>Retry</button></p>}
+   {routine.ready&&<>
+    {routine.count!==undefined&&!routine.scheduleComplete&&!editing&&<p role="status">Complete your routine’s estimated times to name each walk.</p>}
+    {routine.count===undefined||!routine.scheduleComplete?<>
+     {!editing&&<div className="walk-routine-setup"><Button disabled={routine.busy} onClick={()=>edit('setup')}>Set routine</Button></div>}
+    </>:<ol className="walk-routine-line dose-bubbles" aria-label="Today's walk routine">
+     {routine.slots.map(item=>{
+      const complete=!!(item.walk||item.manual),label=name(item.number)
+      return <li key={`${routine.day}-${item.number}`} className={`dose-step${complete?' is-given':''}`}>
+       <button type="button" className={`dose-bubble walk-period-bubble${complete?' is-given':''}`} disabled={routine.busy}
+        aria-label={complete?`${label||'Walk'} recorded. View summary`:`Mark ${label||'Walk'} as done`} aria-busy={saving===item.number}
+        onClick={async()=>{
+         if(complete){setSelected(item.number);return}
+         if(routine.busy)return
+         setSaving(item.number)
+         try{await routine.mark(item.number)}finally{setSaving(null)}
+        }}>
+        {label&&<strong>{label}</strong>}
+        <span className="dose-bubble-mark" aria-hidden="true">{saving===item.number?<LoaderCircle size={19} className="walk-routine-saving"/>:complete?<Check size={23} strokeWidth={1.8} className="walk-check-mark"/>:<Circle size={17} strokeWidth={1.8}/>}</span>
+       </button>
+       {complete&&<button type="button" className="dose-detail-link" aria-expanded={selected===item.number} onClick={()=>setSelected(item.number)}>Summary</button>}
+      </li>
+     })}
+    </ol>}
+    {editing&&<form className="walk-plan-form" onSubmit={async event=>{
+     event.preventDefault()
+     if(routine.busy)return
+     const form=new FormData(event.currentTarget),count=Number(form.get('walk-count')),estimates=form.getAll('walk-time').map(String)
+     if(!validRoutineTimes(estimates,count)){setFeedback('Choose an estimated time for every walk.');return}
+     if(await routine.saveCount(count,estimates)){setMode(null);setFeedback('')}
+    }}>
+     <Field label="Walks per day" name="walk-count" type="number" min={1} max={12} step={1} required disabled={routine.busy} value={value} onChange={event=>setValue(event.target.value)}/>
+     <div className="walk-routine-times"><p>Estimated times</p>
+      {Array.from({length:Math.max(1,Math.min(12,Number(value)||1))},(_,i)=><Field key={i} label={preview[i]||`Estimated time ${i+1}`} name="walk-time" type="time" required disabled={routine.busy} value={times[i]??''}
+       onInput={event=>changeTime(i,event.currentTarget.value)} onChange={event=>changeTime(i,event.target.value)} onBlur={event=>changeTime(i,event.target.value)}/>)}
+     </div>
+     <div className="walk-actions">
+      <Button type="submit" disabled={routine.busy}>Save routine</Button>
+      {mode==='edit'&&<Button type="button" className="secondary" disabled={routine.busy} onClick={()=>void withoutRoutine()}>Remove routine</Button>}
+      <Button type="button" className="secondary" disabled={routine.busy} onClick={()=>setMode(null)}>Cancel</Button>
+     </div>
+    </form>}
+   </>}
+  </>}
+  {slot&&routine.count!==undefined&&(slot.walk||slot.manual)&&<WalkRoutineSummary key={`${routine.day}-${slot.number}`} slot={slot} user={user} zone={zone} routine={routine} onClose={()=>setSelected(null)}/>}
+ </section></div>
 }

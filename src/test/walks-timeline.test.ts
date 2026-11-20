@@ -39,3 +39,11 @@ describe('honest walk timeline and final-only waste',()=>{
   expect(missing.some(entry=>/entered|visited/i.test(entry.label))).toBe(false)
  })
 })
+
+it('applies corrected event text/time while retaining the original GPS samples and boundary times',()=>{
+ const original=structuredClone(points)
+ const walk={started_at:start,ended_at:end,timeline_edits:[{id:'gps-start',at:'2026-11-18T10:02:00Z',label:'Corrected event'}]}
+ expect(walkTimeline(walk,points,null,[])).toContainEqual({id:'gps-start',at:'2026-11-18T10:02:00Z',label:'Corrected event'})
+ expect(points).toEqual(original)
+ expect(walkTimeline(walk,points,null,[])[0].at).toBe(start)
+})

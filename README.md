@@ -174,11 +174,12 @@ walks by hour, day or month, using the same period selection and selector as Pas
 Adventures. The chart opens with Show statistics and can display walk count,
 kilometres or minutes on an automatic scale. See [local preview data](docs/walks-demo.md) for fixture limitations.
 
-The Walks feature on `codex/walk-tracking` adds private GPS recording, history,
-calendar summaries, recorder-only corrections, reversible deletion, a Home summary
-and a confirmed NFC start link. Apply only the new
-`supabase/migrations/202611110001_walks.sql` migration to the existing project
-before using it. See [Walks setup and validation](docs/walks.md) for full rollout
+Walks is integrated into `main` and includes private GPS recording, history,
+statistics, recorder-only corrections, reversible deletion, a Home summary
+and a confirmed NFC start link. The core migration was recorded as installed
+on 11 November; do not rerun it. Later capabilities require additional migrations
+whose hosted status must be reconciled with Laura. See the
+[current Walks pending-work register](docs/carol-walks-team-sync.md). See [Walks setup and validation](docs/walks.md) for full rollout
 instructions and [phone GPS tests](docs/walks-gps-testing.md) for required real-device
 checks. No new browser keys or paid map service are needed.
 
@@ -208,16 +209,18 @@ This year in the household timezone. Weeks begin on Monday; filtering happens
 before pagination, and a Load more control reveals additional matching walks.
 
 History/detail cards and accumulated distance use kilometres, alongside duration
-and average speed. Three local presentation walks in Past adventures (Benfica,
-Expo and Alvalade) contribute to local totals without demonstration badges. They
-and their detail pages are excluded from production; real household data and Home
-stay intact. See [presentation provenance](docs/walks-demo.md). No new migration
-is required. Street maps need internet; requests share viewed-area/IP information
-with the provider. See [map style notices](public/licenses/walk-map-style.txt).
+and average speed. Past Adventures → Demo walks explicitly opens three read-only
+examples in development and production builds. Examples never enter real household
+statistics, Home or saved/deleted lists and are never written to Supabase. See
+[presentation provenance](docs/walks-demo.md). No migration is needed for examples.
+Street maps need internet; requests share viewed-area/IP information with the
+provider. See [map style notices](public/licenses/walk-map-style.txt).
 
-Stationary automatic ending remains optional and foreground-only. Shared mobile
-notifications and Academy progress await the team's interfaces. Background or
-screen-locked GPS and physical touch-device reliability remain unverified.
+Stationary automatic ending remains optional and foreground-only. Walks does not
+publish shared calendar events or server push. Academy is dog-trick training;
+walking lessons are outside its current scope. NFC opens setup/confirmation;
+immediate start after required consent remains a request, not implemented behaviour.
+Background or screen-locked GPS and physical NFC reliability remain unverified.
 
 ## Health and account additions
 
@@ -430,3 +433,77 @@ manual checks without fabricated GPS/time data. These features require the
 proposed, unapplied `20261119001000_walk_journal_and_daily_plan.sql` migration and
 Laura/team review. Missing notes integration no longer blocks route completion;
 unsynchronised notes remain marked pending. See [rollout and verification](docs/walks-journal-daily.md).
+
+### Walk collar overview and routine
+
+The idle Walks card now mirrors Feeding's layout, with the next routine slot,
+Start walk, recorded daily progress, exact latest recorded start and a collar NFC
+illustration/setup link. Today's walks uses Morning/Afternoon/Night circles and
+Summary for real waste/notes. It reuses the existing backend and adds no migration.
+See [behaviour, NFC and validation limits](docs/walks-collar-overview.md).
+
+### Optional walking routine and map refinements (19 November 2026)
+
+Walks now offers an explicit routine setup or No routine for now, with a chosen
+walk count and optional estimated times. The overview counts real walk starts,
+including active walks, and shows 0 without a last-start caption for an empty diary.
+NEXT WALK is hidden without a routine. The unwanted routine instruction and map
+Layers icon are removed; chevrons are lighter and the tag illustration includes
+a dog. Initial framing approaches from the world map over three seconds; opt-in
+dog places already observed remain visible at moderate zoom-out.
+
+Routine persistence requires proposed, **unapplied** migration
+`20261119165100_walk_routine_preferences.sql`, after the journal/daily-plan
+migration. Laura/team review and rollout remain required. Missing backend support
+shows an error, never a falsely saved routine. These are source/local validations,
+not a claim that the public app or hosted schema has been updated. See
+[behaviour and verification limits](docs/walks-routine-map-details.md).
+
+### Walk event/note editing and live metrics refinements
+
+The refinement source moves setup to the right, fixes the footsteps/title margin,
+overlays active metrics on the map and hides both note/edit buttons while an
+editor is open. The new author-only editor loads existing notes and all timeline
+events, with Starting Time / Finishing Time and Save, preserving raw GPS.
+The pause/notes, paused-duration and correction migrations were applied to shared
+Supabase on 19 November after explicit user confirmation of team approval, as
+ledger versions `20261119192900`, `20261119192909` and `20261119192918`. Do not
+reapply them. The earlier missing pause schema is resolved; fields, RPC grants
+and API recognition were verified. Real-account/device checks remain separate,
+and PR #54 has separately been merged into main as `4bf038f`. See
+[behaviour, permissions and rollout](docs/walks-editing-refinements.md).
+
+### Routine times and names (fixed periods)
+
+Routine estimates are required for naming: Morning 07:00–11:59, Afternoon
+12:00–19:59 and Night 20:00–06:59. There is no routine location permission or
+solar calculation. Labels are assigned as times are entered, with numbers only
+for repeated periods (Morning 1, Morning 2). Circles omit estimated times and
+show Summary only after completion. Actual walks need not follow these times.
+
+Set routine is restored using the existing preferences columns/RPC. Edit routine
+stays disabled until a complete routine is saved and while its form is open;
+Remove routine appears only in edit mode. Its compact height remains fixed.
+Walking together retains the total count; statistics charts remain distance/time.
+
+The client works with the existing hosted routine-preferences schema. Proposed,
+**unapplied** `20261119203310_fixed_walk_routine_periods.sql` supersedes the old
+solar RPC requirements and enforces required estimates in SQL. Do not apply the
+historical solar migration on its own. Coordinate migration ordering with Laura.
+See [rules, compatibility and verification](docs/walks-routine-period-names.md).
+
+Save routine remains clickable while filling the form; required-field validation
+identifies missing times. Saving reads the actual form values and validates them
+again, avoiding a disabled button caused by delayed time-input state updates.
+
+Routine summaries now open centred as Walk Summary, with existing dog-waste
+symbols and matching smaller Dog waste/Notes headings. A complete routine gives
+the Start walk card Feeding's pale green background. Routine edit actions are
+Save routine, Remove routine, Cancel; setup does not offer removal.
+
+The routine card is compact with an in-card Edit routine action, disabled until
+saved and during editing. Timeline Start/Finish boxes contain their times; event
+text retains accessible names without repeated visible labels. The shared footer
+opens project terms, privacy/data and security information. Open-map credits sit
+below maps and in the footer; Google credits remain with its provider map. See
+[team handoff and attribution sources](docs/carol-walks-team-sync.md).

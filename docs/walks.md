@@ -1,5 +1,10 @@
 # Walks implementation and rollout
 
+For the current source/pending-work distinction, see the
+[19 November synchronization register](carol-walks-team-sync.md). The rollout
+and implementation snapshots below are historical; they do not establish the
+current production commit or authorise reapplying installed migrations.
+
 Branch: `codex/walk-tracking`, merged into `main` via PR #2 (5433773).
 The Walks migration was installed on 2026-11-11 in the existing shared project
 `jqxeszipztucnqcywkab`. Verified both tables have RLS enabled, authenticated SELECT
@@ -7,9 +12,9 @@ only, no direct authenticated writes, and no anonymous SELECT. Do not rerun the
 migration on this project. Production frontend deployment is pending access to
 the Vercel account/team that owns `pawshare-laurahenriques05.vercel.app`.
 
-## Install the database feature
+## Historical core installation — new separate projects only
 
-An administrator of the existing PawShare Supabase project must run the complete
+For a new, separate project, an administrator applies the complete
 contents of `supabase/migrations/202611110001_walks.sql` in its SQL Editor once.
 It creates only the walk tables, indexes, policies and RPCs. It does not reset the
 database, modify existing household data, or require new browser keys.

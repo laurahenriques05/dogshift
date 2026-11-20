@@ -1,4 +1,88 @@
-# Carol Walks / team synchronization — 17 November 2026
+# Current follow-up — 19 November 2026
+
+The explicit routine/map requests are implemented in source on
+`codex/walk-routine-map-details`; see [the request-by-request handoff](walks-routine-map-details.md).
+This adds one proposed, unapplied migration:
+`20261119165100_walk_routine_preferences.sql`, after the journal/daily-plan file.
+No shared Supabase migration, merge or production deployment was performed.
+The older snapshots below do not describe these new behaviours or establish
+that the requested public app has been updated.
+
+# Carol Walks / team synchronization — 19 November 2026
+
+## Repository evidence
+
+A successful `git fetch origin` confirmed local HEAD and `origin/main` at
+`890c904e9ff74e68d3d900c7cb481447db326833` (merge of PR #48). The checkout was
+clean on `codex/docs-current-state` before this documentation update. Remote
+branches were not merged indiscriminately. This Git evidence does not identify
+the production deployment or prove hosted migrations were installed.
+
+## Implemented in source
+
+- GPS/location confirmation and time-only walks, dog-waste recording, private
+  active routes, completed history, corrections and author-only delete/restore.
+- Explicit Demo walks history, including production builds, isolated from real
+  household statistics and records. The earlier development-only statement below
+  is superseded; see [demo behaviour](walks-demo.md).
+- Map controls, optional nearby places, timeline, durable point/finish recovery,
+  segmented pause and paused-time calculations. Pause requires schema support.
+- Timestamped note journal and daily shared count/manual checks, followed by the
+  collar overview and period labels (PR #48). Missing backend support is reported;
+  the presence of UI does not prove persistence works on the shared project.
+- Scoped public NFC URL `/walks?action=start&household=<UUID>`, retained sign-in
+  intent and household checks. Setup/location confirmation is still required;
+  this is not an immediate-start NFC implementation or physical tag validation.
+
+See [map controls](walks-map-controls.md), [journal/daily plan](walks-journal-daily.md)
+and [collar overview](walks-collar-overview.md) for behaviour and local evidence.
+
+## Pending work and ownership
+
+The following files exist in source; this check did **not** apply them or verify
+shared Supabase installation. Earlier handoffs identify them as unapplied by the
+implementing agent. Laura must reconcile the actual schema/ledger and coordinate
+review/dependencies before any application; never blindly rerun these files.
+
+| Migration | Capability requiring it |
+| --- | --- |
+| `20261116170000_walk_dog_waste.sql` | Waste preferences, start/save contracts |
+| `20261116190000_walk_tracking_choice.sql` | Persisted GPS/time-only choice |
+| `20261117130000_deleted_walk_owner_preview.sql` | Author's deleted-route preview |
+| `20261118200000_walk_pause_and_notes.sql` | Segment boundaries and legacy note RPC |
+| `20261118223000_walk_paused_duration.sql` | Saved pause intervals and duration |
+| `20261119001000_walk_journal_and_daily_plan.sql` | Note journal, daily plan/manual checks |
+
+Remaining validation requires two authorised test accounts and real phones/tags:
+GPS consent/denial, start retry/duplicate protection, motion and stationary warning
+(10 minutes, then 2 minutes unanswered), Keep walking, pause/resume, offline sync,
+reload, locked-screen behaviour and NFC/sign-in on Android/iPhone. Local fixtures
+and isolated PostgreSQL tests do not establish these results. Background GPS is
+not guaranteed. Follow [device checklist](walks-gps-testing.md).
+
+Immediate NFC start after required consent remains a requested behaviour; the
+current setup/confirmation flow must not be described as fulfilling it. Agree the
+route/consent experience with Laura before changing the shared NFC contract or
+writing tags. Walks calendar events/server push are not implemented and are not
+new work authorised by an available shared RPC; future integration needs Maria's
+explicit contract. Academy remains dog-trick training, not walking lessons.
+
+Release verification remains separate: confirm teammate review/CI, Vercel Git
+linkage, main production branch, READY deployment, exact commit and alias. This
+update neither merges nor deploys code, changes hosted data, sends team messages,
+nor supplies another member's approval.
+
+## Local checks for this update
+
+`npm test`: 245 tests passed across 56 files. `npm run typecheck`,
+`npm run build` and `git diff --check` passed. Existing dependencies were reused;
+this was not a fresh `npm ci`. Local runtime was Node 26.13.0, while project/CI
+uses Node 22; no new Node 22 execution is claimed. Build retained Zod annotation
+and bundle-size warnings. No browser flow changed, so no new screenshots/device
+checks were performed. No live connectivity/schema check was run in this update.
+
+## Historical snapshot — 17 November 2026 (superseded)
+
 
 The current Walks source integrates team main at
 `a3ec4f2` (Health/account settings PR #31), including the reviewed Feeding,
@@ -29,3 +113,74 @@ Publication uses the connected GitHub service because command-line HTTPS push
 has no credentials. The feature is for another member's review, without merging
 into main or deploying unreviewed changes. Prior local commits are preserved
 in the local integration branch when a consolidated publication commit is used.
+
+## Subsequent editing refinements
+
+See [walk editing and live metrics](walks-editing-refinements.md) for the source
+implementation and hosted rollout. Following specific user confirmation of team
+approval, pause/notes, paused-duration and correction migrations were applied as
+`20261119192900`, `20261119192909` and `20261119192918`; do not reapply them.
+No real activity write or additional frontend deployment was performed.
+
+## Estimated-time naming follow-up — fixed periods supersede sunrise
+
+The user withdrew the solar/location requirement. Current source uses Morning
+07:00–12:00, Afternoon 12:00–20:00 and Night 20:00–07:00; all end boundaries are
+exclusive. See [routine naming and verification](walks-routine-period-names.md).
+Set routine reads only existing preferences fields, fixing its disappearance
+when the unapplied solar columns were selected. No routine geolocation remains.
+Setup and edit are separate: no Remove during setup, no Edit until a complete
+saved routine, no pending Summary or circle time labels. Short period names are
+assigned only from entered times; numbering appears only within repeated periods.
+
+`20261119195302_walk_routine_schedule.sql` remains historical and unapplied.
+New `20261119203310_fixed_walk_routine_periods.sql` supersedes its requirements;
+this append-only proposal also works without solar columns. Neither was applied
+to the hosted project in this follow-up. Do not apply the historical solar file
+alone. Existing recorded walks, checks, GPS and household routines are preserved.
+
+## Save routine button follow-up
+
+Save stays clickable except while saving. Required browser validation plus explicit
+submission validation retain mandatory estimates; FormData reads actual controls
+instead of using React preview state to gate the button. A temporary local fixture
+verified empty-field rejection and correct saved values on desktop/mobile; no
+hosted writes or SQL changes. 263 isolated tests, typecheck and build passed on
+Node 22. Existing build warnings remain. See walks-routine-period-names.md.
+
+## Routine summary visual follow-up
+
+Walk Summary is centred with a centred title/close action, smaller matching bold
+Dog waste/Notes headings, existing waste symbols and no separator. Summary link
+spacing increased; removed the saved sentence. Start walk matches Feeding's pale
+green once the routine is complete. Edit actions: Save routine, Remove routine,
+Cancel. Progressive naming was checked during each hour selection. Desktop/mobile
+fixture verification is recorded in walks-routine-period-names.md. No SQL changes.
+
+## Compact routine, footer and timeline — 20 November 2026
+
+The routine edit action moved inside the compact card's top-right header and
+remains disabled until saved, including during setup/editing. Manual-summary
+message/actions are centred; all waste count displays now use existing symbols
+without the lower line. Start/Finish correction boxes contain their own times;
+Event text labels and the device-time-zone sentence were removed. Payload names,
+permissions and saved GPS are unchanged.
+
+Shared AppShell now includes a small footer linking project terms, privacy/data
+and security information. It describes existing project behaviour without adding
+an acceptance flow, asserting legal certification or inventing a contact address,
+retention period or automatic deletion capability. The team should maintain this
+copy as the product's data practices change; it is not a completed legal audit.
+
+Open map attributions moved from overlays to visible lines immediately below
+each map and also appear in the footer. Merely placing them at the distant page
+bottom would not cover full-screen map dialogs. Google native credits remain.
+OSM permits adjacent attribution: https://osmfoundation.org/wiki/Licence/Attribution_Guidelines
+OpenFreeMap requires OpenMapTiles/OSM credits: https://openfreemap.org/
+Satellite credits are preserved when imagery is selected. No SQL migration or
+hosted schema/data mutation is part of this follow-up.
+
+Follow-up verification: 263 isolated tests in 59 files, TypeScript, production
+build and whitespace checks passed on Node 22.23.5. Browser fixtures covered
+1280px/390px; no real Supabase data was read or changed. Existing Zod annotation
+and bundle-size warnings remain. Dependencies were reused, not reinstalled.
