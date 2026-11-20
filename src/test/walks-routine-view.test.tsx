@@ -42,3 +42,10 @@ it('shows a filled in-progress circle without claiming completion or exposing Su
  const html=renderToStaticMarkup(<TodaysWalks routine={plan} user="user" zone="Europe/Lisbon"/>)
  expect(html).toContain('Morning in progress');expect(html).toContain('is-in-progress');expect(html).not.toContain('>Summary<')
 })
+
+it('uses full Walk names in the next-walk heading while keeping circle names short',()=>{
+ for(const name of ['Morning','Afternoon 1','Night']){
+  const plan={...routine,count:1,times:['09:00'],scheduleComplete:true,names:[name],slots:[{number:1}]}
+  expect(overview(plan)).toContain(`<h2 id="walk-next-title">${name.replace(/^(Morning|Afternoon|Night)(.*)$/, '$1 Walk$2')}</h2>`)
+ }
+})

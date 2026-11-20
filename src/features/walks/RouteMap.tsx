@@ -15,6 +15,6 @@ export function RouteMap(props: { points: Point[]; compact?: boolean; live?: boo
  const Map=googleMapsConfigured()&&mode!=='3d'&&!nearby?GoogleRouteMap:VectorRouteMap
  const onModeError=()=>{setMode('standard');setViewError('Imagery unavailable. Standard map is shown.')}
  return <div className="walk-map-with-places"><Suspense fallback={<p role="status">Loading map…</p>}><Map {...props} places={props.live&&nearby?results.places:[]} mode={mode} showDogPlaces={!!props.live&&nearby} onModeError={onModeError}/></Suspense>
-  <MapPreferences showDogs={!!props.live} mode={mode} onMode={value=>{setViewError('');setMode(value)}} dogs={nearby} onDogs={setNearby} error={viewError}/>
+  {(props.live || props.points.length>0)&&<MapPreferences showDogs={!!props.live} mode={mode} onMode={value=>{setViewError('');setMode(value)}} dogs={nearby} onDogs={setNearby} error={viewError}/> }
  </div>
 }

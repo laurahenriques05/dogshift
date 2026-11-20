@@ -295,3 +295,8 @@ and copy feedback at 390px, plus no horizontal page overflow at 390/1280px.
 This is sample UI evidence, not physical tag or hosted integration validation.
 The temporary fixture was removed. No Feeding files, shared contracts or schema
 were changed for this NFC section follow-up.
+
+NFC visual follow-up: add a 12px gap between the unsupported-browser notice and
+copy action; the disclosure description uses normal weight. The next-walk hero
+uses Morning Walk/Afternoon Walk 1/Night Walk while routine circles retain short
+names. Saved maps without points hide map-style preferences; live maps keep them.

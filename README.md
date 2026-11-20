@@ -566,3 +566,8 @@ are substituted; Feeding is unchanged. Compatible secure browsers can write the
 URL directly. Other browsers offer Copy link for NFC Tools. Writing a tag never
 starts a walk; tapping still opens the existing setup/confirmation flow.
 No new backend migration or physical NFC validation is included in this change.
+
+NFC visual follow-up: add a 12px gap between the unsupported-browser notice and
+copy action; the disclosure description uses normal weight. The next-walk hero
+uses Morning Walk/Afternoon Walk 1/Night Walk while routine circles retain short
+names. Saved maps without points hide map-style preferences; live maps keep them.
