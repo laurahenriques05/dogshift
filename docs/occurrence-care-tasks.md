@@ -25,7 +25,11 @@ Do not reset the database or rerun prior migrations.
 
 ## User flows
 
-New tasks ask for type, saved meal or walk name, date/time and responsible member.
+New tasks offer Feeding, Walk, Health and Other. Feeding/Walk tasks ask for the
+saved meal or walk name, date/time and responsible member. Health/Other restore
+free-name general tasks, with optional details and the existing manual completion.
+These creation choices do not create clinical records or require a new category
+column; general tasks keep the existing database contract.
 The responsible member defaults to you; choosing Unassigned remains explicit.
 Recurrence stays in Advanced options. An unassigned occurrence can be taken;
 changing responsibility only updates that occurrence. There is no rotation,
@@ -113,3 +117,9 @@ Feeding/Walks smoke test there. Preserve all previous migrations and data.
 - Preview used temporary authentication/data only and its server was stopped.
   A screenshot of the isolated mobile verification is `/tmp/pawshare-care-mobile.jpg`.
 - No hosted migrations, external data writes, push, PR, merge or deployment.
+
+General-task restoration: Health and Other are available again alongside Feeding
+and Walk. Fourteen relevant Tasks tests, typecheck and build passed. An isolated
+browser check created both general task kinds with real temporary database writes,
+retained optional details and verified manual completion; no shared data changed.
+No additional migration is needed.
