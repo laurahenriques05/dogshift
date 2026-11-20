@@ -23,6 +23,7 @@ export function TodaysWalks({routine,user,zone}:{routine:DailyWalkRoutine;user:s
  return <div className="walk-routine-layout"><section className={`card walk-today${routine.ready&&!routine.scheduleComplete&&!editing?' is-unconfigured':''}`}>
   <header className="walk-today-heading">
    <h2><span className="icon-tile"><Footprints size={28} aria-hidden="true"/></span>{routine.count===undefined||!routine.scheduleComplete?'Walking routine':'Today’s walk'}</h2>
+   <button type="button" className="walk-routine-edit-tile" disabled={!routine.ready||!routine.scheduleComplete||routine.busy||editing} onClick={()=>edit('edit')}><Pencil size={28} aria-hidden="true"/><span>Edit routine</span></button>
   </header>
   {routine.loading?<p role="status">Loading today’s walks…</p>:<>
    {feedback&&<p role="status">{feedback}</p>}
@@ -71,5 +72,5 @@ export function TodaysWalks({routine,user,zone}:{routine:DailyWalkRoutine;user:s
    </>}
   </>}
   {slot&&routine.count!==undefined&&(slot.walk||slot.manual)&&<WalkRoutineSummary key={`${routine.day}-${slot.number}`} slot={slot} user={user} zone={zone} routine={routine} onClose={()=>setSelected(null)}/>}
- </section><button type="button" className="walk-routine-edit-tile" disabled={!routine.ready||!routine.scheduleComplete||routine.busy||editing} onClick={()=>edit('edit')}><Pencil size={28} aria-hidden="true"/><span>Edit routine</span></button></div>
+ </section></div>
 }

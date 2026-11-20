@@ -1,4 +1,4 @@
-import { addCompactMapCredits } from './compactMapCredits'
+import { MapCredits } from './MapCredits'
 import { applyMapPresentation, type MapViewMode } from './mapPresentation'
 import { addDogPlaceTileLayers, retainDogPlacesOnZoomOut } from './dogPlaceLayers'
 import type { DogPlace } from './dogPlaces'
@@ -65,7 +65,6 @@ export default function VectorRouteMap({ points, compact = false, places = [], l
    })
    const map = instance
    poiMap.current=map
-   addCompactMapCredits(map,M)
    map.touchZoomRotate.disableRotation()
    map.addControl(new M.NavigationControl({ showCompass: false }), 'top-left')
    map.addControl(new M.ScaleControl({ unit: 'metric' }), 'bottom-left')
@@ -142,6 +141,7 @@ export default function VectorRouteMap({ points, compact = false, places = [], l
   <span className="walk-map-north" aria-hidden="true">N ↑</span>
   {visible && loading && <p className="walk-map-status" role="status">Loading street map…</p>}
   {error && <p className="walk-map-status" role="alert">{error} <Button className="secondary" onClick={() => setRetry(value => value + 1)}>Retry map</Button></p>}
+  <MapCredits mode={mode}/>
   <RouteMapControls live={live} playing={replay.playing} disabled={!ready || !replay.canReplay} status={replay.status} onFit={() => fit.current()} onReplay={() => { if (!replay.playing) fit.current(); replay.toggle() }}/>
   {!!tilePlaces.length&&<ul className="sr-only" aria-label="Dog places in the visible map">{tilePlaces.map(name=><li key={name}>{name}</li>)}</ul>}
 

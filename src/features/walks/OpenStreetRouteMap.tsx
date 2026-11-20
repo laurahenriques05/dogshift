@@ -1,3 +1,4 @@
+import { MapCredits } from './MapCredits'
 import { SATELLITE_TILES, SATELLITE_CREDITS, type MapViewMode } from './mapPresentation'
 import type { DogPlace } from './dogPlaces'
 import { useEffect, useRef, useState } from 'react'
@@ -50,8 +51,7 @@ export function OpenStreetRouteMap({ points, compact = false, places = [], live 
    if (disposed || !host.current) return
    const coordinates = mapCoordinates(latest.current)
    if (!coordinates.length) { setLoading(false); return }
-   instance = L.map(host.current, { scrollWheelZoom: false, touchZoom: true, doubleClickZoom: false, dragging: true, zoomSnap: .25, zoomDelta: .5, worldCopyJump: true, maxZoom: 19, minZoom: 0 })
-   instance.attributionControl.setPrefix(false)
+   instance = L.map(host.current, { attributionControl: false, scrollWheelZoom: false, touchZoom: true, doubleClickZoom: false, dragging: true, zoomSnap: .25, zoomDelta: .5, worldCopyJump: true, maxZoom: 19, minZoom: 0 })
    const canvas = host.current
    const onWheel = createPinchZoomHandler((delta, event) => {
     if (!instance) return
@@ -108,6 +108,7 @@ export function OpenStreetRouteMap({ points, compact = false, places = [], live 
   <div ref={host} style={{visibility:ready?'visible':'hidden'}} className="walk-map-canvas" role="region" aria-label="Interactive walking route map. Pinch with two fingers to zoom. Normal scrolling leaves the map unchanged. Keyboard and zoom buttons are available."/>
   {visible && loading && <p className="walk-map-status" role="status">Loading street map…</p>}
   {error && <p className="walk-map-status" role="alert">{error} <Button className="secondary" onClick={() => setRetry(n => n + 1)}>Retry map</Button></p>}
+  <MapCredits mode={mode} raster/>
   <RouteMapControls live={live} playing={replay.playing} disabled={!ready || !replay.canReplay} status={replay.status} onFit={() => fit.current()} onReplay={() => { if (!replay.playing) fit.current(); replay.toggle() }}/>
 
  </figure>

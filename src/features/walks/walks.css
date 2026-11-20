@@ -170,3 +170,36 @@ dialog.walk-routine-summary{position:fixed;inset:0;margin:auto;height:fit-conten
 .walk-waste-icon-counts>span{display:inline-flex;align-items:center;gap:8px}
 .walk-routine-summary>.walk-routine-summary-close{display:flex;margin:24px auto 0;justify-content:center}
 .walk-page .card.walk-daily-overview.has-routine{background:#f1f5ec;border-color:#d4dfca}
+
+/* Compact routine card, with a single small in-card editing control. */
+.walk-routine-layout{display:block}
+.walk-routine-layout .walk-today{padding:16px 18px;min-height:0}
+.walk-routine-layout .walk-today-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0 0 8px}
+.walk-routine-layout .walk-today-heading h2{font-size:21px;line-height:1.2}
+.walk-routine-layout .walk-today-heading .icon-tile{width:40px;height:40px;border-radius:12px}
+.walk-routine-layout .walk-today-heading .icon-tile svg{width:27px;height:27px}
+.walk-routine-layout .walk-routine-edit-tile{display:inline-flex;align-items:center;justify-content:center;width:auto;height:38px;min-height:38px;max-height:none;gap:6px;padding:6px 10px;font-size:12px;flex:none;border-radius:9px;align-self:center}
+.walk-routine-layout .walk-routine-edit-tile svg{width:16px;height:16px}
+.walk-today .walk-routine-line{padding:10px 0 0}
+.walk-today .walk-routine-line>li{grid-template-rows:76px auto;min-width:92px;flex-basis:92px;row-gap:12px}
+.walk-today .walk-routine-line>li::before,.walk-today .walk-routine-line>li::after{top:37px}
+.walk-today .walk-routine-line .walk-period-bubble{width:76px;height:76px;padding:6px;gap:6px}
+.walk-today .walk-routine-line .dose-detail-link{min-height:36px}
+.walk-today.is-unconfigured{display:block}
+.walk-today.is-unconfigured .walk-routine-setup{margin-top:12px}
+.walk-routine-summary-actions{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:10px;margin-top:24px}
+.walk-routine-summary-actions>.button{margin:0;min-height:40px;padding:9px 12px;font-size:12px}
+.walk-routine-manual-message{text-align:center;margin:18px auto;max-width:36ch}
+.walk-waste{border-bottom:0}
+.walk-waste-icon-counts{display:flex;gap:24px;margin:12px 0}
+.walk-event-description{width:100%;min-width:0;border:1px solid #d3dcd0;border-radius:10px;padding:12px 14px;background:#fff;color:#233e32;font:inherit;min-height:48px}
+.walk-edit-events fieldset{align-content:start}
+.walk-map-credits{font-size:10px;line-height:1.5;color:#566557;text-align:right;padding:5px 2px;overflow-wrap:anywhere}
+.walk-map-credits a{text-decoration:underline;text-underline-offset:2px}
+@media(max-width:450px){.walk-routine-layout .walk-today{padding:14px}.walk-routine-layout .walk-today-heading h2{font-size:18px;gap:8px}.walk-routine-layout .walk-today-heading .icon-tile{width:34px;height:34px}.walk-routine-layout .walk-routine-edit-tile{min-height:44px;height:44px;padding:6px 8px;font-size:11px}.walk-routine-layout .walk-routine-edit-tile svg{width:14px;height:14px}}
+.walk-page .walk-routine-layout>section.card.walk-today{padding:16px 18px;min-height:0}
+.walk-routine-layout .walk-today .walk-routine-line>li.dose-step{grid-template-rows:76px auto;min-width:92px;flex-basis:92px;row-gap:12px}
+.walk-details-editor .walk-edit-events .field{min-width:0}
+.walk-details-editor .walk-edit-events .field input{width:100%;max-width:100%;box-sizing:border-box;font-size:13px;padding:10px 8px}
+@media(max-width:450px){.walk-page .walk-routine-layout>section.card.walk-today{padding:14px}.walk-details-editor .walk-edit-events{grid-template-columns:1fr}}
+.walk-routine-layout .walk-routine-edit-tile{flex-direction:row}

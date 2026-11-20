@@ -2,7 +2,7 @@ import { PeeIcon, PoopIcon } from './WasteIcons'
 import { useEffect, useRef, useState } from 'react'
 import { Button, Notice, errorMessage } from '../../components/ui'
 import { getWalkWaste, recordWaste, wasteCounts, wastePanelVisible, canRecordWaste, type WasteKind, type WasteMode, type WasteEvent } from './waste'
-export function WalkWastePanel({ walkId, own, finished, ending = false, readOnly = false, iconCounts = false, onRecorded }: { walkId: string; own: boolean; finished: boolean; ending?: boolean; readOnly?: boolean; iconCounts?: boolean; onRecorded?: () => void }) {
+export function WalkWastePanel({ walkId, own, finished, ending = false, readOnly = false, iconCounts = true, onRecorded }: { walkId: string; own: boolean; finished: boolean; ending?: boolean; readOnly?: boolean; iconCounts?: boolean; onRecorded?: () => void }) {
  const [data, setData] = useState<{ mode: WasteMode | null; events: WasteEvent[] } | null>(null)
  const [error, setError] = useState(''), [busy, setBusy] = useState(false), [retry, setRetry] = useState(0)
  const pending = useRef<{ id: string; walk_id: string; kind: WasteKind } | null>(null), locked = useRef(false)

@@ -91,3 +91,29 @@ were checked. Fixture data only; no hosted reads/writes or SQL changes.
 Validation on this source: 263 isolated tests in 59 files, TypeScript, production
 build and whitespace checks passed on Node 22. Existing Zod annotation/bundle-size
 warnings remain. No migration or production deployment was performed here.
+
+## Compact routine and timeline follow-up — 20 November 2026
+
+Routine now occupies one compact card. The small Edit routine button is inside
+its upper-right header, disabled until a complete routine is saved and whenever
+the routine form is open. Circles are 76px; the example desktop card was 216px
+high with summaries, without the separate editing tile. Mobile stays horizontally
+contained. Edit actions retain Save routine, Remove routine, Cancel.
+
+Manual-outing explanations are centred. Undo recorded outing and Close summary
+share one centred flex row, wrapping only when needed to preserve touch targets.
+All waste panels use the existing count symbols by default with accessible labels;
+the bottom separator is removed. Recording buttons retain their task labels.
+
+Starting Time and Finishing Time now live inside Start and Finish fieldsets.
+Removed the device-time-zone sentence and visible Event text labels. Each event
+text input retains a distinct accessible description. Form names and correction
+RPC payload are unchanged; a browser fixture submitted 09:25/10:05 successfully
+to a local RPC stub with matching start/finish event instants, notes and waste
+entries. No GPS samples or actual hosted activities were edited.
+
+A temporary fixture verified setup/save/edit blocking, compact desktop/mobile
+cards, aligned manual-summary actions, footer dialogs and timeline layout on
+1280px/390px widths. Public sample map tiles loaded with visible attribution
+immediately below the map and no MapLibre attribution overlay. These are local
+fixtures, not real household persistence or phone background-GPS validation.
