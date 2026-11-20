@@ -257,3 +257,5 @@ dialog.walk-routine-summary{position:fixed;inset:0;margin:auto;height:fit-conten
 
 .walk-nfc-section>summary>small{font-weight:400}
 .walk-nfc-section .feeding-tag-setup>.notice+.feeding-actions{margin-top:12px}
+
+.walk-routine-header-actions{display:flex;align-items:center;justify-content:flex-end;gap:8px;flex-wrap:wrap}.walk-routine-header-actions>.button{min-height:44px;padding:8px 12px;font-size:12px}.walk-routine-layout .walk-today.is-unconfigured{display:block}.walk-routine-layout .walk-today-heading .walk-routine-header-actions{margin-left:auto}

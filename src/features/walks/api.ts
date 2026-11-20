@@ -22,7 +22,14 @@ export async function getWalks(household:string) {
 export async function setWalkDeletion(id: string, deleted: boolean) {
  const result = await db().rpc('set_walk_deleted', { p_walk: id, p_deleted: deleted })
  if (result.error) throw result.error
+ // A member removing another author's walk loses SELECT access to the deleted row.
+ if(deleted)return
  const verified = await db().from('walks').select('id,deleted_at').eq('id', id).single()
  if (verified.error) throw verified.error
  if ((verified.data.deleted_at !== null) !== deleted) throw new Error('The walk status could not be confirmed. Please retry.')
+}
+
+export async function permanentlyDeleteWalk(id:string) {
+ const result=await db().rpc('permanently_delete_walk',{p_walk:id})
+ if(result.error)throw result.error
 }

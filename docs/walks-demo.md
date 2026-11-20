@@ -21,20 +21,8 @@ history, Home, real totals, deleted entries or write actions. No demo switch sho
 silently inject fixtures into real summaries. Earlier unlabelled/development-only/
 combined-statistics experiments are superseded and must not be restored.
 
-## Approximate area names
+## Saved walk titles
 
-Walk area names asks explicit consent, per account/device and off initially.
-Once enabled, a visible saved route supplies one actual middle sample rounded to
-0.01 degrees to Photon locality/district/city lookup. Never send full trace,
-account/walk ID, credentials or referrer. Requests serialize with at least one
-second spacing, timeout after ten seconds and cache bounded coarse labels in
-memory. Choose area/city fields, not a business/address invented as a route name.
-Labels represent one approximate area, not every place visited.
-
-No GPS/consent/service means an honest generic fallback; failures offer Retry area.
-Revocation aborts lookups and removes labels. Names are client-side, not persisted
-or shared in hosted walk records. Public sample/CORS and stub consent checks used
-no real user route. Provider availability is best effort.
-
-Reference: https://github.com/komoot/photon/blob/master/docs/api-v1.md
-Current permissions, migration rollout and release evidence: team sync / walks.md.
+The current follow-up removes the area-names disclosure and automatic Photon
+lookups from saved cards. Existing walk titles and explicit demo labels remain.
+The isolated lookup helpers/tests remain internal; saved cards no longer call them.

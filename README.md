@@ -101,15 +101,16 @@ persistent forecast recomputation is separate from in-app stock notices.
   stable slot identities and automatic progress from real starts. 96px circles
   use short names; hero uses Morning Walk/Afternoon Walk 1/Night Walk. No estimate
   time shown in circles, pending Summary or opt-out button.
-- Compact Edit in the routine header, disabled until saved/during editing.
+- Set routine sits immediately left of compact Edit in the routine header;
+  Edit remains disabled until saved/during editing.
   Remove only when editing, between Save routine and Cancel. Save validates the
   actual form, rather than remaining disabled with completed inputs.
 - Centred Walk Summary with real waste symbols/notes and truthful manual checks.
   Walking together retains real completed total; charts offer distance/time only.
 - Full history and author event/note corrections preserve raw GPS; timeline updates
   immediately. Explicit Demo walks never mix into real totals/data.
-- Approximate area titles require account/device consent; one coarse route sample
-  goes to Photon, not the full trace. Labels are client-side, not persisted names.
+- Saved cards use existing walk titles. The area-names disclosure and automatic
+  area lookups have been removed from the current source.
 - Non-Google credits only in the persistent small footer; native Google credits
   remain. No map-style picker on saved no-GPS routes. Dog places are opt-in;
   initial location animation approaches world → device with reduced-motion support.
@@ -118,7 +119,12 @@ persistent forecast recomputation is separate from in-app stock notices.
   normal weight; 12px between warning and Copy action. URL:
   /walks?action=start&household=<UUID>. It opens setup, not unattended recording.
 
-Main includes PRs #65–#68; #68 merged as
+The current Walks follow-up branch adds a recording-only page while walking,
+a centred inactivity prompt after 2 stationary minutes (Yes continues, No finishes;
+5 unanswered minutes finishes), and permanent deletion from the author’s Deleted
+list with confirmation. The new permanent-delete RPC is proposed, not hosted.
+
+Main includes PRs #65–#71; #68 merged as
 72016adb6ea353f6daca5006698d34ebe8ec36a2. The four final screenshot adjustments
 are implemented, not outstanding. Neither rejected styling template was added.
 

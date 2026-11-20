@@ -12,6 +12,7 @@ it('offers an optional first routine without inventing a goal, last start or nex
  const html=overview(routine)
  expect(html).toContain('<strong>0</strong>');expect(html).not.toContain('NEXT WALK');expect(html).not.toContain('Last recorded start')
  const setup=renderToStaticMarkup(<TodaysWalks routine={routine} user="user" zone="Europe/Lisbon"/> )
+ expect(setup.indexOf('Set routine')).toBeLessThan(setup.indexOf('Edit routine'));expect(setup).not.toContain('Walking without a routine.');
  expect(setup).toContain('Walking routine');expect(setup).toContain('Set routine');expect(setup).not.toContain('No routine for now');expect(setup).toMatch(/walk-routine-edit-tile[^>]*disabled/)
  const declined=renderToStaticMarkup(<TodaysWalks routine={{...routine,decided:true}} user="user" zone="Europe/Lisbon"/> )
  expect(declined).toContain('Walking routine');expect(declined).not.toContain('No routine for now')

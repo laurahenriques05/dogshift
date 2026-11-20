@@ -1,4 +1,5 @@
 import { useCareTask } from '../tasks/care'
+import { StationaryWalkDialog } from './StationaryWalkDialog'
 import { WalkTagSetup } from './WalkTagSetup'
 import { WalkDailyOverview } from './WalkDailyOverview'
 import { useDailyWalkRoutine } from './useDailyWalkRoutine'
@@ -43,7 +44,7 @@ export function WalksPage() {
  const [finishingWalk,setFinishingWalk]=useState<string|null>(null)
  const active=data.walks.find(w=>!w.ended_at&&!w.deleted_at),mine=active?.walker_id===session!.user.id
  const historyView=search.get('view')==='history'
- const routine=useDailyWalkRoutine({dog:dog!.id,walks:data.walks,zone:household!.timezone,now:data.now,enabled:!historyView})
+ const routine=useDailyWalkRoutine({dog:dog!.id,walks:data.walks,zone:household!.timezone,now:data.now,enabled:!historyView&&!(active&&mine)})
  useEffect(()=>{window.scrollTo(0,0)},[historyView])
  const history=walkHistory(data.walks,false,session!.user.id)
  const summaryNow=new Date(data.now)
@@ -62,10 +63,10 @@ export function WalksPage() {
   dialog.current?.querySelector<HTMLButtonElement>('button')?.focus()
   return()=>previousFocus.current?.focus()
  },[confirm])
- if(historyView)return <WalkHistoryPage areaScope={session!.user.id} deletedHistory={walkHistory(data.walks,false,session!.user.id,true)} history={history} timezone={household!.timezone} loading={data.loading} ready={data.ready} error={data.error} onRetry={()=>data.reload()}/>
- return <div className="walk-page"><PageTitle eyebrow="A LITTLE FRESH AIR" title={`Out with ${dog!.name}.`}/>
-  {taskId&&<section className="card" aria-label="Walking task">{care.loading?<p role="status">Loading task…</p>:care.error?<><Notice error>{care.error}</Notice><Button onClick={care.reload}>Reload task</Button></>:<p>{care.row?.title} · {care.row?.completed_at?'Completed with a saved walk.':'Pending until this walk is ended and saved.'}</p>}<Link to="/tasks">Back to Tasks</Link></section>}
-  {nfcError&&<Notice error>{nfcError}</Notice>}
+ if(historyView&&!(active&&mine))return <WalkHistoryPage areaScope={session!.user.id} deletedHistory={walkHistory(data.walks,false,session!.user.id,true)} history={history} timezone={household!.timezone} loading={data.loading} ready={data.ready} error={data.error} onRetry={()=>data.reload()}/>
+ return <div className="walk-page">{!(active&&mine)&&<PageTitle eyebrow="A LITTLE FRESH AIR" title={`Out with ${dog!.name}.`}/>}
+  {taskId&&!(active&&mine)&&<section className="card" aria-label="Walking task">{care.loading?<p role="status">Loading task…</p>:care.error?<><Notice error>{care.error}</Notice><Button onClick={care.reload}>Reload task</Button></>:<p>{care.row?.title} · {care.row?.completed_at?'Completed with a saved walk.':'Pending until this walk is ended and saved.'}</p>}<Link to="/tasks">Back to Tasks</Link></section>}
+  {nfcError&&!(active&&mine)&&<Notice error>{nfcError}</Notice>}
   {data.error&&<Notice error>{isSchemaUnavailable(data.error)?'This recording is waiting to sync. Retry when the connection is ready.':data.error}<p><Button className="secondary" onClick={()=>{void data.reload();void data.sync()}}>Retry connection</Button></p></Notice>}
   {data.loading?<p role="status">Loading walks…</p>:!data.ready?<section className="card"><h2>Your walking diary is getting ready</h2><p>Walks and summaries will appear here once the connection is ready. GPS diagnostics and the walking lesson are available below.</p></section>:<>
    {!active&&<WalkDailyOverview routine={routine} walks={data.walks} zone={household!.timezone} dogName={dog!.name} busy={data.busy} onStart={()=>setConfirm('start')} onSetupTag={openTagSetup}/>}
@@ -77,22 +78,24 @@ export function WalksPage() {
       <div className="walk-live-side"><WalkWastePanel key={active.id} walkId={active.id} own={mine} finished={false} onRecorded={()=>setTimelineRevision(value=>value+1)}/>
       <WalkTimeline walk={active} points={data.gpsEnabled?data.points:[]} timezone={household!.timezone} revision={timelineRevision}/>
       <WalkNotes key={`note-${active.id}`} walkId={active.id} user={session!.user.id} notes={active.notes} timezone={household!.timezone} disabled={data.ending} onDraftChange={draft=>setNoteDraft({walk:active.id,draft})} onSaved={()=>void data.reload()}/>
-      <div className="walk-actions walk-recording-actions">{data.gpsEnabled&&(data.tracking?<Button className="secondary" disabled={data.busy||data.ending} onClick={()=>void data.pause()}><Pause size={18} aria-hidden="true"/>Pause GPS</Button>:<Button className="secondary" disabled={data.busy||data.ending} onClick={()=>void data.resume()}><Play size={18} aria-hidden="true"/>Resume GPS</Button>)}<Button className="walk-end-button" disabled={data.busy||data.ending} onClick={()=>setConfirm('end')}>End walk</Button></div>
+      <div className="walk-actions walk-recording-actions">{data.gpsEnabled&&(data.tracking?<Button className="secondary" disabled={data.busy||data.ending} onClick={()=>void data.pause()}><Pause size={18} aria-hidden="true"/>Pause GPS</Button>:<Button className="secondary" disabled={data.busy||data.ending} onClick={()=>void data.resume()}><Play size={18} aria-hidden="true"/>Resume GPS</Button>)}<Button className="walk-end-button" disabled={data.busy||data.ending} onClick={()=>{data.keepWalking();setConfirm('end')}}>End walk</Button></div>
       <WalkRecordingStatus gps={data.gpsEnabled} tracking={data.tracking} paused={data.paused} quality={data.quality} accuracy={data.accuracy} lastFix={data.points.length?Date.parse(data.points.at(-1)!.recorded_at):null} pending={data.pending} ending={data.ending} online={navigator.onLine} saved={data.saved} now={data.now} recovered={data.recovered}/>
-      {data.warning&&<Notice>Still walking? Ending in approximately {Math.max(0,Math.ceil((120000-(data.now-data.warning))/1000))} seconds if GPS stays available.<p><Button onClick={data.keepWalking}>Keep walking</Button></p></Notice>}
       {data.ending&&<Notice><p role="status">Finishing your walk. Reconnect if saving is interrupted.</p></Notice>}
       </div></div>
      </>}
     </>
    </section>}
+   {!(active&&mine)&&<>
    <TodaysWalks routine={routine} user={session!.user.id} zone={household!.timezone}/>
    <section className="card"><div className="walk-heading"><div><p className="eyebrow">LITTLE STEPS ADD UP</p><h2>Walking together</h2></div><WalkPeriodSelect label="Summary period" value={period} onChange={setPeriod}/></div><div className="walk-metrics"><div><strong>{summary.count}</strong><span>Completed walks</span></div><div><strong>{kilometersLabel(summary.meters)} km</strong><span>Recorded distance</span></div><div><strong>{timeLabel(summary.seconds)}</strong><span>Total time</span></div></div><div id="walk-statistics" hidden={!showStatistics}>{showStatistics&&<WalkSummaryChart history={history} period={period} timezone={household!.timezone} now={summaryNow}/>}</div><div className="walk-statistics-action"><button type="button" className="walk-statistics-toggle" aria-expanded={showStatistics} aria-controls="walk-statistics" onClick={()=>setShowStatistics(value=>!value)}>{showStatistics?'Hide statistics':'Show statistics'}</button></div></section>
    <section className="card"><div className="walk-heading walk-history-heading"><h2>Last Adventure</h2><Link className="walk-show-more" to="/walks?view=history">Show more</Link></div>{!history.length?<p className="walk-empty">Your first completed walk will appear here.</p>:<div className="walk-activity-list">{history.slice(0,1).map(w=><WalkActivityCard areaScope={session!.user.id} key={w.id} {...w} loadRoute={!w.demo} onDelete={!w.demo ? () => setDeleting(w.id) : undefined}/>)}</div>}</section>
+   </>}
   </>}
-  <details id="walk-nfc" ref={nfcSection} className="feeding-disclosure walk-nfc-section"><summary><span>NFC tag</span><small>Configure or replace the household walking tag</small></summary><div className="feeding-disclosure-body"><WalkTagSetup householdId={household!.id}/></div></details>
+  {!(active&&mine)&&<details id="walk-nfc" ref={nfcSection} className="feeding-disclosure walk-nfc-section"><summary><span>NFC tag</span><small>Configure or replace the household walking tag</small></summary><div className="feeding-disclosure-body"><WalkTagSetup householdId={household!.id}/></div></details>}
+  {active&&mine&&data.warning!==null&&!data.ending&&<StationaryWalkDialog dogName={dog!.name} busy={data.busy} onYes={data.keepWalking} onNo={()=>{setConfirm(null);setFinishingWalk(active.id);void data.finish(noteDraft?.walk===active.id?noteDraft.draft:undefined)}}/>}
   <WalkConnectionAlert active={!!active&&mine} failed={data.connectionFailed} onReconnect={()=>data.reconnect()}/>
   {deleting&&<RestoreWalkDialog action="delete" walkId={deleting} onCancel={()=>setDeleting(null)} onRestored={async()=>{await data.reload();setDeleting(null)}}/>}
   {confirm==='start'&&<StartWalkDialog dogName={dog!.name} busy={data.busy} blocked={taskId&&(care.loading||!!care.error||!care.row||!!care.row.completed_at)?'Reload this task before starting.':active?(mine?'You already have an active walk. Close this window and resume GPS.':'Another family member is already walking your dog. Wait until they finish.'):''} onCancel={()=>setConfirm(null)} onConfirm={(mode,trackGps)=>{setConfirm(null);void data.start(mode,trackGps,taskId||undefined)}}/>}
-  {confirm==='end'&&<div className="walk-dialog-backdrop"><div ref={dialog} className="card walk-dialog" role="dialog" aria-modal="true" aria-labelledby="walk-confirm-title" onKeyDown={e=>{if(e.key==='Escape')setConfirm(null);if(e.key==='Tab'){const buttons=dialog.current!.querySelectorAll<HTMLButtonElement>('button');if(e.shiftKey&&document.activeElement===buttons[0]){e.preventDefault();buttons[buttons.length-1].focus()}else if(!e.shiftKey&&document.activeElement===buttons[buttons.length-1]){e.preventDefault();buttons[0].focus()}}}}><h2 id="walk-confirm-title">Finish this walk?</h2><>{active&&mine&&<WalkFinishSummary timezone={household!.timezone} walk={active} user={session!.user.id} draft={noteDraft?.walk===active.id?noteDraft.draft:undefined}/>}</><div className="walk-actions"><Button className="secondary" onClick={()=>setConfirm(null)}>Cancel</Button><Button disabled={data.busy||!data.ready} onClick={()=>{setConfirm(null);if(active){setFinishingWalk(active.id);void data.finish(noteDraft?.walk===active.id?noteDraft.draft:undefined)}}}>Confirm end</Button></div></div></div>}
+  {confirm==='end'&&active&&mine&&<div className="walk-dialog-backdrop"><div ref={dialog} className="card walk-dialog" role="dialog" aria-modal="true" aria-labelledby="walk-confirm-title" onKeyDown={e=>{if(e.key==='Escape')setConfirm(null);if(e.key==='Tab'){const buttons=dialog.current!.querySelectorAll<HTMLButtonElement>('button');if(e.shiftKey&&document.activeElement===buttons[0]){e.preventDefault();buttons[buttons.length-1].focus()}else if(!e.shiftKey&&document.activeElement===buttons[buttons.length-1]){e.preventDefault();buttons[0].focus()}}}}><h2 id="walk-confirm-title">Finish this walk?</h2><>{active&&mine&&<WalkFinishSummary timezone={household!.timezone} walk={active} user={session!.user.id} draft={noteDraft?.walk===active.id?noteDraft.draft:undefined}/>}</><div className="walk-actions"><Button className="secondary" onClick={()=>setConfirm(null)}>Cancel</Button><Button disabled={data.busy||!data.ready} onClick={()=>{setConfirm(null);if(active){setFinishingWalk(active.id);void data.finish(noteDraft?.walk===active.id?noteDraft.draft:undefined)}}}>Confirm end</Button></div></div></div>}
  </div>
 }
