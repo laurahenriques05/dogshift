@@ -55,7 +55,7 @@ export function TodaysWalks({routine,user,zone}:{routine:DailyWalkRoutine;user:s
      if(routine.busy)return
      const form=new FormData(event.currentTarget),count=Number(form.get('walk-count')),estimates=form.getAll('walk-time').map(String)
      if(!validRoutineTimes(estimates,count)){setFeedback('Choose an estimated time for every walk.');return}
-     if(await routine.saveCount(count,estimates)){setMode(null);setFeedback('Walking routine saved.')}
+     if(await routine.saveCount(count,estimates)){setMode(null);setFeedback('')}
     }}>
      <Field label="Walks per day" name="walk-count" type="number" min={1} max={12} step={1} required disabled={routine.busy} value={value} onChange={event=>setValue(event.target.value)}/>
      <div className="walk-routine-times"><p>Estimated times</p>
@@ -64,12 +64,12 @@ export function TodaysWalks({routine,user,zone}:{routine:DailyWalkRoutine;user:s
      </div>
      <div className="walk-actions">
       <Button type="submit" disabled={routine.busy}>Save routine</Button>
-      <Button type="button" className="secondary" disabled={routine.busy} onClick={()=>setMode(null)}>Cancel</Button>
       {mode==='edit'&&<Button type="button" className="secondary" disabled={routine.busy} onClick={()=>void withoutRoutine()}>Remove routine</Button>}
+      <Button type="button" className="secondary" disabled={routine.busy} onClick={()=>setMode(null)}>Cancel</Button>
      </div>
     </form>}
    </>}
   </>}
-  {slot&&routine.count!==undefined&&(slot.walk||slot.manual)&&<WalkRoutineSummary key={`${routine.day}-${slot.number}`} slot={slot} label={name(slot.number)} user={user} zone={zone} routine={routine} onClose={()=>setSelected(null)}/>}
+  {slot&&routine.count!==undefined&&(slot.walk||slot.manual)&&<WalkRoutineSummary key={`${routine.day}-${slot.number}`} slot={slot} user={user} zone={zone} routine={routine} onClose={()=>setSelected(null)}/>}
  </section><button type="button" className="walk-routine-edit-tile" disabled={!routine.ready||!routine.scheduleComplete||routine.busy||editing} onClick={()=>edit('edit')}><Pencil size={28} aria-hidden="true"/><span>Edit routine</span></button></div>
 }

@@ -147,3 +147,12 @@ instead of using React preview state to gate the button. A temporary local fixtu
 verified empty-field rejection and correct saved values on desktop/mobile; no
 hosted writes or SQL changes. 263 isolated tests, typecheck and build passed on
 Node 22. Existing build warnings remain. See walks-routine-period-names.md.
+
+## Routine summary visual follow-up
+
+Walk Summary is centred with a centred title/close action, smaller matching bold
+Dog waste/Notes headings, existing waste symbols and no separator. Summary link
+spacing increased; removed the saved sentence. Start walk matches Feeding's pale
+green once the routine is complete. Edit actions: Save routine, Remove routine,
+Cancel. Progressive naming was checked during each hour selection. Desktop/mobile
+fixture verification is recorded in walks-routine-period-names.md. No SQL changes.

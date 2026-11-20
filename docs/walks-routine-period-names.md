@@ -70,3 +70,24 @@ validation explains missing estimates. Submission reads the actual named form
 controls through FormData, then revalidates the count and every HH:MM before the
 existing save RPC. Live name previews still use React state, but a delayed time
 input event cannot leave Save permanently disabled. This follow-up changes no SQL.
+
+## Routine summary presentation
+
+The routine summary is a viewport-centred native dialog named Walk Summary,
+independent of slot period. Title and Close summary are centred. Dog waste and
+Notes share bold 15px headings below the 22px dialog title. Read-only summary
+counts use the existing waste symbols with accessible text labels, without the
+separator. Other recording panels retain their action labels. Summary sits 18px
+below the circle row. Saving closes the form without the removed saved sentence.
+Edit actions are ordered Save routine, Remove routine, Cancel; setup has no Remove.
+A complete routine adds the same #f1f5ec background as Feeding to Start walk.
+
+A removed local browser fixture verified progressive names after each selected
+hour, repeated-period numbering, message absence, action order and saved routine
+background. The dialog centre matched viewport centre on 1280px and 390px widths;
+mobile dialog width was 352px. Symbols, no separator and heading sizes/weights
+were checked. Fixture data only; no hosted reads/writes or SQL changes.
+
+Validation on this source: 263 isolated tests in 59 files, TypeScript, production
+build and whitespace checks passed on Node 22. Existing Zod annotation/bundle-size
+warnings remain. No migration or production deployment was performed here.
