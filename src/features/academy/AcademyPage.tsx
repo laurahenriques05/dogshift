@@ -10,6 +10,7 @@ import { academyModules, ACADEMY_RULES, isModuleUnlocked } from './catalog'
 import { academyProgress } from './progress'
 import { AcademyDashboard } from './AcademyDashboard'
 import { GuidedLesson } from './GuidedLesson'
+import { TrainingIllustration } from './TrainingIllustration'
 import './academy.css'
 import '../../components/ui/modal.css'
 
@@ -45,6 +46,7 @@ function HouseholdAcademy(){
    <article className="academy-lesson-card"><div className="academy-challenge-layout"><div className="academy-challenge-guide"><p className="academy-meta"><BookOpen size={16}/>{module.subchallenges?.length?(availableModuleIds.has(module.id)?'Short sessions · progress saves as you go':'Short sessions · guided steps'): `About ${module.estimatedMinutes} minutes`}</p>
     {!availableModuleIds.has(module.id)&&<Notice>Preview only: you can read this challenge, but saving practice is not available yet.</Notice>}
     {!module.subchallenges?.length&&<GuidedLesson key={module.id} module={module} onPractice={()=>setPopup('practice')}/>}
+    {module.subchallenges&&<TrainingIllustration module={module}/>}
     {module.subchallenges&&<section className="academy-lesson-section"><h2>{module.sections[0].heading}</h2><p>{module.sections[0].text}</p></section>}
     {module.subchallenges?.length? <SubchallengePath moduleId={module.id} householdId={household!.id} dogId={dog!.id} parts={module.subchallenges} progress={subchallengeProgress.filter(part=>part.module_id===module.id&&part.dog_id===dog!.id)} available={availableModuleIds.has(module.id)} onSaved={load}/>:null}
    </div><aside className="academy-challenge-sidebar"><section className="academy-practice-snapshot" aria-label="Your practice"><p className="eyebrow">YOUR PRACTICE</p><p className="academy-challenge-xp">{ACADEMY_RULES.xpPerModule} shared XP</p><p>{progress.completedIds.has(module.id)?'Already earned by your household':'Once for the household'}</p><progress max={module.checklist.length} value={draftPractice.moduleId===module.id?draftPractice.count:0} aria-label="Practice steps tried"/><small aria-live="polite">{draftPractice.moduleId===module.id?draftPractice.count:0} of {module.checklist.length} tried</small></section><section className="academy-challenge-actions" id="academy-practice"><h2>Quick actions</h2>{availableModuleIds.has(module.id)&&(!module.subchallenges?.length||module.subchallenges.every(part=>subchallengeProgress.some(saved=>saved.module_id===module.id&&saved.dog_id===dog!.id&&saved.subchallenge_id===part.id)))&&<button type="button" onClick={()=>openChallengeSection('academy-practice')}><SquareCheck size={19}/>Record practice</button>}<button type="button" onClick={()=>openChallengeSection('academy-training-reminder')}><Bell size={19}/>Training reminder</button><button type="button" onClick={()=>openChallengeSection('academy-family-notes')}><Users size={19}/>Family notes</button></section></aside></div>
