@@ -516,3 +516,14 @@ Timeline corrections appear immediately after Save and open the updated timeline
 See [assignment rules and verification limits](docs/walks-routine-period-names.md).
 
 Password fields include an accessible show/hide control. Values start masked; toggling preserves input, validation and password-manager metadata without submitting the form. Login, sign-up, password reset and account password changes use the same control. This UI change needs no Supabase migration.
+
+Local-only follow-up: routine editing/display groups Morning, Afternoon and Night
+immediately, with Estimated hours and 96px circles. Map credits move exclusively
+to the persistent app footer. History can show approximate route-area names after
+explicit consent in Walk area names; this uses one rounded point with Photon,
+never the full route. Generic titles remain when consent/data/service is absent.
+Publication of these changes was requested after local verification; the two proposed layout templates are excluded. Hosted migrations are not part of this release.
+A local, unapplied compatibility proposal preserves stable routine slot identities
+when later SQL migrations are rolled out: 20261120152152_preserve_walk_routine_slot_identity.sql.
+It needs team review before application. Adding an outing appends its number within
+its period; existing period numbers and manual outing records are retained.

@@ -226,3 +226,28 @@ dialog.walk-routine-summary{position:fixed;inset:0;margin:auto;height:fit-conten
 @media(max-width:600px){.walk-live-map.has-route>.walk-live-metrics{top:calc(var(--walk-live-map-height) - 62px);left:90px;right:6px;gap:4px;flex-wrap:nowrap}.walk-live-map.has-route>.walk-live-metrics>div{padding:5px;gap:4px}.walk-live-map.has-route>.walk-live-metrics strong{font-size:11px}.walk-live-map.has-route>.walk-live-metrics small{font-size:9px}.walk-live-map.has-route>.walk-live-metrics svg{width:14px;height:14px}}
 .walk-live-side .walk-waste .walk-actions{margin-bottom:0}
 .walk-page .walk-summary-card>.walk-waste .walk-waste-icon-counts{margin:8px 0}
+
+/* Keep period labels inside slightly roomier circles, including numbered labels. */
+.walk-routine-layout .walk-today .walk-routine-line>li.dose-step{grid-template-rows:96px auto;min-width:108px;flex-basis:108px}
+.walk-routine-layout .walk-today .walk-routine-line .walk-period-bubble{width:96px;height:96px;padding:12px 8px;gap:7px}
+.walk-routine-layout .walk-today .walk-routine-line .walk-period-bubble strong{display:block;max-width:100%;font-size:12px;line-height:1.25;text-align:center;overflow-wrap:normal;word-break:normal}
+.walk-routine-layout .walk-today .walk-routine-line>li::before,.walk-routine-layout .walk-today .walk-routine-line>li::after{top:47px}
+.walk-routine-times{display:flex;gap:12px;flex-wrap:wrap;align-items:end;min-width:0;width:100%}
+.walk-routine-times>p{flex-basis:100%;margin:0;font-size:13px}
+.walk-routine-times>.field{flex:0 1 150px;min-width:0}
+.walk-page{width:100%;max-width:100%;min-width:0;margin-left:auto;margin-right:auto;box-sizing:border-box}
+.walk-page>*{min-width:0;max-width:100%}
+.walk-page .walk-live-layout,.walk-page .walk-history-filters,.walk-page .walk-activity-heading>div,.walk-page .walk-summary-card{min-width:0}
+.walk-page .walk-activity-heading h3{overflow-wrap:anywhere}
+@media(max-width:700px){.walk-page .walk-diary-heading{align-items:stretch;gap:12px;flex-wrap:wrap}.walk-page .walk-history-filters{width:100%;display:flex;flex-wrap:wrap;gap:8px}.walk-page .walk-history-filters>*{flex:1 1 140px;min-width:0;max-width:100%}.walk-page .walk-heading{flex-wrap:wrap;gap:12px}.walk-page .walk-heading>div{min-width:0;max-width:100%}.walk-page .walk-next-copy h2{overflow-wrap:anywhere}.walk-page .walk-live-side{width:100%;box-sizing:border-box}.walk-page .walk-routine-layout{width:100%;margin-left:auto;margin-right:auto}.walk-page .walk-routine-line.dose-bubbles{justify-content:flex-start;max-width:100%}.walk-page .walk-today-heading{flex-wrap:wrap}.walk-page .walk-today-heading h2{min-width:0}.walk-page .walk-today-heading .walk-routine-edit-tile{margin-left:auto}}
+.walk-area-consent{margin:12px 0;font-size:12px;color:#637168;max-width:100%}
+.walk-area-consent summary{display:flex;align-items:center;min-height:40px;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+.walk-area-consent p{max-width:65ch;margin:8px 0 12px;line-height:1.6}
+.walk-area-consent>.button{min-height:42px;padding:8px 12px;font-size:12px}
+.walk-page .walk-area-status{font-size:12px;margin:8px 0;color:#637168}
+.walk-area-status .walk-text-action{margin-left:8px;min-height:32px}
+/* Keep start/finish dialog actions clear of the persistent footer and phone navigation. */
+.walk-dialog-backdrop{padding-bottom:64px}
+.walk-dialog-backdrop .walk-dialog{max-height:calc(100dvh - 96px)}
+@media(max-width:700px){.walk-dialog-backdrop{padding-bottom:150px}.walk-dialog-backdrop .walk-dialog{max-height:calc(100dvh - 174px)}}
+@media(max-width:400px){.walk-routine-layout .walk-today .walk-routine-line>li.dose-step{min-width:100px;flex-basis:100px}}

@@ -152,3 +152,69 @@ stub. The browser showed Left home at 09:25 and Pee by the garden at 09:41 as so
 as Save returned, without reload. Public sample maps loaded with right-hand metrics
 beside the scale on 1280px/390px; no mobile page overflow. Fixtures are not live
 household data writes or actual phone GPS evidence. No new SQL migration.
+
+## Local grouping and mobile follow-up — 20 November 2026
+
+Changes prepared on codex/walk-grouping-and-mobile-local. Publication and merge
+were subsequently requested; neither proposed layout template is included. Existing automatic-progress work is preserved.
+
+Editing now uses stable field IDs and immediately groups valid estimates as
+Morning, Afternoon, Night, in saved planning order within each period. Empty hours stay
+unnamed at the end. Adding 17:30 to a 09:00/15:00/21:00 plan produces Morning,
+Afternoon 1, Afternoon 2, Night before Save; focus remains on the edited field.
+The persisted index is preserved for existing slot/manual records, while display
+and automatic assignment follow grouped order, even for older unsorted arrays.
+Existing input positions are retained on Save so a previously marked Night slot
+does not become an Afternoon slot. The heading is Estimated hours.
+
+Circles increased from 76px to 96px with bounded centred labels. The real AppShell
+was checked at 390px/360px: section centres matched the viewport centre, with no
+horizontal page overflow and no overflowing circle labels. Longer routines retain
+their local horizontal circle scroller rather than expanding the page.
+
+Non-Google maps render no attribution text in or alongside the map. They publish
+active sources to one persistent, small app-footer credit strip, visible above
+phone navigation and above custom map-dialog backdrops. Satellite sources are
+included while imagery is active; native Google attribution is preserved. Dialog
+space reserves room for the footer/navigation. Source: OSM permits visible adjacent
+attribution; the footer stays visible with the map rather than moving credits to
+an unreachable page end. https://osmfoundation.org/wiki/Licence/Attribution_Guidelines
+
+## Area names in history
+
+The user chose explicit in-app consent for Photon/OpenStreetMap area naming.
+Consent is per account on this device and defaults off. No reverse-geocoding request
+is allowed without it. Once enabled, visible saved routes use one real middle
+sample rounded to two decimal degrees; no trace, walk ID, account ID, credentials
+or referrer is sent. Requests use Photon's locality/district/city layers, serialize
+with a one-second spacing, time out after ten seconds and cache coarse labels only
+in memory. Results use neighbourhood/district/city fields, never a business or
+house number as an invented walk name. Names identify an approximate representative
+area, not every place visited. Empty/time-only/private-unavailable routes retain
+an honest fallback. API failure shows Retry area. Revocation aborts requests and
+removes displayed area names; no hosted walk title is overwritten.
+
+A local geocoder stub verified zero requests before consent, one after enabling,
+Arroios/Lisboa as the sample title, and fallback after revocation. Separately, one
+public sample lookup at 38.72/-9.15 returned Santo António/Lisboa; a second sample
+request verified browser CORS. No real user route was sent to Photon. Provider
+availability is not guaranteed; https://github.com/komoot/photon/blob/master/docs/api-v1.md
+No schema/migration is required. Account/device consent and in-memory naming do
+not imply shared or permanent household-title persistence.
+
+
+Compatibility proposal: 20261120152152_preserve_walk_routine_slot_identity.sql is
+local and unapplied. It supersedes the historical SQL proposal's array sorting,
+preserving submitted slot order with the same membership checks and restricted
+execution grants. The current hosted function was inspected read-only and does
+not contain that sorting statement, so current-host frontend use does not require
+this proposal. Review with Laura before any future hosted rollout; do not edit
+applied migrations. Isolated SQL verifies original check rows remain byte-for-byte
+unchanged after adding an afternoon slot, alongside outsider/anonymous rejection.
+
+Latest numbering rule supersedes earlier chronological-estimate numbering: a newly
+added outing is numbered next in its period, even if its estimate is earlier than
+the existing outing. For 09:00/17:00/21:00 plus a new 15:00, display is Morning,
+Afternoon 1 (17:00), Afternoon 2 (15:00), Night. This preserves the user's existing
+Afternoon 1 and guarantees the new field sits immediately after it. Actual walks
+still fill the first free planned slot in the matching period in real-start order.

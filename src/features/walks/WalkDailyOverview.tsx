@@ -1,3 +1,4 @@
+import {routineOrder} from './routineSchedule'
 import { useState } from 'react'
 import { ArrowRight, Copy, Nfc } from 'lucide-react'
 import type { Walk } from '../../lib/supabase/database.types'
@@ -9,7 +10,7 @@ import { startedToday, lastRecordedStart, nextRoutineSlot } from './routinePrese
 import { collarTagUrl } from './nfc'
 export function WalkDailyOverview({routine,walks,zone,dogName,household,busy,onStart}:{routine:DailyWalkRoutine;walks:Walk[];zone:string;dogName:string;household:string;busy:boolean;onStart:()=>void}){
  const [setup,setSetup]=useState(false),[copyStatus,setCopyStatus]=useState('')
- const next=routine.ready?nextRoutineSlot(routine.slots):undefined,last=lastRecordedStart(walks)
+ const next=routine.ready?nextRoutineSlot(routineOrder(routine.times).map(index=>routine.slots.find(slot=>slot.number===index+1)).filter(slot=>slot!==undefined)):undefined,last=lastRecordedStart(walks)
  const count=startedToday(walks,routine.day,zone).length
  const title=routine.loading?'Your next adventure':!routine.ready||routine.count===undefined?'A new adventure awaits':!routine.scheduleComplete?'Complete your walking routine':next?(routine.names[next.number-1]??'Your next walk'):'Today’s routine is complete'
  const url=collarTagUrl(appUrl,household)
