@@ -57,7 +57,7 @@ real deletion was performed, and family-wide removal is not yet live.
 - Walk Summary is centred; actual notes/waste symbols, truthful manual-outing
   explanation, aligned Undo/Close. Empty diary counts 0; no false last start.
 - Walking together retains completed total. Charts offer distance/time only.
-- Mobile only (up to 600px): estimated-hour inputs use two separated columns;
+- Mobile only (up to 600px): estimated-hour inputs use one full-width field per row;
   the summary period selector sits at the top right, above the full-width title.
 - Pause freezes elapsed time and GPS; resume creates a segment. Notes/events can
   be corrected by their author, preserving all raw GPS. Save updates timeline.
