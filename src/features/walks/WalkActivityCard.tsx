@@ -40,8 +40,8 @@ function SavedRoutePreview({ id, hideEmpty = false }: { id: string; hideEmpty?: 
  }, [id, visible, retry])
  return <div ref={host} className="walk-saved-route">{error ? <p role="alert">Route unavailable: {error} <Button className="secondary" onClick={() => setRetry(n => n + 1)}>Retry route</Button></p> : points ? (hideEmpty && !points.length ? null : <RouteMap points={points} compact/>) : <p role="status">{visible ? 'Loading saved route…' : 'Map loads when viewed.'}</p>}</div>
 }
-export function WalkActivityCard({ id, title, startedAt, location, points, meters, seconds, loadRoute = false, deleted = false, onRestore, onDelete }: {
- areaScope?:string; id: string; title: string; startedAt: string; location?: string; points?: Point[]; meters: number; seconds: number; loadRoute?: boolean; deleted?: boolean; onRestore?: () => void; onDelete?: () => void
+export function WalkActivityCard({ id, title, startedAt, location, points, meters, seconds, loadRoute = false, deleted = false, own = false, onRestore, onDelete }: {
+ areaScope?:string; id: string; title: string; startedAt: string; location?: string; points?: Point[]; meters: number; seconds: number; loadRoute?: boolean; deleted?: boolean; own?:boolean; onRestore?: () => void; onDelete?: () => void
 }) {
  const displayTitle=location||title
  return <article className={`walk-activity-card${onDelete ? ' walk-activity-deletable' : ''}`}>
@@ -49,7 +49,7 @@ export function WalkActivityCard({ id, title, startedAt, location, points, meter
   <div className="walk-activity-heading"><span className="icon-tile"><Footprints size={28}/></span><div><p className="muted">{new Date(startedAt).toLocaleString()}</p><h3>{deleted ? displayTitle : <Link to={`/walks/${id}`}>{displayTitle}</Link>}</h3></div></div>
   <WalkStats meters={meters} seconds={seconds}/>
   {(points ? <RouteMap points={points} compact/> : loadRoute && <SavedRoutePreview id={id} hideEmpty={deleted}/>)}
-  {deleted && <WalkWastePanel walkId={id} own finished readOnly/>}
-  <div className="walk-activity-footer">{deleted ? <button type="button" className="walk-restore-link" onClick={onRestore}>Restore walk <ArrowUpRight size={16} aria-hidden="true"/></button> : <Link to={`/walks/${id}`}>View walk <ArrowUpRight size={16}/></Link>}</div>
+  {deleted && own && <WalkWastePanel walkId={id} own finished readOnly/>}
+  <div className="walk-activity-footer">{deleted ? onRestore&&<button type="button" className="walk-restore-link" onClick={onRestore}>Restore walk <ArrowUpRight size={16} aria-hidden="true"/></button> : <Link to={`/walks/${id}`}>View walk <ArrowUpRight size={16}/></Link>}</div>
  </article>
 }

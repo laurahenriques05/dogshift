@@ -291,3 +291,10 @@ dialog.walk-routine-summary{position:fixed;inset:0;margin:auto;height:fit-conten
 @media(max-width:800px){.walk-history-overview{grid-template-columns:minmax(0,1fr);gap:16px}}
 @media(max-width:400px){.walk-history-overview>.card{padding:16px}.walk-history-overview .walk-metrics strong{font-size:19px}.walk-history-overview .walk-metrics{gap:8px}.walk-last-adventure .walk-activity-card{padding:12px}.walk-last-adventure .walk-activity-stats dd{font-size:19px}}
 @media(max-width:600px){.walk-together .walk-heading>div{flex:1 0 100%}.walk-together .walk-heading h2{overflow-wrap:anywhere}}
+
+/* Keep the caption at the card edge; only the plot reserves axis-label space. */
+.walk-summary-chart.is-compact figcaption{margin-left:-48px}
+.walk-summary-chart.is-compact .walk-measure-select .walk-filter-trigger{min-width:0;min-height:38px;gap:8px;padding:8px 10px;font-size:13px}
+.walk-summary-chart.is-compact .walk-measure-select .walk-filter-trigger>svg{width:14px;height:14px;padding-left:8px}
+.walk-page>details.walk-nfc-section{margin:0}
+@media(pointer:coarse){.walk-summary-chart.is-compact .walk-measure-select .walk-filter-trigger{min-height:44px}}
