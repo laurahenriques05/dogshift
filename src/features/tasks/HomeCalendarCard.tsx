@@ -18,6 +18,7 @@ function addDays(date: string, amount: number) {
 }
 
 function eventTime(event: CalendarEvent, zone: string) {
+ if(event.timeLabel)return event.timeLabel
  if (event.allDay) return 'All day'
  return new Intl.DateTimeFormat('en-GB', { timeZone: zone, hour: '2-digit', minute: '2-digit', hourCycle: 'h23' }).format(new Date(event.occursAt))
 }
@@ -78,7 +79,7 @@ export function HomeCalendarCard({ householdId, zone }: { householdId: string; z
      {selectedEvents.slice(0, 3).map(event => <li key={event.id}>
       <Link to={event.href}>
        <span className={`calendar-event-dot calendar-dot-${event.source}`} aria-hidden="true"/>
-       <div><strong>{event.title}</strong><small>{eventTime(event, zone)} · {calendarEventLabel(event)}</small></div>
+       <div><strong>{event.title}</strong><small>{eventTime(event, zone)} · {calendarEventLabel(event)}{event.status?` · ${event.status}`:''}</small></div>
        <ChevronRight size={17} aria-hidden="true"/>
       </Link>
      </li>)}

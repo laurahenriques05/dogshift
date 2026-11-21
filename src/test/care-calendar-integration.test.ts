@@ -18,9 +18,9 @@ function calendarClient(sql:Awaited<ReturnType<typeof taskFixture>>['sql']){
    return {data:(await sql.query(query,values)).rows,error:null}
   },
   from(table:string){
-   const allowed=['task_occurrences','vet_appointments','vaccinations','medication_schedules','food_products','feeding_entries','medication_doses']
+   const allowed=['task_occurrences','vet_appointments','vaccinations','medication_schedules','food_products','feeding_entries','medication_doses','dogs','feeding_settings','feeding_meal_events','walks','walk_daily_plans','walk_daily_checks']
    if(!allowed.includes(table))throw new Error('Unexpected calendar table')
-   let columns='*',offset=0,limit=1000
+   let columns='*',offset=0,limit=1000,single=false
    const clauses:string[]=[],values:unknown[]=[],order:string[]=[]
    const where=(column:string,operator:string,value:unknown)=>{values.push(value);clauses.push(`${column} ${operator} $${values.length}`);return builder}
    const builder={
@@ -28,13 +28,16 @@ function calendarClient(sql:Awaited<ReturnType<typeof taskFixture>>['sql']){
     eq:(column:string,value:unknown)=>where(column,'=',value),
     gte:(column:string,value:unknown)=>where(column,'>=',value),
     lt:(column:string,value:unknown)=>where(column,'<',value),
+    maybeSingle(){single=true;return builder},
+    is(column:string,_value:unknown){clauses.push(`${column} is null`);return builder},
+    or(value:string){const parts=value.split(',').map(part=>{const [,column,operator,operand]=part.match(/^(\w+)\.(gte|is)\.(.*)$/)!;if(operator==='is')return `${column} is null`;values.push(operand);return `${column} >= $${values.length}`});clauses.push(`(${parts.join(' or ')})`);return builder},
     not(column:string,_operator:string,_value:unknown){clauses.push(`${column} is not null`);return builder},
     in:(column:string,value:unknown)=>where(column,'= any',value),
     order(column:string){order.push(column);return builder},
     range(start:number,end:number){offset=start;limit=end-start+1;return builder},
-    then(resolve:(result:{data:unknown[];error:null})=>unknown,reject:(error:unknown)=>unknown){
+    then(resolve:(result:{data:unknown;error:null})=>unknown,reject:(error:unknown)=>unknown){
      const query=`select ${columns} from public.${table}${clauses.length?' where '+clauses.join(' and '):''}${order.length?' order by '+order.join(','):''} limit ${limit} offset ${offset}`
-     return sql.query(query,values).then(result=>resolve({data:JSON.parse(JSON.stringify(result.rows)),error:null}),reject)
+     return sql.query(query,values).then(result=>resolve({data:JSON.parse(JSON.stringify(single?(result.rows[0]||null):result.rows)),error:null}),reject)
     },
    }
    return builder

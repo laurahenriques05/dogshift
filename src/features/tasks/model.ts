@@ -11,8 +11,8 @@ export function recurrenceLabel(series: Pick<TaskSeries, 'recurrence'|'recurrenc
  const unit = series.recurrence === 'daily' ? 'day' : series.recurrence === 'weekly' ? 'week' : 'month'
  return `Every ${series.recurrence_every === 1 ? '' : `${series.recurrence_every} `}${unit}${series.recurrence_every === 1 ? '' : 's'}`
 }
-export type CalendarSource = 'task'|'feeding'|'health'
-export type CalendarEvent = { id:string; source:CalendarSource; sourceRecordId:string; title:string; occursAt:string; remindAt:string|null; assignedTo:string|null; href:string; completed?:boolean; allDay?:boolean; category?:'health'|'other'; eventKind?:'appointment'|'vaccination'|'medication'|'restock'; careKind?:'feeding'|'walk'|null; assigneeName?:string }
+export type CalendarSource = 'task'|'feeding'|'health'|'walk'
+export type CalendarEvent = { id:string; source:CalendarSource; sourceRecordId:string; title:string; occursAt:string; remindAt:string|null; assignedTo:string|null; href:string; completed?:boolean; allDay?:boolean; category?:'health'|'other'; estimated?:boolean;status?:string;timeLabel?:string;eventKind?:'appointment'|'vaccination'|'medication'|'restock'|'meal'|'meal-routine'|'walk'|'walk-routine'; careKind?:'feeding'|'walk'|null; assigneeName?:string }
 export function eventOnDate(event: CalendarEvent, date: string, zone: string) { return localTime(event.occursAt, zone).slice(0, 10) === date }
 export function monthRange(month: string) {
  const [year, number] = month.split('-').map(Number)

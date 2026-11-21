@@ -216,6 +216,16 @@ Postgres/RPC enforces permissions; Storage remains private. Keep calm green/crea
 clear primary action, compact forms, accessible focus/touch targets and honest
 states. [UI rationale](docs/ui-design-research.md). Shared footer terms/privacy/
 security are project information, not a completed legal audit or new acceptance flow.
+### Automatic care calendar
+
+The calendar reads Feeding meal plans and Walks daily routines directly, alongside
+extra care tasks, real meal/walk/check-in records, restocking and Health events.
+Current routines project from today forwards; past dates show saved activities,
+not an invented historical plan. Routine changes appear on calendar reload/focus.
+No copied task or reminder is created. See [routine projection and limits](docs/calendar-care-routines.md).
+No new migration is required; existing routine tables and occurrence-care contracts
+must already be installed. Hosted rollout requires teammate review.
+
 ### Care Tasks
 
 Feeding and Walks tasks use occurrence-specific responsibility and complete

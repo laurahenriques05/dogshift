@@ -12,3 +12,7 @@
 @media(max-width:600px){.calendar-page .shared-calendar{display:flex;flex-direction:column}.calendar-page .calendar-day-list,.calendar-page .calendar-load{order:1}.calendar-page .shared-calendar-scroll{order:2;margin-top:18px}}
 
 .care-task{position:relative}.care-task>.tasks-undo{position:absolute;right:0;top:12px;min-width:44px;min-height:44px}.care-task .tasks-item-copy>strong{display:block;padding-right:42px;overflow-wrap:anywhere}.care-task-actions{gap:4px 10px}.care-task-actions .text-link{margin-top:0;font-size:.82rem;font-weight:500}.tasks-experience .care-modal-close{min-width:44px;min-height:44px}
+
+/* Source routines share the existing calm calendar surfaces. */
+.calendar-event.calendar-walk{border-left-color:#59795c;background:#eef3e9}
+.calendar-dot-walk{background:#59795c}
