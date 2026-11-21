@@ -19,7 +19,7 @@ export function HomeTasksCard({householdId,zone}:{householdId:string;zone:string
  useEffect(()=>{void load()},[load,retry])
  const now=Date.now(),overdue=rows.filter(row=>taskStatus(row,now)==='overdue'),upcoming=rows.find(row=>taskStatus(row,now)==='upcoming')
  return <section className="card home-walk-card home-tasks-card"><div className="home-card-heading"><span className="icon-tile peach"><ListChecks size={19}/></span><div><p className="eyebrow">A LITTLE TEAMWORK</p><h3>Family tasks</h3></div></div>
-  {loading?<LoadingPlaceholder label="Loading shared tasks"/>:error?<><Notice error>{error}</Notice><Button className="secondary" onClick={()=>setRetry(value=>value+1)}>Reload tasks</Button></>:<><p>{overdue.length?`${overdue.length} overdue ${overdue.length===1?'task':'tasks'}`:upcoming?`Next: ${upcoming.title}`:'Your family has no open tasks right now.'}</p>{upcoming&&<small>Due {localTime(upcoming.due_at,zone).replace('T',' ')}</small>}</>}
+  <div className="home-care-summary">{loading?<LoadingPlaceholder label="Loading shared tasks"/>:error?<><Notice error>{error}</Notice><Button className="secondary" onClick={()=>setRetry(value=>value+1)}>Reload tasks</Button></>:<><p>{overdue.length?`${overdue.length} overdue ${overdue.length===1?'task':'tasks'}`:upcoming?`Next: ${upcoming.title}`:'Your family has no open tasks right now.'}</p>{upcoming&&<small>Due {localTime(upcoming.due_at,zone).replace('T',' ')}</small>}</>}</div>
   <div className="home-task-links"><Link className="text-link" to="/tasks">View tasks <ArrowUpRight size={15}/></Link><Link className="text-link" to="/calendar">Calendar <ArrowUpRight size={15}/></Link></div>
  </section>
 }
