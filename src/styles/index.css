@@ -363,3 +363,9 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{ou
 .password-input-group .password-visibility{position:absolute;inset:0 4px 0 auto;display:flex;align-items:center;justify-content:center;width:44px;min-height:44px;padding:0;border:0;border-radius:8px;background:transparent;color:#52704b}
 .password-input-group .password-visibility:hover:not(:disabled){color:#244d3c;background:#edf2e5}
 .password-input-group .password-visibility:disabled{opacity:.5}
+
+/* Six mobile shortcut slots, independent of labels; desktop navigation is unchanged. */
+@media(max-width:700px){
+ .bottom-nav{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:0;padding-left:max(4px,env(safe-area-inset-left));padding-right:max(4px,env(safe-area-inset-right))}
+ .bottom-nav>a{justify-content:center;min-width:44px;min-height:44px}
+}
