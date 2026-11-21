@@ -7,8 +7,8 @@ import type { FamilyMember } from '../../lib/supabase/database.types'
 
 export function FamilySummary({ members, currentUserId, owner, dogName }: { members: FamilyMember[]; currentUserId: string; owner: boolean; dogName: string }) {
  return <><div className="home-family-people">{members.slice(0, 4).map(member => <div className="home-person" key={member.user_id}><span className="home-person-avatar" aria-hidden="true">{member.display_name.trim().split(/\s+/).slice(0, 2).map(part => part.charAt(0)).join('').toUpperCase() || '?'}</span><div><strong>{member.display_name}{member.user_id === currentUserId && <span className="home-you"> · you</span>}</strong><span className="home-person-role">{member.role === 'owner' ? 'Household owner' : 'Family member'}</span></div></div>)}</div>
-  <p className="home-family-caption">{members.length === 1 ? `You and ${dogName}. A lovely little team.` : members.length > 4 ? `And ${members.length - 4} more in your family. Good care is a team effort.` : `A little team looking out for ${dogName}.`}</p>
-  <Link className={`button ${owner ? '' : 'secondary'} home-family-action`} to="/more/family">{owner ? <><UserPlus size={17}/>Invite someone</> : <>View family<ArrowUpRight size={17}/></>}</Link>
+  <div className="home-family-footer"><p className="home-family-caption">{members.length === 1 ? `You and ${dogName}. A lovely little team.` : members.length > 4 ? `And ${members.length - 4} more in your family. Good care is a team effort.` : `A little team looking out for ${dogName}.`}</p>
+  <Link className={`button ${owner ? '' : 'secondary'} home-family-action`} to="/more/family">{owner ? <><UserPlus size={17}/>Invite someone</> : <>View family<ArrowUpRight size={17}/></>}</Link></div>
  </>
 }
 

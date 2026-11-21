@@ -212,7 +212,7 @@ or delete real activities during tests.
 Mobile navigation reserves six equal shortcut slots with touch targets of at least
 44px; five current links leave one free. Desktop navigation is unchanged.
 Home shows the dog's six saved profile details, distributes them through the card,
-and anchors the pale-green family action at the lower right. Form selectors use
+and places the pale-green family action alongside its caption. Form selectors use
 the shared green/cream picker while preserving native form values and validation.
 
 Feature branches → push → PR → another member review + passing CI → main → Vercel

@@ -391,3 +391,15 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{ou
 .app-select-menu>button[aria-selected=true],.app-select-menu>button:hover:not(:disabled),.app-select-menu>button:focus-visible{background:#e9efdf;color:#244d3c}
 .app-select-menu>button:disabled{opacity:.5;cursor:default}
 .app-select .app-select-error{display:block;margin-top:6px;color:#8b342c;font-size:12px}.app-select-trigger[aria-invalid=true]{border-color:#8b342c}
+
+/* Home detail refinements: use the card height, with actions at its lower edge. */
+.home-family-card>.home-card-heading .icon-tile,.home-profile-card>.home-card-heading .icon-tile{width:46px;height:46px}
+.home-family-card>.home-card-heading .icon-tile svg,.home-profile-card>.home-card-heading .icon-tile svg{width:25px;height:25px}
+.home-family-footer{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-top:auto;padding-top:22px}
+.home-family-footer .home-family-caption{flex:1 1 180px;margin:0}
+.home-family-footer .home-family-action{flex:none;margin:0 0 0 auto;align-self:center}
+.home-tasks-card,.home-health-card{display:flex;flex-direction:column;min-width:0}
+.home-care-summary{flex:1;display:flex;flex-direction:column;justify-content:center;gap:8px;padding-bottom:18px}
+.home-care-summary>p,.home-care-summary>ul{margin:0}
+.home-tasks-card>.home-task-links,.home-health-card>.text-link{margin-top:auto;min-height:44px;align-items:center}
+.home-tasks-card>.home-task-links .text-link{margin-top:0;min-height:44px}
