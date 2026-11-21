@@ -1,3 +1,4 @@
+import { Select } from '../../components/ui/Select'
 import { VisitDocuments } from './VisitDocuments'
 import { useEffect, useRef, useState } from 'react'
 import { Button, Field, Notice, errorMessage } from '../../components/ui'
@@ -45,7 +46,7 @@ export function AppointmentSummary({ appointment, zone, onClose, onSaved }: { ap
     <label className="field">Veterinarian’s observations<textarea rows={4} maxLength={4000} value={observations} onChange={e => setObservations(e.target.value)}/></label>
     <label className="field">Prescribed treatment / medication<textarea rows={4} maxLength={4000} value={treatment} onChange={e => setTreatment(e.target.value)}/></label>
     <Field label="Next visit (optional)" type="datetime-local" value={nextVisit} onChange={e => setNextVisit(e.target.value)}/>
-    {nextVisit && <><label className="field">Next visit type<select value={nextKind} onChange={e => setNextKind(e.target.value as 'consultation'|'vaccination')}><option value="consultation">Veterinary consultation</option><option value="vaccination">Vaccination</option></select></label>{nextKind === 'vaccination' && <Field label="Vaccine name" required maxLength={120} value={vaccineName} onChange={e => setVaccineName(e.target.value)}/>}</>}
+    {nextVisit && <><label className="field">Next visit type<Select value={nextKind} onChange={e => setNextKind(e.target.value as 'consultation'|'vaccination')}><option value="consultation">Veterinary consultation</option><option value="vaccination">Vaccination</option></Select></label>{nextKind === 'vaccination' && <Field label="Vaccine name" required maxLength={120} value={vaccineName} onChange={e => setVaccineName(e.target.value)}/>}</>}
     <VisitDocuments home={appointment.household_id} paths={paths} onChange={setPaths} busy={busy} onBusy={setBusy}/>
     {error && <Notice error>{error}</Notice>}
     <div className="walk-actions visit-summary-actions"><Button type="submit" >{busy ? 'Saving…' : 'Save summary'}</Button><Button type="button" className="secondary" onClick={onClose}>Close</Button><Button type="button" className="secondary" onClick={() => setRetry(value => value + 1)}>Reload saved summary</Button></div>

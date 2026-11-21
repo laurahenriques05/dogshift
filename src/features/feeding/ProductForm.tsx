@@ -1,3 +1,4 @@
+import { Select } from '../../components/ui/Select'
 import { useState, type FormEvent } from 'react'
 import { Button, Field, Notice, errorMessage } from '../../components/ui'
 import { db } from '../../lib/supabase/client'
@@ -18,7 +19,7 @@ export function ProductForm({ householdId, product, onSaved, onCancel }: { house
  }
  return <form className="form-stack" onSubmit={submit}><h2>{product ? 'Edit food product' : 'Add a food product'}</h2>
   <Field label="Product name" name="name" required maxLength={100} defaultValue={product?.name} placeholder="e.g. Adult chicken kibble"/>
-  <label className="field">Food type<select name="category" defaultValue={product?.category || 'dry'}>{Object.entries(categories).map(([key, value]) => <option key={key} value={key}>{value}</option>)}</select></label>
+  <label className="field">Food type<Select name="category" defaultValue={product?.category || 'dry'}>{Object.entries(categories).map(([key, value]) => <option key={key} value={key}>{value}</option>)}</Select></label>
   <div className="form-grid"><Field label="Usual portion (g)" name="portion" type="number" min="0.01" max="1000000" step="0.01" required defaultValue={product?.portion_grams || 100}/><Field label="Expected daily use (g)" name="daily" type="number" min="0" max="1000000" step="0.01" required defaultValue={product?.daily_grams ?? 200} hint="Across the whole day. Enter 0 if irregular; no run-out estimate will be shown."/></div>
   <Field label="Opening stock / correction baseline (g)" name="opening" type="number" min="0" max="100000000" step="0.01" required defaultValue={product?.opening_grams || 0} hint="Food already owned before tracking. Purchases are added separately. Adjust this baseline for unrecorded waste or stock corrections."/>
   <Field label="Restocking warning (days before running out)" name="reminder" type="number" min="0" max="90" step="1" required defaultValue={product?.reminder_days ?? 7}/>
