@@ -291,10 +291,10 @@ dialog.walk-routine-summary{position:fixed;inset:0;margin:auto;height:fit-conten
 @media(max-width:800px){.walk-history-overview{grid-template-columns:minmax(0,1fr);gap:16px}}
 @media(max-width:400px){.walk-history-overview>.card{padding:16px}.walk-history-overview .walk-metrics strong{font-size:19px}.walk-history-overview .walk-metrics{gap:8px}.walk-last-adventure .walk-activity-card{padding:12px}.walk-last-adventure .walk-activity-stats dd{font-size:19px}}
 @media(max-width:600px){
- .walk-routine-times{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+ .walk-routine-times{display:grid;grid-template-columns:minmax(0,1fr);gap:16px}
  .walk-routine-times>p{grid-column:1/-1}
  .walk-routine-times>.field{min-width:0;max-width:none;width:100%}
- .walk-routine-times input{width:100%;max-width:100%;min-width:0;box-sizing:border-box}
+ .walk-routine-times input[type="time"]{display:block;appearance:none;-webkit-appearance:none;width:100%;max-width:100%;min-width:0;min-inline-size:0;box-sizing:border-box}
  .walk-together .walk-heading{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:start;gap:12px}
  .walk-together .walk-heading>div{display:contents}
  .walk-together .walk-heading .eyebrow{grid-column:1;grid-row:1;align-self:center;margin:0}
