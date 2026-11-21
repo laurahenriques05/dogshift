@@ -120,3 +120,8 @@
 .academy-challenge-page .academy-guide-actions{max-width:none;margin:18px 0 0}
 .academy-challenge-page .academy-guide-note{max-width:none;font-size:12px;margin:12px 0 0}
 @media(max-width:600px){.academy-challenge-page .academy-challenge-guide{padding:16px}.academy-challenge-page .academy-training-drawing{gap:4px;grid-template-columns:minmax(0,1fr) 14px minmax(0,1fr) 14px minmax(0,1fr)}.academy-challenge-page .academy-training-drawing .academy-drawing-icon{width:64px;height:64px;border-radius:24px}.academy-challenge-page .academy-training-drawing .academy-drawing-icon svg{width:44px;height:44px}.academy-challenge-page .academy-training-drawing small{font-size:12px}.academy-challenge-page .academy-guide-content{padding:16px}.academy-challenge-page .academy-guide-content h2{font-size:20px}}
+
+/* Future stages remain browseable, with a visibly locked treatment. */
+.academy-stage.is-locked,.academy-stage-lessons li.is-locked{opacity:.65}
+.academy-stage.is-locked strong,.academy-stage-lessons li.is-locked strong,.academy-focused-parts>.is-locked strong{font-weight:400}
+.academy-focused-parts>.is-locked>details>summary{opacity:.65}
