@@ -4,10 +4,10 @@ Updated 21 November 2026. Test counts are observations, not permanent guarantees
 Use Node 22.x >=22.12; npm test, npm run typecheck, npm run build and git diff
 --check. Tests must not call the hosted database or send real emails/push.
 
-## Latest checks — Walks Back/NFC alignment
+## Latest checks — explicit Walks progress/history fallback
 
-On `codex/walks-back-and-nfc-alignment` (base main `f942ad8`), all
-**299 isolated tests in 68 files**
+On `codex/walks-history-and-explicit-progress` (base main `113aa25`), all
+**308 isolated tests in 70 files**
 passed on Node 22.23.5 with both Supabase browser values blank.
 TypeScript, production build and git diff --check also passed. Changed Markdown file links were checked.
 Existing node_modules were reused; this is not a fresh npm ci. The care-task
@@ -19,12 +19,14 @@ Existing Zod annotation and large-bundle advisories remain; they are not failed
 checks. PGlite/minimal Auth/Storage roles cover isolation, rejected writes, retries,
 stock, routines, GPS/timeline and deletion. This is not a hosted security audit.
 
-Current real-component fixtures at 1280px/360px checked ← Back and centred NFC
-step titles/descriptions. Text-container centres matched the rectangle centres
-at both widths, with no horizontal page overflow at 360px. No NFC tags were
-written and no hosted database requests were made; fixtures were removed. This
-branch only changes labels/styles, retaining the existing tested deletion/GPS
-contracts and their pending hosted/device validation.
+Real-component fixtures reproduced missing get_deleted_walk_history/PGRST202,
+then opened Not deleted through View saved walks. Own-deleted fallback remains
+separate from unavailable family history. A second fixture showed two completed
+circles (one recorded walk, one manual check) and a matching 2-of-3 counter, plus
+left-aligned NFC copy without horizontal overflow at 360px. Regression coverage
+compares counter, circles and calendar before/after real completion, manual checks,
+active starts, deletion/undo and elapsed routine hours. Inactivity preview Yes/No
+was inspected separately; no real walk/tag or hosted data was changed.
 These checks are not physical tags, live account persistence or actual GPS.
 
 ## Read-only hosted evidence — 20 November

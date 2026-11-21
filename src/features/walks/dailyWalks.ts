@@ -5,6 +5,7 @@ import { routineOrder, routinePeriod, validRoutineTimes } from './routineSchedul
 import { localDay } from './gps'
 export type DailyCheck={id:string;dog_id:string;local_day:string;slot:number;member_id:string;recorded_at:string;deleted_at:string|null}
 export type DailySlot={number:number;walk?:Walk;manual?:DailyCheck}
+export function completedDailySlot(slot:DailySlot){return !!((slot.manual&&!slot.manual.deleted_at)||(slot.walk?.ended_at&&!slot.walk.deleted_at))}
 const client=()=>db() as unknown as SupabaseClient
 export function dailySlots(count:number,walks:Walk[],checks:DailyCheck[],day:string,zone:string,times:string[]=[]):DailySlot[]{
  const slots:DailySlot[]=Array.from({length:count},(_,index)=>{const number=index+1,manual=checks.find(c=>c.local_day===day&&c.slot===number&&!c.deleted_at);return manual?{number,manual}:{number}})

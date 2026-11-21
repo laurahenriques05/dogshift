@@ -1,7 +1,7 @@
 import type { TaskOccurrence,Walk } from '../../lib/supabase/database.types'
 import type { MealEvent,PlannedMeal } from '../feeding/types'
 import type { DailyCheck } from '../walks/dailyWalks'
-import { dailySlots } from '../walks/dailyWalks'
+import { completedDailySlot, dailySlots } from '../walks/dailyWalks'
 import { routineNames,validRoutineTimes } from '../walks/routineSchedule'
 import { localTime } from '../health/time'
 import { outcomeLabels } from '../feeding/checklist'
@@ -54,7 +54,7 @@ export function routineCalendar({month,zone,plan,meals,walkPlan,walks,checks,tas
     if(slot.manual){usedChecks.add(slot.manual.id)}
     if(linked)continue
     const when=routineInstant(day,walkPlan.estimated_times[slot.number-1],zone)
-    events.push({id:`routine:walk:${walkPlan.dog_id}:${day}:${slot.number}`,source:'walk',eventKind:'walk-routine',sourceRecordId:walkPlan.dog_id,title:`${names[slot.number-1]} walk`,occursAt:when.at,timeLabel:when.timeLabel,remindAt:null,assignedTo:null,href:'/walks',completed:!!(slot.walk?.ended_at||slot.manual),status:slot.manual||slot.walk?.ended_at?'Completed':slot.walk?'In progress':'Planned',estimated:true})
+    events.push({id:`routine:walk:${walkPlan.dog_id}:${day}:${slot.number}`,source:'walk',eventKind:'walk-routine',sourceRecordId:walkPlan.dog_id,title:`${names[slot.number-1]} walk`,occursAt:when.at,timeLabel:when.timeLabel,remindAt:null,assignedTo:null,href:'/walks',completed:completedDailySlot(slot),status:completedDailySlot(slot)?'Completed':slot.walk?'In progress':'Planned',estimated:true})
    }
   }
  }

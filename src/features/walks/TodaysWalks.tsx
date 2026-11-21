@@ -1,3 +1,4 @@
+import { completedDailySlot } from './dailyWalks'
 import { useRef, useState } from 'react'
 import { Check, Circle, Footprints, LoaderCircle, Pencil } from 'lucide-react'
 import { Button, Field } from '../../components/ui'
@@ -42,7 +43,7 @@ export function TodaysWalks({routine,user,zone}:{routine:DailyWalkRoutine;user:s
     {routine.count!==undefined&&!routine.scheduleComplete&&!editing&&<p role="status">Complete your routine’s estimated hours to name each walk.</p>}
     {routine.count!==undefined&&routine.scheduleComplete&&<ol className="walk-routine-line dose-bubbles" aria-label="Today's walk routine">
      {visibleSlots.map(item=>{
-      const complete=!!(item.walk?.ended_at||item.manual),inProgress=!!item.walk&&!item.walk.ended_at,label=name(item.number)
+      const complete=completedDailySlot(item),inProgress=!!item.walk&&!item.walk.ended_at,label=name(item.number)
       return <li key={`${routine.day}-${item.number}`} className={`dose-step${complete?' is-given':inProgress?' is-in-progress':''}`}>
        <button type="button" className={`dose-bubble walk-period-bubble${complete?' is-given':inProgress?' is-in-progress':''}`} disabled={routine.busy||inProgress}
         aria-label={inProgress?`${label} in progress`:complete?`${label||'Walk'} recorded. View summary`:`Mark ${label||'Walk'} as done`} aria-busy={saving===item.number}
