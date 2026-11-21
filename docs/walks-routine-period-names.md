@@ -44,7 +44,8 @@ never fills another period. Overnight uses the start day. Deleted walks free slo
 restored walks reassign. Legacy count-only plans retain their old handling until
 estimates are completed. Manual attestations occupy stable slots; no fake GPS/time.
 
-Overview counts real starts, including active, never manual checks. Empty is 0,
+Overview counts the same completed slots as the circles, including explicit
+manual checks; active walks are not completed. Empty is 0,
 without Last recorded start. No NEXT WALK without a complete plan. A saved routine
 gives Start walk the pale Feeding-style background. Walking together retains total
 completed walks, distance and duration; charts offer distance/time only.

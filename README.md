@@ -98,7 +98,9 @@ persistent forecast recomputation is separate from in-app stock notices.
   Actual device/location consent and confirmation remain mandatory for GPS.
 - Optional shared walking routine with required Estimated hours, no location/solar
   calculation: Morning 07–12, Afternoon 12–20, Night 20–07. Live grouped names,
-  stable slot identities and automatic progress from real starts. 96px circles
+  stable slot identities and automatic progress from real starts. The Start walk
+  completed counter matches completed routine circles, including manual checks;
+  an ongoing start is not a completion. 96px circles
   use short names; hero uses Morning Walk/Afternoon Walk 1/Night Walk. No estimate
   time shown in circles, pending Summary or opt-out button.
 - Set routine sits immediately left of compact Edit in the routine header;
@@ -128,7 +130,7 @@ soft/permanent removal for any current member, including directly from saved
 history, and a metadata-only family Deleted list. Its consolidated RPC migration
 is not installed on the hosted project.
 
-Main includes PRs #65–#74; #68 merged as
+Main includes PRs #65–#78; #68 merged as
 72016adb6ea353f6daca5006698d34ebe8ec36a2. The four final screenshot adjustments
 are implemented, not outstanding. Neither rejected styling template was added.
 

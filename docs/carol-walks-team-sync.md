@@ -24,20 +24,17 @@ Recheck current main and production before making a new release claim.
 
 ## Current follow-up branch
 
-`codex/walks-back-and-nfc-alignment` changes the detail link to ← Back and
-centres each NFC step’s title/description using balanced icon gutters. Feeding
-and NFC behaviour are unchanged. These visual changes await review/publication.
+`codex/walks-history-and-explicit-progress` is based on main `113aa25` (#77/#78
+merged). NFC copy is left-aligned again. Start walk now counts completed routine
+circles, including manual checks; an active start is not a completion. Walks and
+Maria’s calendar use the same explicit completion predicate: a real finished walk
+or a non-deleted manual check. Estimated times never complete either view.
 
-Main includes #73/#74/#76: recording-only active page, 2+5 minute GPS warning and the
-approved two-column summary below the unchanged routine. Statistics open by
-default; History remains a text link and the saved route is compact.
-
-The merged source aligns the chart caption left, sizes the measure
-selector to its label and removes extra NFC margins. The requested deletion
-contract now lets current members soft-delete or permanently remove any completed
-family walk, directly or from Deleted. Restoration/correction remain author-only.
-Deleted family summaries use a metadata-only RPC; other authors’ deleted GPS,
-notes and waste remain private. No hosted changes have been made.
+The reported Deleted error was reproduced with the missing hosted RPC. Saved
+history remains accessible through View saved walks, while available own-deleted
+rows remain visible; family Deleted setup is explicitly pending. The user confirmed
+that Laura/Maria’s migration review is still outstanding. No hosted migration or
+real deletion was performed, and family-wide removal is not yet live.
 
 ## Approved behaviour to preserve
 
@@ -106,7 +103,7 @@ Hosted migration ledger and function definitions were inspected read-only on
 source/hosted version mapping. Journal/routine preferences, waste/tracking,
 deleted-owner preview, pause duration and timeline corrections are installed.
 
-Current follow-up suite: 299 isolated tests/68 files passed on Node 22.23.5 with
+Current follow-up suite: 308 isolated tests/70 files passed on Node 22.23.5 with
 browser configuration blank; TypeScript/build and Markdown links also passed.
 See verification.md for current checks
 and evidence limits. Existing Zod annotation/bundle advisories remain.

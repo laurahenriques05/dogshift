@@ -1,9 +1,11 @@
 # Walk overview and collar NFC
 
 Current release/pending work: [team sync](carol-walks-team-sync.md).
-The idle card follows Feeding: next-slot title/Start walk, real daily-start count
+The idle card follows Feeding: next-slot title/Start walk, completed routine-circle count
 and last recorded start, restrained collar illustration and Set up collar tag.
-No recorded start means 0 and no last-start caption. Counts may exceed plan.
+No completion means 0; no recorded start means no last-start caption. Manual
+check-ins count as completed circles, while ongoing walks do not. Without a
+routine, the count uses actual completed walks.
 Manual checks never fabricate GPS or a recorded start. Period/slot rules are in
 walks-routine-period-names.md; hero names include Walk, circles do not.
 

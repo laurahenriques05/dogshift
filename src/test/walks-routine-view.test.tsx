@@ -1,3 +1,5 @@
+import { dailySlots, completedDailySlot, type DailyCheck } from '../features/walks/dailyWalks'
+import { routineCalendar } from '../features/tasks/routineCalendar'
 import {expect,it,vi} from 'vitest'
 import {renderToStaticMarkup} from 'react-dom/server'
 import {WalkDailyOverview} from '../features/walks/WalkDailyOverview'
@@ -17,10 +19,10 @@ it('offers an optional first routine without inventing a goal, last start or nex
  const declined=renderToStaticMarkup(<TodaysWalks routine={{...routine,decided:true}} user="user" zone="Europe/Lisbon"/> )
  expect(declined).toContain('Walking routine');expect(declined).not.toContain('No routine for now')
 })
-it('shows required estimated times without the removed instruction and counts real starts instead of manual checks',()=>{
+it('shows required estimated times and never counts an unfinished start as completed',()=>{
  const plan={...routine,count:2,times:['08:30','21:00'],scheduleComplete:true,names:['Morning','Night'],slots:[{number:1},{number:2}],recordedCount:7}
  const walk={id:'started',started_at:'2026-11-19T10:00:00Z',ended_at:null,deleted_at:null} as Walk
- const html=overview(plan,[walk,walk]);expect(html).toContain('<strong>1</strong>');expect(html).toContain('NEXT WALK')
+ const html=overview(plan,[walk,walk]);expect(html).toContain('<strong>0</strong>');expect(html).toContain('NEXT WALK')
  const preview=renderToStaticMarkup(<TodaysWalks routine={plan} user="user" zone="Europe/Lisbon"/> )
  expect(preview).toContain('Today’s walk');expect(preview).not.toMatch(/walk-routine-edit-tile[^>]*disabled/);expect(preview).not.toContain('<time>');expect(preview).not.toContain('Summary');expect(preview).not.toContain('Tap a circle')
 })
@@ -49,4 +51,24 @@ it('uses full Walk names in the next-walk heading while keeping circle names sho
   const plan={...routine,count:1,times:['09:00'],scheduleComplete:true,names:[name],slots:[{number:1}]}
   expect(overview(plan)).toContain(`<h2 id="walk-next-title">${name.replace(/^(Morning|Afternoon|Night)(.*)$/, '$1 Walk$2')}</h2>`)
  }
+})
+
+it('keeps the Start walk count, completed circles and calendar on the same explicit evidence',()=>{
+ const day='2026-11-19',times=['09:00','15:00','21:00'],now=new Date(`${day}T23:59:00Z`)
+ const recorded={id:'recorded',dog_id:'dog',started_at:`${day}T09:10:00Z`,ended_at:`${day}T09:30:00Z`,deleted_at:null} as Walk
+ const active={...recorded,id:'active',started_at:`${day}T15:10:00Z`,ended_at:null}
+ const checked={id:'check',dog_id:'dog',member_id:'member',slot:3,local_day:day,recorded_at:`${day}T21:05:00Z`,deleted_at:null} as DailyCheck
+ const project=(walks:Walk[],checks:DailyCheck[])=>{
+  const slots=dailySlots(3,walks,checks,day,'Europe/Lisbon',times)
+  const plan={...routine,day,count:3,times,scheduleComplete:true,names:['Morning','Afternoon','Night'],slots,done:slots.filter(completedDailySlot).length}
+  const calendar=routineCalendar({month:'2026-11',zone:'Europe/Lisbon',plan:[],meals:[],walkPlan:{dog_id:'dog',required_count:3,routine_enabled:true,estimated_times:times},walks,checks,tasks:[],now})
+  return {slots,hero:overview(plan,walks),circles:renderToStaticMarkup(<TodaysWalks routine={plan} user="member" zone="Europe/Lisbon"/>),completed:calendar.filter(event=>event.completed).length}
+ }
+ const noEvidence=project([],[])
+ expect(noEvidence.hero).toContain('<strong>0</strong>');expect(noEvidence.completed).toBe(0)
+ const saved=project([recorded,active],[checked])
+ expect(saved.hero).toContain('<strong>2</strong>');expect(saved.hero).toContain('of 3 walks completed today')
+ expect(saved.circles.match(/>Summary</g)).toHaveLength(2);expect(saved.completed).toBe(2)
+ const removed=project([{...recorded,deleted_at:now.toISOString()},active],[{...checked,deleted_at:now.toISOString()}])
+ expect(removed.hero).toContain('<strong>0</strong>');expect(removed.circles).not.toContain('>Summary<');expect(removed.completed).toBe(0)
 })
