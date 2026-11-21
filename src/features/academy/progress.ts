@@ -1,3 +1,4 @@
+import type { AcademyPracticeDate } from './data'
 import type { AcademyModuleProgress, AcademyPractice } from '../../lib/supabase/database.types'
 import { ACADEMY_RULES, academyModules } from './catalog'
 
@@ -7,11 +8,11 @@ function localDate(instant:string,zone:string) {
  return `${value('year')}-${value('month')}-${value('day')}`
 }
 function dayBefore(day:string) { const [y,m,d]=day.split('-').map(Number); return new Date(Date.UTC(y,m-1,d-1)).toISOString().slice(0,10) }
-export function academyProgress(records:AcademyPractice[],zone:string,now=new Date(),milestones:AcademyModuleProgress[]=[]) {
+export function academyProgress(records:AcademyPractice[],zone:string,now=new Date(),milestones:AcademyModuleProgress[]=[],dates?:AcademyPracticeDate[]) {
  const live=records.filter(record=>!record.deleted_at)
  const completedIds=new Set(milestones.map(record=>record.module_id))
  const xp=completedIds.size*ACADEMY_RULES.xpPerModule
- const practiceDays=new Set(live.map(record=>localDate(record.practiced_at,zone)))
+ const practiceDays=new Set((dates??live).map(record=>localDate(record.practiced_at,zone)))
  const today=localDate(now.toISOString(),zone)
  let cursor=practiceDays.has(today)?today:dayBefore(today)
  let streak=0

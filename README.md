@@ -172,7 +172,9 @@ to Maria's shared contract, not duplicate feature reminder systems.
 
 Academy is one progressive 11-challenge dog-trick journey. Practice, prerequisites,
 parts, explicit achievement, one-time shared XP and streak derive from saved data;
-reading never completes a challenge. Guides use a compact layout and challenge-specific
+reading never completes a challenge. Shared streaks use paginated practice dates,
+independent of the compact latest-100 history. Training tip opens teaching advice,
+not a notification. Guides use a compact layout and challenge-specific
 line icons across all five course levels. Old non-trick IDs/history remain internal.
 Walking basics is archived and /walks/learn returns to Walks. No new curriculum or
 invented progress is authorized by an available adapter.
