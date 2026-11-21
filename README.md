@@ -209,6 +209,9 @@ or delete real activities during tests.
 
 ## Releases and architecture
 
+Mobile navigation reserves six equal shortcut slots with touch targets of at least
+44px; five current links leave one free. Desktop navigation is unchanged.
+
 Feature branches → push → PR → another member review + passing CI → main → Vercel
 Git production. Verify exact merged commit, READY deployment and production alias;
 a preview or success badge alone is not all of that evidence. See collaboration.
