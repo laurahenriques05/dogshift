@@ -47,3 +47,27 @@ notification delivery settings are untouched.
   installation and a two-member smoke test. SQL saves use a disposable PGlite DB.
 - No hosted migration, production deployment, notification enablement or Academy
   curriculum/UI change is included.
+
+## Feeding/Walks integration audit — 21 November
+
+A new isolated SQL-to-calendar adapter test executes actual task creation, ordinary
+Feeding confirmation, linked Walk start/finish and meal correction, then reloads
+`loadCalendarEvents`. It verifies subject filters, stable source links, pending vs
+completed state and a single food-restocking event. Normal Walks without task
+context do not satisfy an arbitrary walking task; normal planned meals can reconcile
+by routine ID and household-local day. This asymmetry is current behavior, not a
+claim that any walk automatically clears any task. Calendar shows scheduled tasks
+and restocking forecasts, not all routine meals or all completed activity history.
+
+Published browser inspection confirmed both filters contain the existing linked
+care tasks, Feeding opens the correct saved bowl, and Walks opens the start dialog.
+Both were cancelled, without recording a meal or starting GPS/a walk. A visible UX
+mismatch remains: task due time is shown in Calendar, but quick meal confirmation
+shows the saved routine time, without distinguishing it from the task time.
+Coordinate that UI clarification with Laura; do not change Feeding's stock/save
+rules as part of a calendar filter patch. Live completion was deliberately not
+performed against real household records.
+
+Twelve focused tests across three files, typecheck and build passed on main
+`f942ad8` plus this test; existing build advisories remain. This audit adds only
+regression evidence and documentation, no feature behavior, migration or deployment.
