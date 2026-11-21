@@ -222,7 +222,9 @@ The calendar reads Feeding meal plans and Walks daily routines directly, alongsi
 extra care tasks, real meal/walk/check-in records, restocking and Health events.
 Current routines project from today forwards; past dates show saved activities,
 not an invented historical plan. Routine changes appear on calendar reload/focus.
-No copied task or reminder is created. See [routine projection and limits](docs/calendar-care-routines.md).
+No copied task or reminder is created. Health doses retain Given/Skipped states;
+visit-summary follow-ups arrive through Health’s own appointment/vaccination
+records. Home refreshes on window focus, with household-scoped request handling. See [routine projection and limits](docs/calendar-care-routines.md).
 No new migration is required; existing routine tables and occurrence-care contracts
 must already be installed. Hosted rollout requires teammate review.
 

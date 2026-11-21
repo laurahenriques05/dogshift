@@ -13,7 +13,8 @@ function startMonth(date:string){return date.slice(0,7)}
 function monthDays(month:string){const [year,number]=month.split('-').map(Number);const count=new Date(Date.UTC(year,number,0)).getUTCDate();const padding=(new Date(Date.UTC(year,number-1,1)).getUTCDay()+6)%7;return{count,padding}}
 function careState(event:CalendarEvent){return event.completed?'Completed':Date.parse(event.occursAt)<Date.now()?'Overdue':'Pending'}
 function eventTime(event:CalendarEvent,zone:string){return event.timeLabel|| (event.allDay?'All day':new Intl.DateTimeFormat('en-GB',{timeZone:zone,hour:'2-digit',minute:'2-digit',hourCycle:'h23'}).format(new Date(event.occursAt)))}
-export function CalendarPage(){
+export function CalendarPage(){const {household}=useHousehold();return household?<HouseholdCalendar key={`${household.id}:${household.timezone}`}/>:null}
+function HouseholdCalendar(){
  const {household}=useHousehold();const zone=household?.timezone||'UTC';const today=dateForZone(zone)
  const [month,setMonth]=useState(()=>startMonth(today)),[selected,setSelected]=useState(today),[events,setEvents]=useState<CalendarEvent[]>([])
  const [topic,setTopic]=useState<CalendarTopic>('all'),[loading,setLoading]=useState(true),[error,setError]=useState(''),[retry,setRetry]=useState(0)

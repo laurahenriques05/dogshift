@@ -63,3 +63,35 @@ route entry/window focus; this is not realtime synchronization.
 Final checks: 306 tests across 70 files passed with one worker; typecheck,
 production build and diff checks passed. Existing bundle/dependency advisories
 remain. The earlier audit test is included as regression coverage in this branch.
+
+
+## Cross-feature review
+
+The calendar remains a projection of source records, not a parallel scheduling
+store. Coverage is Tasks (including Health/Other), Feeding routines and actual
+meals/restocking, Walks routines/checks/actual activities, Health appointments,
+vaccination due dates and medication doses. Follow-up summaries use Health's own
+trigger-created appointments/vaccinations, so the calendar must not copy the summary
+into another event. Academy, document uploads, vet contacts and weight measurements
+are not independent scheduled responsibilities and create no automatic events.
+
+Medication doses now remain visible as Given/Skipped as well as Scheduled/Overdue;
+recording a dose no longer silently removes it from the shared calendar. All Health
+and product lists are paged; medication schedule IDs are batched to avoid URL-size
+limits. A source outage rejects the load rather than claiming a complete calendar.
+
+The Home summary reloads on window focus and re-evaluates household-local dates
+across midnight. Request-version guards discard stale results; both calendar views
+remount their household-scoped state on family/timezone changes. This preserves
+existing refresh-on-return behavior rather than promising realtime synchronization.
+
+Additional isolated coverage executes real medication given/skipped RPCs, vaccine
+rescheduling/deletion, one idempotent follow-up from a visit summary, more than
+1,000 appointments, a failed producer read and cross-family rejection. Final checks:
+307 tests across 70 files passed; typecheck, build and diff checks passed. These
+SQL writes used disposable PGlite only. Local browser Health views confirmed real
+saved-dose labels/links without changing any shared clinical record. Home focus/
+family lifecycle handling was code-reviewed; no hosted multi-client race is claimed.
+
+All additions stay in the same review PR. No hosted migration, delivery setting,
+producer write rule or production deployment was changed.
