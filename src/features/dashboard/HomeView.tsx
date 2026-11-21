@@ -1,3 +1,4 @@
+import { HomeDogProfile } from './HomeDogProfile'
 import { HomeHealthCard } from '../health/HomeHealthCard'
 import type { ReactNode } from 'react'
 import { Link } from 'react-router-dom'
@@ -10,7 +11,6 @@ import { HomeCalendarCard } from '../tasks/HomeCalendarCard'
 import type { Dog, Household } from '../../lib/supabase/database.types'
 
 export function HomeView({ dog, household, photo, family }: { dog: Dog; household: Household; photo: ReactNode; family: ReactNode }) {
- const birthday = dog.date_of_birth ? new Intl.DateTimeFormat(undefined, { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' }).format(new Date(`${dog.date_of_birth}T00:00:00Z`)) : 'Not added yet'
  return <div className="home-page"><PageTitle eyebrow="PAWSHARE" title={`Today with ${dog.name}`}>Care at a glance, shared with your family.</PageTitle>
   <HomeToday household={household} dogName={dog.name}/>
   <HomeCalendarCard householdId={household.id} zone={household.timezone}/>
@@ -18,7 +18,7 @@ export function HomeView({ dog, household, photo, family }: { dog: Dog; househol
   <div className="home-section-heading"><div><p className="eyebrow">CARE AND PLANS</p><h2>Keep the day moving</h2></div><span className="home-private-label"><ShieldCheck size={14}/>Private to your family</span></div>
   <div className="home-care-grid"><HomeTasksCard householdId={household.id} zone={household.timezone}/><HomeHealthCard key={household.id} home={household.id} zone={household.timezone}/><HomeAcademyCard householdId={household.id} zone={household.timezone} dogName={dog.name}/></div>
   <div className="home-section-heading home-manage-heading"><div><p className="eyebrow">YOUR SPACE</p><h2>Family and profile</h2></div></div>
-  <div className="home-details-grid">{family}<section className="card home-profile-card" aria-labelledby="home-profile-title"><div className="home-card-heading"><span className="icon-tile"><PawPrint size={20}/></span><div><p className="eyebrow">DOG PROFILE</p><h3 id="home-profile-title">About {dog.name}</h3></div></div><dl className="home-dog-details"><div><dt>Weight</dt><dd>{dog.weight_kg ? `${dog.weight_kg} kg` : 'Not added yet'}</dd></div><div><dt>Birthday</dt><dd>{birthday}</dd></div><div><dt>Sex</dt><dd>{dog.sex === 'unknown' ? 'Not specified' : dog.sex === 'female' ? 'Female' : 'Male'}</dd></div><div><dt>Energy</dt><dd>{dog.activity_level === 'high' ? 'Always on the go' : dog.activity_level === 'low' ? 'Taking it slowly' : 'A little of everything'}</dd></div></dl><Link className="text-link" to="/more/dog">Edit profile<ArrowUpRight size={16}/></Link></section></div>
+  <div className="home-details-grid">{family}<HomeDogProfile dog={dog}/></div>
 
   <footer className="home-footer"><PawPrint size={15} aria-hidden="true"/><p>A space for <strong>{household.name}</strong>. Made for the love of your dog.</p></footer>
  </div>

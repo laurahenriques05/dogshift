@@ -369,3 +369,25 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{ou
  .bottom-nav{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:0;padding-left:max(4px,env(safe-area-inset-left));padding-right:max(4px,env(safe-area-inset-right))}
  .bottom-nav>a{justify-content:center;min-width:44px;min-height:44px}
 }
+
+/* Home cards use their full shared row, with actions anchored at the bottom. */
+.home-profile-card,.home-family-card{display:flex;flex-direction:column;min-width:0}
+.home-profile-card .home-dog-details{flex:1;align-content:space-evenly;gap:22px 20px;margin-bottom:24px}
+.home-profile-card .text-link{margin-top:auto}
+.home-family-card .home-family-action{align-self:flex-end;margin-top:auto;background:#edf2e5;border-color:#d7e1cd;color:#244d3c}
+.home-family-card .home-family-action:hover{background:#e1ebd6}
+
+/* Shared pickers preserve native form values with the Walks menu treatment. */
+.app-select{position:relative;display:inline-block;min-width:0;max-width:100%;vertical-align:middle}
+.field>.app-select{display:block;width:100%}
+.app-select>.app-select-native{position:absolute!important;width:1px!important;height:1px!important;min-height:0!important;padding:0!important;margin:-1px!important;overflow:hidden;clip-path:inset(50%);white-space:nowrap;border:0!important;pointer-events:none}
+.app-select-trigger{display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;min-height:44px;padding:12px 14px 12px 16px;border:1px solid #dce3d5;border-radius:12px;background:#fffdf7;color:#233e32;font:inherit;font-weight:400;text-align:left}
+.app-select-trigger>span{flex:1;min-width:0;overflow-wrap:anywhere}
+.app-select-trigger>svg{box-sizing:content-box;flex:none;border-left:1px solid #d3d6d0;padding-left:12px;color:#78917b}
+.app-select-trigger:disabled{cursor:default;opacity:.55}
+.app-select-menu{z-index:1000;overflow-y:auto;overscroll-behavior:contain;max-width:calc(100vw - 16px);padding:5px;background:#fffdf7;border:1px solid #dce3d5;border-radius:12px;box-shadow:0 8px 24px #244d3c1a;color:#233e32;font-size:14px}
+.app-select-menu>button{display:flex;justify-content:space-between;align-items:center;gap:12px;width:100%;min-height:44px;padding:10px 12px;border:0;border-radius:8px;background:transparent;color:inherit;font:inherit;text-align:left}
+.app-select-menu>button>span{min-width:0;overflow-wrap:anywhere}.app-select-menu>button>svg{flex:none}
+.app-select-menu>button[aria-selected=true],.app-select-menu>button:hover:not(:disabled),.app-select-menu>button:focus-visible{background:#e9efdf;color:#244d3c}
+.app-select-menu>button:disabled{opacity:.5;cursor:default}
+.app-select .app-select-error{display:block;margin-top:6px;color:#8b342c;font-size:12px}.app-select-trigger[aria-invalid=true]{border-color:#8b342c}
