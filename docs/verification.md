@@ -1,13 +1,13 @@
 # Verification evidence and limits
 
-Updated 20 November 2026. Test counts are observations, not permanent guarantees.
+Updated 21 November 2026. Test counts are observations, not permanent guarantees.
 Use Node 22.x >=22.12; npm test, npm run typecheck, npm run build and git diff
 --check. Tests must not call the hosted database or send real emails/push.
 
-## Latest checks — Walks summary columns
+## Latest checks — Walks family removal
 
-On `codex/walks-summary-columns` (base main `c271766`), all
-**295 isolated tests in 67 files**
+On `codex/walks-family-removal` (base main `fd4a4b3`), all
+**297 isolated tests in 67 files**
 passed on Node 22.23.5 with both Supabase browser values blank.
 TypeScript, production build and git diff --check also passed. Changed Markdown file links were checked.
 Existing node_modules were reused; this is not a fresh npm ci. The care-task
@@ -19,13 +19,14 @@ Existing Zod annotation and large-bundle advisories remain; they are not failed
 checks. PGlite/minimal Auth/Storage roles cover isolation, rejected writes, retries,
 stock, routines, GPS/timeline and deletion. This is not a hosted security audit.
 
-Current isolated real-component fixtures checked the two-column layout at 1280px
-and stacked layout at 360px, default-open statistics, distance/time, monthly/daily
-filters, hide/show preserving the selected measure, and honest empty states. The
-real map rendered a repository demo route inside its 200px-high area and resized
-with the column; no household data was used. Browser console had no errors.
-The temporary fixture blocked hosted database access and was removed. Today's
-walk and GPS/queue/provider source were unchanged.
+Current real-component fixtures at 1280px/360px checked left-aligned captions,
+content-sized measure selectors, 22px/16px NFC gaps and soft/permanent confirmation
+transitions. The Deleted family fixture showed another author’s summary and
+permanent-removal control without route, notes, waste or Restore. Hosted access
+was blocked and fixtures removed. SQL tests cover family removal, private child
+isolation/cascades, author-only restore, forbidden roles/former members, active
+walk rejection, task-source cleanup and the single-migration rollout over the
+existing core/pause contract. No real activities were removed.
 These checks are not physical tags, live account persistence or actual GPS.
 
 ## Read-only hosted evidence — 20 November
@@ -37,7 +38,9 @@ also recorded. Manual Health SQL may not be represented in that ledger.
 
 Function inspection confirms hosted set_walk_deleted remains author-only and
 set_walk_routine preserves order but permits optional/partial estimates. Proposed
-family-deletion and strict-hour/stable-ID follow-ups are not applied. The new permanent-delete migration is also proposed only. No hosted care
+family-deletion and strict-hour/stable-ID follow-ups are not applied. The consolidated family-removal migration is also proposed only. A read-only
+21 November function check confirms author-only soft deletion and no permanent
+RPC; no live write was used to test this. No hosted care
 records or schema were changed by this follow-up.
 
 GitHub reports Vercel success for merged #68. Current Vercel team access is denied;

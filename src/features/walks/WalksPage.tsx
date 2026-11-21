@@ -57,7 +57,7 @@ export function WalksPage() {
   dialog.current?.querySelector<HTMLButtonElement>('button')?.focus()
   return()=>previousFocus.current?.focus()
  },[confirm])
- if(historyView&&!(active&&mine))return <WalkHistoryPage areaScope={session!.user.id} deletedHistory={walkHistory(data.walks,false,session!.user.id,true)} history={history} timezone={household!.timezone} loading={data.loading} ready={data.ready} error={data.error} onRetry={()=>data.reload()}/>
+ if(historyView&&!(active&&mine))return <WalkHistoryPage householdId={household!.id} areaScope={session!.user.id} deletedHistory={walkHistory(data.walks,false,session!.user.id,true)} history={history} timezone={household!.timezone} loading={data.loading} ready={data.ready} error={data.error} onRetry={()=>data.reload()}/>
  return <div className="walk-page">{!(active&&mine)&&<PageTitle eyebrow="A LITTLE FRESH AIR" title={`Out with ${dog!.name}.`}/>}
   {taskId&&!(active&&mine)&&<section className="card" aria-label="Walking task">{care.loading?<p role="status">Loading task…</p>:care.error?<><Notice error>{care.error}</Notice><Button onClick={care.reload}>Reload task</Button></>:<p>{care.row?.title} · {care.row?.completed_at?'Completed with a saved walk.':'Pending until this walk is ended and saved.'}</p>}<Link to="/tasks">Back to Tasks</Link></section>}
   {nfcError&&!(active&&mine)&&<Notice error>{nfcError}</Notice>}

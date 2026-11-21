@@ -57,11 +57,13 @@ Approved deletion change: any current member may soft-delete a completed family
 walk; restoration/correction remain author-only. The merged UI offers it, but the
 hosted deletion RPC is still author-only until the reviewed new migration is
 applied. Deleted history remains author-only; no ongoing walk can be deleted.
-The author/current member can also permanently remove an already deleted,
-completed walk after confirmation. The proposed permanently_delete_walk RPC
-deletes the row and cascades GPS/waste/notes; existing task links become null
-and their completion guards remain in force. Both deletion RPC rollouts need
-team review. Do not broaden private-route SELECT policies.
+The requested final contract permits any current member to permanently remove
+completed family walks, directly or after soft deletion, with irreversible
+confirmation. Restoration/correction remain author-only. Deleted family summaries
+come from get_deleted_walk_history (no notes/waste/GPS), while direct deleted-row
+and private-route SELECT policies remain unchanged. Existing task-link cleanup and
+child cascades remain transactional. The consolidated migration below requires
+Laura/Maria review before hosted application.
 
 ## Routine, summaries and maps
 
@@ -100,9 +102,13 @@ are absent from the inspected hosted ledger:
 - 20261120152152_preserve_walk_routine_slot_identity.sql: final order-preserving
   compatibility/hardening proposal; test the combined dependency chain.
 - 20261120155307_shared_walk_history_deletion.sql: required for family deletion.
-- 20261120215833_permanently_delete_walk.sql: proposed author-only permanent
-  removal of completed, deleted walks; tested against the complete local chain,
-  including task-source cleanup. Not applied to the hosted project.
+- 20261120215833_permanently_delete_walk.sql: earlier author-only proposal,
+  superseded for hosted rollout by the consolidated migration below.
+- 20261121102419_family_walk_removal.sql: final soft/permanent family removal
+  and metadata-only Deleted list. Tested both in the complete local chain and
+  directly over the installed core/pause contract without either earlier deletion
+  proposal. This is the one candidate to review/apply on the existing project;
+  do not apply the earlier deletion proposals as prerequisites. Not hosted.
 
 For a new isolated project, review the complete migration chain and dependencies;
 for the existing hosted project, reconcile actual definitions/ledger first. Apply

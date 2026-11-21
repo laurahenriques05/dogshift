@@ -123,14 +123,16 @@ persistent forecast recomputation is separate from in-app stock notices.
 
 Main includes a recording-only page while walking,
 a centred inactivity prompt after 2 stationary minutes (Yes continues, No finishes;
-5 unanswered minutes finishes), and permanent deletion from the author’s Deleted
-list with confirmation. The new permanent-delete RPC is proposed, not hosted.
+5 unanswered minutes finishes), and permanent deletion with confirmation. The current follow-up proposes family
+soft/permanent removal for any current member, including directly from saved
+history, and a metadata-only family Deleted list. Its consolidated RPC migration
+is not installed on the hosted project.
 
-Main includes PRs #65–#73; #68 merged as
+Main includes PRs #65–#74; #68 merged as
 72016adb6ea353f6daca5006698d34ebe8ec36a2. The four final screenshot adjustments
 are implemented, not outstanding. Neither rejected styling template was added.
 
-**Still pending:** hosted family-deletion RPC rollout (UI is merged, server still
+**Still pending:** hosted consolidated family soft/permanent deletion RPC rollout (UI is merged, server still
 only permits author deletion); routine SQL strict-hour hardening/reconciliation;
 physical NFC/Android/iPhone and background GPS acceptance; immediate NFC start
 following required consent; exact production alias verification. See team sync

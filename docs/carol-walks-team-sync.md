@@ -1,6 +1,6 @@
 # Walks — current state and next work
 
-Updated 20 November 2026. This is the existing current-state register, not a chat
+Updated 21 November 2026. This is the existing current-state register, not a chat
 transcript. Read AGENTS.md, README.md and this file first. Detailed behaviour is
 in walks.md and the focused documents linked there. Git retains old decisions;
 do not resurrect superseded requirements from old commits or chat previews.
@@ -24,17 +24,16 @@ Recheck current main and production before making a new release claim.
 
 ## Current follow-up branch
 
-Main includes #73 at `c271766`: recording-only active page, 2+5 minute GPS
-warning, routine controls and permanent-delete UI. Its deletion migrations still
-need hosted rollout; merged UI is not proof of installed permissions.
+Main includes #73/#74: recording-only active page, 2+5 minute GPS warning and the
+approved two-column summary below the unchanged routine. Statistics open by
+default; History remains a text link and the saved route is compact.
 
-`codex/walks-summary-columns` implements the approved layout below the unchanged
-Today's walk: Walking together left, Last Adventure right, stacked on mobile.
-Statistics open by default and fit the column; existing period/measure selectors
-remain. The text toggle has its chart icon at bottom left; History is a text link
-at top right. Last Adventure retains its horizontal top-left icon/date/title and
-real compact map. No schema, permission, tracking or hosted changes in this branch.
-Source awaits team review/publication.
+`codex/walks-family-removal` aligns the chart caption left, sizes the measure
+selector to its label and removes extra NFC margins. The requested deletion
+contract now lets current members soft-delete or permanently remove any completed
+family walk, directly or from Deleted. Restoration/correction remain author-only.
+Deleted family summaries use a metadata-only RPC; other authors’ deleted GPS,
+notes and waste remain private. No hosted changes have been made.
 
 ## Approved behaviour to preserve
 
@@ -70,16 +69,15 @@ Source awaits team review/publication.
 
 ## Genuine pending work
 
-1. **Family deletion rollout:** the UI exposes deletion of other members'
-   completed walks, but read-only inspection on 20 November confirms hosted
-   set_walk_deleted still requires the author. Proposed
-   20261120155307_shared_walk_history_deletion.sql is absent from hosted ledger.
-   Review/coordinate that exact migration with Laura before application; do not
-   reapply old migrations. Keep author-only restoration/correction and block
-   active walks, outsiders, anonymous and former members. Never delete real
-   activities as a test. The permanent-delete proposal also needs review with
-   Laura and Maria because existing task links are cleared by FK/trigger rules.
-   Neither deletion change is fully working on hosted Supabase yet.
+1. **Family deletion rollout:** read-only inspection on 21 November confirms
+   hosted set_walk_deleted still requires the author and permanently_delete_walk
+   is absent. New `20261121102419_family_walk_removal.sql` is the single proposed
+   hosted rollout; it includes both removal RPCs, the metadata-only Deleted list
+   and a schema-cache notification. It supersedes the two earlier uninstalled
+   deletion proposals for this hosted project; do not apply/reapply them as a
+   workaround. Review with Laura and Maria before application, especially existing
+   task-link cleanup. Current members only, completed walks only; outsiders,
+   anonymous and former members are rejected. No real care records were deleted.
 2. **Routine SQL hardening:** client requires all hours; hosted RPC still allows
    blank/partial estimates and preserves input order. The fixed-hours and stable-
    identity proposals remain unapplied. Review the final combined result before
@@ -104,7 +102,7 @@ Hosted migration ledger and function definitions were inspected read-only on
 source/hosted version mapping. Journal/routine preferences, waste/tracking,
 deleted-owner preview, pause duration and timeline corrections are installed.
 
-Current follow-up suite: 295 isolated tests/67 files passed on Node 22.23.5 with
+Current follow-up suite: 297 isolated tests/67 files passed on Node 22.23.5 with
 browser configuration blank; TypeScript/build and Markdown links also passed.
 See verification.md for current checks
 and evidence limits. Existing Zod annotation/bundle advisories remain.

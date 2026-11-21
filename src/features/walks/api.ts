@@ -1,3 +1,5 @@
+import { duration } from './gps'
+import type { HistoryEntry } from './history'
 import { db } from '../../lib/supabase/client'
 import type { WalkPoint } from '../../lib/supabase/database.types'
 export async function getPoints(id:string) {
@@ -32,4 +34,14 @@ export async function setWalkDeletion(id: string, deleted: boolean) {
 export async function permanentlyDeleteWalk(id:string) {
  const result=await db().rpc('permanently_delete_walk',{p_walk:id})
  if(result.error)throw result.error
+}
+
+export async function getDeletedWalkHistory(household:string,user:string):Promise<HistoryEntry[]> {
+ const entries:HistoryEntry[]=[]
+ for(let offset=0;;offset+=1000){
+  const result=await db().rpc('get_deleted_walk_history',{p_household:household}).range(offset,offset+999)
+  if(result.error)throw result.error
+  entries.push(...result.data.map(walk=>({id:walk.id,title:walk.walker_id===user?'Your walk':'Family walk',startedAt:walk.started_at,meters:walk.distance_m,seconds:duration(walk),demo:false,deleted:true,own:walk.walker_id===user})))
+  if(result.data.length<1000)return entries
+ }
 }
