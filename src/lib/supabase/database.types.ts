@@ -9,7 +9,7 @@ export type MedicationSchedule = { id:string; household_id:string; name:string; 
 export type MedicationDose = { id:string; schedule_id:string; scheduled_at:string; status:'scheduled'|'given'|'skipped'; administered_at:string|null; recorded_by:string|null; recorded_at:string|null; updated_at:string; notes:string }
 export type AppointmentType = 'uncategorised'|'consultation'|'vaccination'|'examination'|'surgery'|'other'
 export type VetAppointment = { appointment_type: AppointmentType; id: string; household_id: string; title: string; starts_at: string; location: string; notes: string; created_by: string|null; updated_by: string|null; created_at: string; updated_at: string }
-export type CareTaskFields = { care_kind?: 'feeding'|'walk'|null; care_meal_id?: string|null }
+export type CareTaskFields = { category?: 'health'|'other'; care_kind?: 'feeding'|'walk'|null; care_meal_id?: string|null }
 export type TaskSeries = CareTaskFields & { id:string;household_id:string;title:string;details:string;assigned_to:string|null;first_due_at:string;recurrence:'none'|'daily'|'weekly'|'monthly';recurrence_every:number;ends_on:string|null;archived_at:string|null;created_by:string|null;updated_by:string|null;created_at:string;updated_at:string }
 export type TaskOccurrence = CareTaskFields & { care_day?:string|null; original_assigned_to?:string|null; assignment_version?:number; meal_event_id?:string|null; walk_id?:string|null; id:string;household_id:string;series_id:string;title:string;details:string;assigned_to:string|null;recurrence:'none'|'daily'|'weekly'|'monthly';recurrence_every:number;due_at:string;completed_at:string|null;completed_by:string|null;created_at:string }
 export type AcademyPractice = { id:string;household_id:string;dog_id:string;module_id:string;user_id:string|null;practiced_at:string;checklist:Record<string,boolean>;performance:string;completed:boolean;deleted_at:string|null;updated_at:string }
@@ -98,6 +98,7 @@ export type Database = { public: { Tables: {
  revoke_household_invitation: { Args: { p_invitation: string }; Returns: undefined };
  get_household_members: { Args: { p_household: string }; Returns: FamilyMember[] };
  save_household_task: { Args:{p_household:string;p_id:string|null;p_title:string;p_details:string;p_assigned_to:string|null;p_first_due_at:string;p_recurrence:string;p_recurrence_every:number;p_ends_on:string|null}; Returns:string };
+ save_categorized_household_task: { Args:{p_category:'health'|'other';p_household:string;p_id:string|null;p_title:string;p_details:string;p_assigned_to:string|null;p_first_due_at:string;p_recurrence:string;p_recurrence_every:number;p_ends_on:string|null}; Returns:string };
  generate_task_occurrences: { Args:{p_household:string;p_from:string;p_until:string}; Returns:number };
  assign_household_task_occurrence: {Args:{p_occurrence:string;p_assigned_to:string|null;p_expected_assignee:string|null};Returns:undefined};
  complete_household_task: { Args:{p_occurrence:string;p_completed:boolean}; Returns:undefined };

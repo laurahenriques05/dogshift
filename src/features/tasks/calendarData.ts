@@ -34,18 +34,18 @@ export async function loadCalendarEvents(householdId:string,zone:string,month:st
  for(const result of [occurrenceResult,appointmentsResult,vaccinationsResult,schedulesResult,productsResult])if(result.error)throw result.error
  const people=await db().rpc('get_household_members',{p_household:householdId});if(people.error)throw people.error
  const names=new Map((people.data||[]).map(person=>[person.user_id,person.display_name]))
- const events:CalendarEvent[]=(occurrenceResult.data||[]).map(row=>({id:`task:${row.id}`,source:'task',sourceRecordId:row.id,title:row.title,occursAt:row.due_at,remindAt:new Date(Date.parse(row.due_at)-3600000).toISOString(),assignedTo:row.assigned_to,href:careHref(row),careKind:row.care_kind,assigneeName:names.get(row.assigned_to||'')||'Unassigned',completed:!!row.completed_at}))
- for(const visit of appointmentsResult.data||[])events.push({id:`health:appointment:${visit.id}`,source:'health',sourceRecordId:visit.id,title:visit.title,occursAt:visit.starts_at,remindAt:new Date(Date.parse(visit.starts_at)-86400000).toISOString(),assignedTo:null,href:'/health/appointments'})
- for(const vaccine of vaccinationsResult.data||[])if(vaccine.next_due_on){const at=toInstant(`${vaccine.next_due_on}T12:00`,zone);events.push({id:`health:vaccination:${vaccine.id}`,source:'health',sourceRecordId:vaccine.id,title:`Vaccination · ${vaccine.name}`,occursAt:at,remindAt:null,assignedTo:null,href:`/health/vaccinations?record=${encodeURIComponent(vaccine.id)}`,allDay:true})}
+ const events:CalendarEvent[]=(occurrenceResult.data||[]).map(row=>({id:`task:${row.id}`,source:'task',sourceRecordId:row.id,title:row.title,occursAt:row.due_at,remindAt:new Date(Date.parse(row.due_at)-3600000).toISOString(),assignedTo:row.assigned_to,href:careHref(row),category:row.category,careKind:row.care_kind,assigneeName:names.get(row.assigned_to||'')||'Unassigned',completed:!!row.completed_at}))
+ for(const visit of appointmentsResult.data||[])events.push({id:`health:appointment:${visit.id}`,source:'health',eventKind:'appointment',sourceRecordId:visit.id,title:visit.title,occursAt:visit.starts_at,remindAt:new Date(Date.parse(visit.starts_at)-86400000).toISOString(),assignedTo:null,href:'/health/appointments'})
+ for(const vaccine of vaccinationsResult.data||[])if(vaccine.next_due_on){const at=toInstant(`${vaccine.next_due_on}T12:00`,zone);events.push({id:`health:vaccination:${vaccine.id}`,source:'health',eventKind:'vaccination',sourceRecordId:vaccine.id,title:`Vaccination · ${vaccine.name}`,occursAt:at,remindAt:null,assignedTo:null,href:`/health/vaccinations?record=${encodeURIComponent(vaccine.id)}`,allDay:true})}
  const schedules=schedulesResult.data||[]
  if(schedules.length){
   const doses=await db().from('medication_doses').select('id,schedule_id,scheduled_at,status').in('schedule_id',schedules.map(schedule=>schedule.id)).eq('status','scheduled').gte('scheduled_at',from).lt('scheduled_at',until)
   if(doses.error)throw doses.error
   const names=new Map(schedules.map(schedule=>[schedule.id,schedule.name]))
-  for(const dose of doses.data||[])events.push({id:`health:medication:${dose.id}`,source:'health',sourceRecordId:dose.id,title:`Medication · ${names.get(dose.schedule_id)||'Dose due'}`,occursAt:dose.scheduled_at,remindAt:dose.scheduled_at,assignedTo:null,href:`/health/medications?dose=${encodeURIComponent(dose.id)}`})
+  for(const dose of doses.data||[])events.push({id:`health:medication:${dose.id}`,source:'health',eventKind:'medication',sourceRecordId:dose.id,title:`Medication · ${names.get(dose.schedule_id)||'Dose due'}`,occursAt:dose.scheduled_at,remindAt:dose.scheduled_at,assignedTo:null,href:`/health/medications?dose=${encodeURIComponent(dose.id)}`})
  }
  const products=(productsResult.data||[]) as FoodProduct[]
- for(const restock of foodRestockingEvents(products,entries).filter(event=>localTime(event.occursAt,zone).slice(0,7)===month))events.push({id:restock.id,source:'feeding',sourceRecordId:restock.sourceRecordId,title:restock.title,occursAt:restock.occursAt,remindAt:restock.remindAt,assignedTo:null,href:restock.href})
+ for(const restock of foodRestockingEvents(products,entries).filter(event=>localTime(event.occursAt,zone).slice(0,7)===month))events.push({id:restock.id,source:'feeding',eventKind:'restock',sourceRecordId:restock.sourceRecordId,title:restock.title,occursAt:restock.occursAt,remindAt:restock.remindAt,assignedTo:null,href:restock.href})
  return events.sort((a,b)=>a.occursAt.localeCompare(b.occursAt))
 }
 function nextMonth(month:string){const [year,number]=month.split('-').map(Number);return new Date(Date.UTC(year,number,1)).toISOString().slice(0,7)}
