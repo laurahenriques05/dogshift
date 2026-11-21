@@ -1,5 +1,5 @@
 import { calendarEventLabel } from './calendarTopics'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { ArrowUpRight, CalendarDays, ChevronRight } from 'lucide-react'
 import { Button, LoadingPlaceholder, Notice, errorMessage } from '../../components/ui'
@@ -18,12 +18,17 @@ function addDays(date: string, amount: number) {
 }
 
 function eventTime(event: CalendarEvent, zone: string) {
+ if(event.timeLabel)return event.timeLabel
  if (event.allDay) return 'All day'
  return new Intl.DateTimeFormat('en-GB', { timeZone: zone, hour: '2-digit', minute: '2-digit', hourCycle: 'h23' }).format(new Date(event.occursAt))
 }
 
-export function HomeCalendarCard({ householdId, zone }: { householdId: string; zone: string }) {
- const today = useMemo(() => dateForZone(zone), [zone])
+export function HomeCalendarCard(props:{householdId:string;zone:string}){return <HouseholdCalendarCard key={`${props.householdId}:${props.zone}`} {...props}/>}
+function HouseholdCalendarCard({ householdId, zone }: { householdId: string; zone: string }) {
+ const [,refreshClock]=useState(0)
+ const today=dateForZone(zone)
+ // Re-render across household-local midnight while the Home page stays open.
+ useEffect(()=>{const timer=window.setInterval(()=>refreshClock(value=>value+1),60000);return()=>window.clearInterval(timer)},[])
  const days = useMemo(() => Array.from({ length: 7 }, (_, index) => addDays(today, index)), [today])
  const months = useMemo(() => [...new Set(days.map(day => day.slice(0, 7)))], [days])
  const [selected, setSelected] = useState(today)
@@ -31,21 +36,26 @@ export function HomeCalendarCard({ householdId, zone }: { householdId: string; z
  const [loading, setLoading] = useState(true)
  const [error, setError] = useState('')
  const [retry, setRetry] = useState(0)
+ const requestVersion=useRef(0)
 
  const load = useCallback(async () => {
+  const request=++requestVersion.current
   setLoading(true)
+  setEvents([])
   setError('')
   try {
    const results = await Promise.all(months.map(month => loadCalendarEvents(householdId, zone, month)))
-   setEvents([...new Map(results.flat().map(event => [event.id, event])).values()].sort((a, b) => a.occursAt.localeCompare(b.occursAt)))
+   if(request===requestVersion.current)setEvents([...new Map(results.flat().map(event => [event.id, event])).values()].sort((a, b) => a.occursAt.localeCompare(b.occursAt)))
   } catch (caught) {
-   setError(errorMessage(caught))
+   if(request===requestVersion.current)setError(errorMessage(caught))
   } finally {
-   setLoading(false)
+   if(request===requestVersion.current)setLoading(false)
   }
  }, [householdId, months, zone])
 
- useEffect(() => { void load() }, [load, retry])
+ useEffect(() => { void load();return()=>{requestVersion.current++} }, [load, retry])
+ useEffect(()=>{setSelected(today)},[householdId,today])
+ useEffect(()=>{const refresh=()=>{if(document.visibilityState==='visible')void load()};window.addEventListener('focus',refresh);return()=>window.removeEventListener('focus',refresh)},[load])
 
  const selectedEvents = events.filter(event => eventOnDate(event, selected, zone))
  const selectedLabel = new Intl.DateTimeFormat(undefined, { weekday: 'long', day: 'numeric', month: 'long', timeZone: 'UTC' }).format(new Date(`${selected}T12:00:00Z`))
@@ -78,7 +88,7 @@ export function HomeCalendarCard({ householdId, zone }: { householdId: string; z
      {selectedEvents.slice(0, 3).map(event => <li key={event.id}>
       <Link to={event.href}>
        <span className={`calendar-event-dot calendar-dot-${event.source}`} aria-hidden="true"/>
-       <div><strong>{event.title}</strong><small>{eventTime(event, zone)} · {calendarEventLabel(event)}</small></div>
+       <div><strong>{event.title}</strong><small>{eventTime(event, zone)} · {calendarEventLabel(event)}{event.status?` · ${event.status}`:''}</small></div>
        <ChevronRight size={17} aria-hidden="true"/>
       </Link>
      </li>)}
