@@ -1,15 +1,11 @@
+import { calendarEventLabel } from './calendarTopics'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { ArrowUpRight, CalendarDays, ChevronRight } from 'lucide-react'
 import { Button, LoadingPlaceholder, Notice, errorMessage } from '../../components/ui'
 import { loadCalendarEvents } from './calendarData'
-import { eventOnDate, type CalendarEvent, type CalendarSource } from './model'
+import { eventOnDate, type CalendarEvent } from './model'
 
-const sourceLabel: Record<CalendarSource, string> = {
- task: 'Task',
- feeding: 'Food',
- health: 'Health',
-}
 
 function dateForZone(zone: string) {
  return new Intl.DateTimeFormat('en-CA', { timeZone: zone, year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date())
@@ -82,7 +78,7 @@ export function HomeCalendarCard({ householdId, zone }: { householdId: string; z
      {selectedEvents.slice(0, 3).map(event => <li key={event.id}>
       <Link to={event.href}>
        <span className={`calendar-event-dot calendar-dot-${event.source}`} aria-hidden="true"/>
-       <div><strong>{event.title}</strong><small>{eventTime(event, zone)} · {sourceLabel[event.source]}</small></div>
+       <div><strong>{event.title}</strong><small>{eventTime(event, zone)} · {calendarEventLabel(event)}</small></div>
        <ChevronRight size={17} aria-hidden="true"/>
       </Link>
      </li>)}

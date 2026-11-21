@@ -28,8 +28,9 @@ Do not reset the database or rerun prior migrations.
 New tasks offer Feeding, Walk, Health and Other. Feeding/Walk tasks ask for the
 saved meal or walk name, date/time and responsible member. Health/Other restore
 free-name general tasks, with optional details and the existing manual completion.
-These creation choices do not create clinical records or require a new category
-column; general tasks keep the existing database contract.
+These choices do not create clinical records. The follow-up calendar-topic change
+persists Health/Other through a separate atomic RPC and adds subject filters;
+see [calendar topics](calendar-topics.md) for its pending migration.
 The responsible member defaults to you; choosing Unassigned remains explicit.
 Recurrence stays in Advanced options. An unassigned occurrence can be taken;
 changing responsibility only updates that occurrence. There is no rotation,

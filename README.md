@@ -160,8 +160,12 @@ and UI presence do not prove deployed deletion, Auth/Storage cleanup or push.
 
 Tasks use household-local Today/overdue/upcoming groups, modal add/edit, explicit
 series changes, occurrence-only assignment and recorder completion/undo. Real
-materialized dates are paginated. Calendar opens month view with existing task,
-Feeding forecast and Health source links. Stable source IDs and cancellation belong
+materialized dates are paginated. Calendar opens month view filtered by subject:
+All, Feeding, Walks, Health and Other. Health includes both Health tasks and
+clinical events, with Task/Appointment/Medication/Vaccination labels and original
+source links. Persisting Health/Other task categories requires the reviewed,
+**unapplied** `20261121120000_task_calendar_topics.sql` migration; see
+[calendar topics and rollout](docs/calendar-topics.md). Stable source IDs and cancellation belong
 to Maria's shared contract, not duplicate feature reminder systems.
 
 Academy is one progressive 11-challenge dog-trick journey. Practice, prerequisites,
