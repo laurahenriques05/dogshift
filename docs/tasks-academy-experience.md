@@ -44,6 +44,29 @@ are reintroduced.
   preserves the practice component and its confirmation instead of unmounting
   it under the full-page loading screen.
 
+### Streak reliability and tip label
+
+Academy and its Home card share `loadAcademyPracticeDates`: paged, stable-ID,
+read-only queries for non-deleted practices in the active household. Streaks use
+all loaded timestamps converted into household-local days, independently of the
+100 most recent full records shown in the challenge's recent practice history.
+XP and unlock milestones are unchanged. A failed page rejects the load instead
+of silently presenting a shortened streak. Existing RLS remains authoritative.
+
+The informational action is named Training tip and uses a Lightbulb icon. It
+opens the existing teaching advice, not a scheduled reminder or notification.
+No notification functionality is added. No migration is required; release needs
+independent teammate review and the normal merge/deployment procedure.
+
+Regression checks cover 1,100 practices in one day plus two earlier days, a
+150-day streak, duplicate local dates, timezone boundaries, yesterday grace,
+deleted/foreign-household rows and a failed later page. Real-household saves are
+not used by these tests. Mobile/desktop browser checks cover the tip dialog and
+its Escape behavior; saved-history counts were tested with isolated fixtures.
+Final validation for this correction: 312 tests in 71 files, typecheck, build and
+diff checks passed. Existing bundle/dependency warnings remain. No hosted data or
+schema was changed.
+
 ## Database and release
 
 Two new migrations relative to the team main at this review base:
