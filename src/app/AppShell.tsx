@@ -1,3 +1,6 @@
+import { Modal } from '../components/ui/Modal'
+import { MoreOptions } from '../features/dashboard/DashboardPage'
+import './space-menu.css'
 import { Select } from '../components/ui/Select'
 import { AppFooter } from '../components/ui/AppFooter'
 import { NavLink, Outlet, useLocation } from 'react-router-dom'
@@ -7,7 +10,7 @@ import { db } from '../lib/supabase/client'
 import { useHousehold } from '../features/household/HouseholdProvider'
 import { useState } from 'react'
 export function AppShell() {
- const { household, households, select } = useHousehold(); const [error, setError] = useState(''); const { pathname }=useLocation()
+ const { household, households, select } = useHousehold(); const [error, setError] = useState(''); const [spaceOpen,setSpaceOpen]=useState(false); const { pathname }=useLocation()
  const moreActive=['/more','/health','/calendar'].some(path=>pathname===path||pathname.startsWith(`${path}/`))
  async function signOut() { const { error } = await db().auth.signOut(); if (error) setError(error.message) }
  return (
@@ -22,7 +25,6 @@ export function AppShell() {
         <NavLink to="/academy"><GraduationCap size={20}/>Academy</NavLink>
         <NavLink to="/tasks"><ListChecks size={20}/>Tasks</NavLink>
         <NavLink to="/health"><HeartPulse size={20}/>Health</NavLink>
-        <NavLink to="/more"><Ellipsis size={20}/>More</NavLink>
       </nav>
       <div className="sidebar-bottom">
         <div className="private-note">A little care.<br/><strong>A happier everyday.</strong></div>
@@ -33,11 +35,12 @@ export function AppShell() {
       <header className="topbar">
         <div className="mobile-brand"><Brand/></div>
         <span className="desktop-label">One dog. One family. All connected.</span>
-        <div className="household-label"><span className="status-dot"/>{households.length > 1 ? <Select aria-label="Active household" value={household?.id} onChange={event => select(event.target.value)}>{households.map(h => <option key={h.id} value={h.id}>{h.name}</option>)}</Select> : household?.name}<span className="avatar">{household?.name.charAt(0).toUpperCase()}</span></div>
+        <div className="household-label"><span className="status-dot"/>{households.length > 1 ? <Select aria-label="Active household" value={household?.id} onChange={event => select(event.target.value)}>{households.map(h => <option key={h.id} value={h.id}>{h.name}</option>)}</Select> : household?.name}<button type="button" className="avatar space-menu-trigger" aria-label="Open your space" aria-haspopup="dialog" aria-expanded={spaceOpen} onClick={()=>setSpaceOpen(true)}>{household?.name.charAt(0).toUpperCase()}</button></div>
       </header>
       <main id="main-content" className="main-content">{error && <Notice error>{error}</Notice>}<Outlet/></main>
       <AppFooter/>
     </div>
+    {spaceOpen&&<Modal title="Your space" onClose={()=>setSpaceOpen(false)}><div className="space-menu"><MoreOptions showCareLinks={false} onNavigate={()=>setSpaceOpen(false)}/></div></Modal>}
     <nav className="bottom-nav" aria-label="Mobile navigation">
       <NavLink to="/" end><Home/><span>Home</span></NavLink>
       <NavLink to="/feed"><Utensils/><span>Feed</span></NavLink>

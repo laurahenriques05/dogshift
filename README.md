@@ -243,3 +243,7 @@ must already be installed. Hosted rollout requires teammate review.
 Feeding and Walks tasks use occurrence-specific responsibility and complete
 only after real activity is saved.
 See [flows and verification](docs/occurrence-care-tasks.md).
+
+### Your space navigation
+
+The household initial in the header opens Dog profile, Family and Account in an accessible dialog on desktop and mobile. Desktop navigation omits More; mobile retains More, including Tasks, Health and the shared calendar. Links close the dialog; Close and Escape return focus to the header button. No database migration is required.
