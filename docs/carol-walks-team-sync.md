@@ -61,7 +61,7 @@ real deletion was performed, and family-wide removal is not yet live.
   the summary period selector sits at the top right, above the full-width title.
 - Pause freezes elapsed time and GPS; resume creates a segment. Notes/events can
   be corrected by their author, preserving all raw GPS. Save updates timeline.
-- History uses real saved walks; Demo walks is separate and explicitly labelled.
+- History uses real saved walks only; Demo walks has been removed from the UI.
   Saved cards retain their existing titles; area-names controls/lookups are removed.
 - Open-map credits only in the small persistent footer, including active imagery
   sources; preserve Google native attribution. No style picker on a saved empty

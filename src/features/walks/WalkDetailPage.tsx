@@ -18,15 +18,13 @@ import { duration } from './gps'
 import { RouteMap } from './RouteMap'
 import { useWalks } from './WalkProvider'
 import { findDemoWalk } from './demo'
-import { DemoWalkDetail } from './DemoWalks'
 import { WalkStats } from './WalkActivityCard'
 export function WalkDetailPage(){
  const {walkId}=useParams()
- const navigate=useNavigate()
  useEffect(()=>{window.scrollTo(0,0)},[walkId])
  const demo=findDemoWalk(walkId)
- if(demo&&walkId!==demo.id)return <Navigate to={`/walks/${demo.id}`} replace/>
- return demo?<DemoWalkDetail key={demo.id} walk={demo}/>:<SavedWalkDetailPage/>
+ if(demo)return <Navigate to="/walks?view=history" replace/>
+ return <SavedWalkDetailPage/>
 }
 function SavedWalkDetailPage(){
  const {walkId}=useParams()

@@ -2,7 +2,7 @@ import routes from './demoRoutes.json'
 import { routeDistance, type Point } from './gps'
 
 export type DemoWalk = { id: string; title: string; location: string; startedAt: string; points: Point[]; meters: number; seconds: number; waste: { pee: number; poop: number } }
-/** Presentation fixtures only: never sent to Supabase; available explicitly through the Demo walks history filter; never household statistics. */
+/** Presentation fixtures only: never sent to Supabase; retained for isolated tests and legacy-link detection, never shown in app history. */
 export const demoWalks: DemoWalk[] = routes.map(route => {
  const points: Point[] = route.coordinates.map(([longitude, latitude], seq) => ({
   seq, longitude, latitude, accuracy: 3,
