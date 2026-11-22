@@ -209,8 +209,9 @@ or delete real activities during tests.
 
 ## Releases and architecture
 
-Mobile navigation reserves six equal shortcut slots with touch targets of at least
-44px; five current links leave one free. Desktop navigation is unchanged.
+Mobile navigation has six equal shortcuts (Home, Feed, Walks, Academy, Tasks and
+Health) with touch targets of at least 44px. The family name/avatar at the top right
+opens family, dog profile and account options. Desktop navigation is unchanged.
 Home shows the dog's six saved profile details, distributes them through the card,
 and places the pale-green family action alongside its caption. Form selectors use
 the shared green/cream picker while preserving native form values and validation.
