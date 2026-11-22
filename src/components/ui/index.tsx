@@ -1,6 +1,6 @@
 import { useId, useState, type ButtonHTMLAttributes, type InputHTMLAttributes, type ReactNode } from 'react'
 import { PawPrint, Eye, EyeOff } from 'lucide-react'
-export function Brand() { return <span className="brand"><span className="brand-mark"><PawPrint size={22}/></span>PawShare<span className="brand-dot">.</span></span> }
+export function Brand() { return <span className="brand"><span className="brand-mark"><PawPrint size={22}/></span>DogShift<span className="brand-dot">.</span></span> }
 export function Button({ className = '', ...props }: ButtonHTMLAttributes<HTMLButtonElement>) { return <button className={`button ${className}`} {...props}/> }
 export function Field({ label, hint, type, ...props }: InputHTMLAttributes<HTMLInputElement> & { label: string; hint?: string }) {
  const id = useId(), [visible, setVisible] = useState(false)

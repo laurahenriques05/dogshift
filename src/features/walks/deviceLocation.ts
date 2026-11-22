@@ -9,7 +9,7 @@ export function watchDeviceLocation(geo: Geolocation, update: (state: DeviceLoca
  let browserError: string | undefined
  const publish = (error = '', locating = false) => { if (!disposed) update({ location, locating, error, browserError }) }
  publish('', true)
- const timer = setTimeout(() => { if (!browserError) browserError = 'No position or error callback received from the browser.'; publish(location ? 'Location updates are taking longer than expected. The last detected position is shown.' : 'Your device has not returned a location. Check location access for this browser and your device, then retry. In an in-app browser, try opening PawShare in Safari or Chrome.') }, 35000)
+ const timer = setTimeout(() => { if (!browserError) browserError = 'No position or error callback received from the browser.'; publish(location ? 'Location updates are taking longer than expected. The last detected position is shown.' : 'Your device has not returned a location. Check location access for this browser and your device, then retry. In an in-app browser, try opening DogShift in Safari or Chrome.') }, 35000)
  const success = (position: GeolocationPosition) => {
   if (disposed || denied) return
   const { latitude, longitude, accuracy } = position.coords
@@ -32,7 +32,7 @@ export function watchDeviceLocation(geo: Geolocation, update: (state: DeviceLoca
   browserError = `Code ${error.code}: ${error.message || 'No additional browser details'}`
   if (error.code === 1) {
    denied = true; location = null; clearTimeout(timer)
-   publish('Location access is blocked. Allow location for PawShare in the browser, and enable Location Services for that browser in your device settings. Then retry.')
+   publish('Location access is blocked. Allow location for DogShift in the browser, and enable Location Services for that browser in your device settings. Then retry.')
   } else if (!location) {
    // The watch can recover after a transient failure without creating another request.
    publish(error.code === 2 ? 'Your device cannot determine its location yet. Check Location Services and your connection. Still trying; you can retry.' : 'A location request timed out. Still waiting for a device fix; you can retry.')
@@ -42,7 +42,7 @@ export function watchDeviceLocation(geo: Geolocation, update: (state: DeviceLoca
  try {
   watch = geo.watchPosition(success, failure, { enableHighAccuracy: false, maximumAge: 0, timeout: 30000 })
  } catch {
-  clearTimeout(timer); publish('Location could not be requested in this browser. Try opening PawShare in Safari or Chrome.')
+  clearTimeout(timer); publish('Location could not be requested in this browser. Try opening DogShift in Safari or Chrome.')
  }
  return () => { disposed = true; clearTimeout(timer); if (watch !== undefined) geo.clearWatch(watch) }
 }

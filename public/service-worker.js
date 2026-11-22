@@ -1,7 +1,7 @@
 self.addEventListener('push', event => {
   let payload = {}
   try { payload = event.data ? event.data.json() : {} } catch { payload = { body: event.data?.text() || '' } }
-  const title = payload.title || 'PawShare'
+  const title = payload.title || 'DogShift'
   const options = {
     body: payload.body || 'There is a family care update.',
     tag: payload.id || 'pawshare-notification',

@@ -5,7 +5,7 @@ export function cleanEnvironmentValue(value: string | undefined) {
 export function readSupabaseConfig(rawUrl: string | undefined, rawKey: string | undefined) {
  const url = cleanEnvironmentValue(rawUrl).replace(/\/+$/, '')
  const key = cleanEnvironmentValue(rawKey)
- const help = 'Check .env.local in the PawShare project folder, then restart npm run dev.'
+ const help = 'Check .env.local in the DogShift project folder, then restart npm run dev.'
  let error: string | null = null
  try {
   const parsed = new URL(url)

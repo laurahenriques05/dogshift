@@ -1,4 +1,4 @@
-# PawShare
+# DogShift
 
 [Live app](https://pawshare-laurahenriques05.vercel.app) ·
 [Repository](https://github.com/laurahenriques05/pawshare)
@@ -247,3 +247,7 @@ See [flows and verification](docs/occurrence-care-tasks.md).
 ### Your space navigation
 
 The household initial in the header opens Dog profile, Family and Account in an accessible dialog on desktop and mobile. Desktop navigation omits More; mobile retains More, including Tasks, Health and the shared calendar. Links close the dialog; Close and Escape return focus to the header button. No database migration is required.
+
+### Application name
+
+The displayed app name is DogShift, including authentication, navigation, phone installation and default browser notifications. Existing hosting URLs, repository identifiers and device storage keys are preserved.
