@@ -112,7 +112,7 @@ persistent forecast recomputation is separate from in-app stock notices.
   The approved follow-up places it beside Last Adventure below the unchanged
   routine, with statistics visible by default, a text toggle and History link.
 - Full history and author event/note corrections preserve raw GPS; timeline updates
-  immediately. Explicit Demo walks never mix into real totals/data.
+  immediately. Demo walks are no longer offered in the app; old demo links return to saved history.
 - Saved cards use existing walk titles. The area-names disclosure and automatic
   area lookups have been removed from the current source.
 - Non-Google credits only in the persistent small footer; native Google credits
@@ -209,8 +209,9 @@ or delete real activities during tests.
 
 ## Releases and architecture
 
-Mobile navigation reserves six equal shortcut slots with touch targets of at least
-44px; five current links leave one free. Desktop navigation is unchanged.
+Mobile navigation has six equal shortcuts (Home, Feed, Walks, Academy, Tasks and
+Health) with touch targets of at least 44px. The family name/avatar at the top right
+opens family, dog profile and account options. Desktop navigation is unchanged.
 Home shows the dog's six saved profile details, distributes them through the card,
 and places the pale-green family action alongside its caption. Form selectors use
 the shared green/cream picker while preserving native form values and validation.

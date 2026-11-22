@@ -8,7 +8,7 @@ import { useFeeding } from '../feeding/useFeeding'
 import { useWalks } from '../walks/WalkProvider'
 import { timeLabel } from '../walks/gps'
 
-export function HomeToday({ household, dogName }: { household: Household; dogName: string }) {
+export function HomeToday({ household }: { household: Household; dogName: string }) {
  const feeding=useFeeding(household.id),walks=useWalks(),now=new Date()
  const names=new Map(feeding.members.map(member=>[member.user_id,member.display_name]))
  const meals=todayChecklist(feeding.plan,feeding.events,household.timezone,now)
@@ -22,7 +22,7 @@ export function HomeToday({ household, dogName }: { household: Household; dogNam
  const when=(value:string)=>{const date=new Date(value),today=dayKey(now,household.timezone),key=dayKey(date,household.timezone);if(key===today)return `today at ${clock(value)}`;const yesterday=dayKey(new Date(now.getTime()-86400000),household.timezone);if(key===yesterday)return `yesterday at ${clock(value)}`;return date.toLocaleDateString(undefined,{timeZone:household.timezone,day:'numeric',month:'short'})}
  const loading=feeding.loading||walks.loading
  return <section className="home-today" aria-labelledby="home-today-title">
-  <div className="home-today-copy"><h2 id="home-today-title">What is on today's agenda?</h2><p>See the latest care for {dogName}, then go straight to what you need.</p></div>
+  <div className="home-today-copy"><h2 id="home-today-title">What is on today's agenda?</h2></div>
   {loading?<div className="card home-today-card"><LoadingPlaceholder label="Loading today’s care" lines={3}/></div>:<div className="card home-today-card">
    <div className="home-today-status">
     <article><div className="home-today-panel-copy"><span className="home-today-icon"><Utensils size={18}/></span><div><strong>Feeding</strong>{feeding.error?<p>Could not load feeding.</p>:latestMeal?<p>Last: {latestMeal.meal_name} {when(latestMeal.occurred_at)} · {names.get(latestMeal.created_by||'')||'family member'}</p>:<p>No meal recorded yet.</p>}</div>{meals.length>0&&meals.every(row=>row.event)&&<Check size={17} className="home-today-check" aria-label="Today’s meals complete"/>}</div><Link className="button home-today-button" to={feedingAction.to}>{feedingAction.label}<ArrowRight size={17}/></Link></article>
