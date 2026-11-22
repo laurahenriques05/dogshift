@@ -28,7 +28,7 @@ function HouseholdCalendar(){
  const {count,padding}=monthDays(month)
  const monthLabel=new Intl.DateTimeFormat('en-GB',{month:'long',year:'numeric',timeZone:'UTC'}).format(new Date(`${month}-01T12:00:00Z`))
  function changeMonth(value:string){setMonth(value);setSelected(value===startMonth(today)?today:`${value}-01`)}
- return <div className="calendar-page"><PageTitle eyebrow="YOUR FAMILY" title="Tasks and calendar">Plan care together in your household time zone · {zone}</PageTitle>
+ return <div className="calendar-page"><PageTitle eyebrow="TASKS AND CALENDAR" title="A little planning, shared care.">Plan care together in your household time zone · {zone}</PageTitle>
   <nav className="task-hub-nav" aria-label="Tasks and calendar"><Link to="/tasks">Tasks</Link><Link className="is-active" to="/calendar" aria-current="page">Calendar</Link></nav>
   {error&&<Notice error>{error}</Notice>}
   <section className="card shared-calendar" aria-label="Shared household calendar">

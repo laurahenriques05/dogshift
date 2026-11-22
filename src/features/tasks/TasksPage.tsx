@@ -65,7 +65,7 @@ function HouseholdTasks(){
  }
  const actions={zone,user,names,members:data.members,busy:busy||loading,onComplete:complete,onAssign:assign,onEdit:openForm,onStop:setArchive,now:now.getTime()}
  return <div className="task-page tasks-experience">
-  <PageTitle eyebrow="YOUR FAMILY" title="Tasks and calendar">A clear plan for {dog?.name}’s day. Share the care, one task at a time.</PageTitle>
+  <PageTitle eyebrow="TASKS AND CALENDAR" title="A little planning, shared care.">A clear plan for {dog?.name}’s day. Share the care, one task at a time.</PageTitle>
   <nav className="task-hub-nav" aria-label="Tasks and calendar"><Link className="is-active" aria-current="page" to="/tasks">Tasks</Link><Link to="/calendar">Calendar</Link></nav>
   <div className="tasks-day-heading"><div><p className="eyebrow">{new Intl.DateTimeFormat('en-GB',{timeZone:zone,weekday:'long',day:'numeric',month:'long'}).format(now)}</p><h2>Today’s plan</h2></div><Button disabled={loading||!!loadError} onClick={()=>openForm()}><Plus size={17}/>Add task</Button></div>
   {message&&<Notice>{message}</Notice>}{actionError&&<Notice error>{actionError}<Button className="secondary" disabled={busy} onClick={()=>void load()}>Reload tasks</Button></Notice>}
