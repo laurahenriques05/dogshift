@@ -112,7 +112,7 @@ persistent forecast recomputation is separate from in-app stock notices.
   The approved follow-up places it beside Last Adventure below the unchanged
   routine, with statistics visible by default, a text toggle and History link.
 - Full history and author event/note corrections preserve raw GPS; timeline updates
-  immediately. Explicit Demo walks never mix into real totals/data.
+  immediately. Demo walks are no longer offered in the app; old demo links return to saved history.
 - Saved cards use existing walk titles. The area-names disclosure and automatic
   area lookups have been removed from the current source.
 - Non-Google credits only in the persistent small footer; native Google credits
