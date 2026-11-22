@@ -14,7 +14,7 @@ export function WalkNfcConfirmation({dogName,title,time,loading,busy,blocked,onC
   <div className="feeding-modal-panel">
    <header><div><p className="eyebrow">QUICK ACTION</p><h2 id={`${id}-title`}>Confirm walk</h2></div><button type="button" className="feeding-modal-close" aria-label="Cancel walk confirmation" disabled={busy} onClick={onClose}><X aria-hidden="true"/></button></header>
    <div className="feeding-modal-body"><div className="feeding-nfc-quick-confirm">
-    <div className="feeding-nfc-quick-heading"><p className="eyebrow">{loading?'LOADING YOUR ROUTINE':'READY TO CONFIRM'}</p><h2>{title}</h2>{time&&<p className="walk-nfc-estimate">Estimated time · <time>{time}</time></p>}</div>
+    <div className="feeding-nfc-quick-heading"><p className="eyebrow">{loading?'LOADING YOUR ROUTINE':'READY TO CONFIRM'}</p><h2>{title}</h2>{time&&<p className="walk-nfc-estimate">Estimated hour · <time>{time}</time></p>}</div>
     <div className="walk-nfc-dog"><Footprints size={24} aria-hidden="true"/><span>A little adventure with <strong>{dogName}</strong>.</span></div>
     {blocked&&<Notice>{blocked}</Notice>}
     <Button className="feeding-nfc-confirm-button" disabled={busy||!!blocked} onClick={onConfirm}>Confirm start</Button>

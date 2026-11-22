@@ -119,8 +119,9 @@ persistent forecast recomputation is separate from in-app stock notices.
   remain. No map-style picker on saved no-GPS routes. Dog places are opt-in;
   initial location animation approaches world → device with reduced-motion support.
 - Set up collar tag opens/focuses/scrolls to the final Feeding-style NFC section.
-  Three steps, browser writing where supported, NFC Tools fallback. Description
-  normal weight; 12px between warning and Copy action. URL:
+  Three steps shared with Feeding, browser writing where supported, NFC Tools fallback. Description
+  normal weight; 12px around the Copy action and its feedback. The collar artwork
+  stays within its column on mobile. URL:
   /walks?action=start&household=<UUID>. After sign-in/membership checks it opens
   a Feeding-style Confirm walk popup, then the existing Start walk GPS/waste
   options. Change details opens the walking-routine editor directly. Additional
