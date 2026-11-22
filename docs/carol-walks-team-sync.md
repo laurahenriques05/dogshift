@@ -72,7 +72,8 @@ Never reapply the earlier deletion proposals to implement this new policy.
   route. Do not hide map data/permission errors or claim fake accuracy.
 - Set up collar tag opens/focuses/scrolls to the final NFC disclosure. It copies
   Feeding's section, including browser writer/fallback; 12px notice/action gap,
-  normal-weight description. The tag opens setup, not unattended recording.
+  normal-weight description. The tag opens a Feeding-style Confirm walk popup, then the existing GPS/waste
+  setup. Required sign-in and membership checks precede it; no scan records a walk.
 
 ## Genuine pending work
 
@@ -90,10 +91,12 @@ Never reapply the earlier deletion proposals to implement this new policy.
 3. **Real-device acceptance:** NFC writing/tapping/sign-in, foreground GPS,
    permission denial, offline/reload, pause/resume and stationary 2+5 minute
    behaviour on Android/iPhone. Background/screen-locked reliability is unverified.
-4. Immediate NFC start after authentication/membership/location consent remains
-   requested but unimplemented: current flow still asks settings/confirmation.
-   Agree the consent experience before changing it. No Walks server push/calendar
-   producer is implemented; future contracts belong with Maria.
+4. **NFC acceptance:** source now uses the requested explicit quick confirmation,
+   followed by the same Start walk options as a manual start. Its next routine
+   slot/time is a preview only; missing/incomplete routines use a generic next-walk
+   label. Active-walk blocking and pending household intent remain in place.
+   Real tag/iPhone opening and sign-in recovery still need device validation.
+   No Walks server push/calendar producer is implemented; contracts belong to Maria.
 5. Exact production alias/commit verification needs appropriate Vercel access.
 
 No missing task should be inferred solely from an old screenshot. Ask about a
@@ -106,7 +109,7 @@ Hosted migration ledger and function definitions were inspected read-only on
 source/hosted version mapping. Journal/routine preferences, waste/tracking,
 deleted-owner preview, pause duration and timeline corrections are installed.
 
-Current follow-up suite: 315 isolated tests/73 files passed on Node 22.23.5 with
+Current follow-up suite: 318 isolated tests/74 files passed on Node 22.23.5 with
 browser configuration blank; TypeScript/build and Markdown links also passed.
 See verification.md for current checks
 and evidence limits. Existing Zod annotation/bundle advisories remain.

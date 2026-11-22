@@ -1,3 +1,5 @@
+import { WalkNfcConfirmation } from './WalkNfcConfirmation'
+import { nfcWalkPreview } from './nfcPreview'
 import { WalkHistoryOverview } from './WalkHistoryOverview'
 import { useCareTask } from '../tasks/care'
 import { StationaryWalkDialog } from './StationaryWalkDialog'
@@ -29,7 +31,7 @@ import { StartWalkDialog } from './StartWalkDialog'
 
 export function WalksPage() {
  const {session}=useAuth(),{household,dog}=useHousehold(),data=useWalks(),navigate=useNavigate()
- const [search,setSearch]=useSearchParams(),[confirm,setConfirm]=useState<'start'|'end'|null>(null)
+ const [search,setSearch]=useSearchParams(),[confirm,setConfirm]=useState<'nfc'|'start'|'end'|null>(null)
  const taskId=search.get('task'),care=useCareTask(taskId,household!.id,'walk')
  const [noteDraft,setNoteDraft]=useState<{walk:string;draft:NoteDraft}|null>(null)
  const [timelineRevision,setTimelineRevision]=useState(0)
@@ -43,6 +45,8 @@ export function WalksPage() {
  useEffect(()=>{window.scrollTo(0,0)},[historyView])
  const names=useWalkMembers(household!.id)
  const history=recentWalkHistory(data.walks,session!.user.id,names,data.now)
+ const nfcPreview=nfcWalkPreview(routine)
+ const startBlocked=taskId&&(care.loading||!!care.error||!care.row||!!care.row.completed_at)?'Reload this task before starting.':active?(mine?'You already have an active walk. Close this window to return to it.':'Another family member is already walking your dog. Wait until they finish.'):''
  const meters=mine?routeDistance(data.points):0
  const dialog=useRef<HTMLDivElement>(null),previousFocus=useRef<HTMLElement|null>(null)
  useEffect(()=>{
@@ -50,7 +54,7 @@ export function WalksPage() {
   const completed=data.walks.find(w=>w.id===finishingWalk&&w.ended_at&&!w.deleted_at)
   if(completed)navigate(`/walks/${completed.id}`)
  },[finishingWalk,data.walks,navigate])
- useEffect(()=>{if((search.get('action')==='start'||pendingWalkStart())&&data.ready&&(!taskId||care.row&&!care.row.completed_at)){const tagHousehold=search.get('household')??pendingWalkHousehold();clearWalkStart();if(!collarMatchesHousehold(tagHousehold,household!.id))setNfcError('This collar tag belongs to another family. Choose the matching family before starting.');else{setNfcError('');setConfirm('start')}const next=new URLSearchParams(search);next.delete('action');next.delete('view');next.delete('household');setSearch(next,{replace:true})}},[search,setSearch,data.ready,household,taskId,care.row])
+ useEffect(()=>{if((search.get('action')==='start'||pendingWalkStart())&&data.ready&&(!taskId||care.row&&!care.row.completed_at)){const tagHousehold=search.get('household')??pendingWalkHousehold();clearWalkStart();if(!collarMatchesHousehold(tagHousehold,household!.id))setNfcError('This collar tag belongs to another family. Choose the matching family before starting.');else{setNfcError('');setConfirm('nfc')}const next=new URLSearchParams(search);next.delete('action');next.delete('view');next.delete('household');setSearch(next,{replace:true})}},[search,setSearch,data.ready,household,taskId,care.row])
  useEffect(()=>{
   if(confirm!=='end')return
   previousFocus.current=document.activeElement as HTMLElement
@@ -87,7 +91,8 @@ export function WalksPage() {
   {!(active&&mine)&&<details id="walk-nfc" ref={nfcSection} className="feeding-disclosure walk-nfc-section"><summary><span>NFC tag</span><small>Configure or replace the household walking tag</small></summary><div className="feeding-disclosure-body"><WalkTagSetup householdId={household!.id}/></div></details>}
   {active&&mine&&data.warning!==null&&!data.ending&&<StationaryWalkDialog dogName={dog!.name} busy={data.busy} onYes={data.keepWalking} onNo={()=>{setConfirm(null);setFinishingWalk(active.id);void data.finish(noteDraft?.walk===active.id?noteDraft.draft:undefined)}}/>}
   <WalkConnectionAlert active={!!active&&mine} failed={data.connectionFailed} onReconnect={()=>data.reconnect()}/>
-  {confirm==='start'&&<StartWalkDialog dogName={dog!.name} busy={data.busy} blocked={taskId&&(care.loading||!!care.error||!care.row||!!care.row.completed_at)?'Reload this task before starting.':active?(mine?'You already have an active walk. Close this window and resume GPS.':'Another family member is already walking your dog. Wait until they finish.'):''} onCancel={()=>setConfirm(null)} onConfirm={(mode,trackGps)=>{setConfirm(null);void data.start(mode,trackGps,taskId||undefined)}}/>}
+  {confirm==='nfc'&&<WalkNfcConfirmation dogName={dog!.name} {...nfcPreview} loading={routine.loading} busy={data.busy} blocked={startBlocked} onClose={()=>setConfirm(null)} onConfirm={()=>{if(!startBlocked&&!data.busy)setConfirm('start')}}/>}
+  {confirm==='start'&&<StartWalkDialog dogName={dog!.name} busy={data.busy} blocked={startBlocked} onCancel={()=>setConfirm(null)} onConfirm={(mode,trackGps)=>{setConfirm(null);void data.start(mode,trackGps,taskId||undefined)}}/>}
   {confirm==='end'&&active&&mine&&<div className="walk-dialog-backdrop"><div ref={dialog} className="card walk-dialog" role="dialog" aria-modal="true" aria-labelledby="walk-confirm-title" onKeyDown={e=>{if(e.key==='Escape')setConfirm(null);if(e.key==='Tab'){const buttons=dialog.current!.querySelectorAll<HTMLButtonElement>('button');if(e.shiftKey&&document.activeElement===buttons[0]){e.preventDefault();buttons[buttons.length-1].focus()}else if(!e.shiftKey&&document.activeElement===buttons[buttons.length-1]){e.preventDefault();buttons[0].focus()}}}}><h2 id="walk-confirm-title">Finish this walk?</h2><>{active&&mine&&<WalkFinishSummary timezone={household!.timezone} walk={active} user={session!.user.id} draft={noteDraft?.walk===active.id?noteDraft.draft:undefined}/>}</><div className="walk-actions"><Button className="secondary" onClick={()=>setConfirm(null)}>Cancel</Button><Button disabled={data.busy||!data.ready} onClick={()=>{setConfirm(null);if(active){setFinishingWalk(active.id);void data.finish(noteDraft?.walk===active.id?noteDraft.draft:undefined)}}}>Confirm end</Button></div></div></div>}
  </div>
 }
