@@ -426,3 +426,12 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{ou
 .family-card-heading{display:flex;align-items:center;gap:12px;margin-bottom:20px;min-width:0}
 .family-card-heading>.icon-tile{flex:none;margin:0}
 .family-card-heading>h2{min-width:0;margin:0;line-height:1.25;overflow-wrap:anywhere}
+
+
+/* Feeding NFC motion: keep the bowl artwork unchanged, animate only the phone and signal. */
+.feeding-nfc-phone{animation:feeding-nfc-phone 3.6s ease-in-out infinite;transform-box:fill-box;transform-origin:center}
+.feeding-nfc-phone-signal{animation:feeding-nfc-waves 3.6s ease-in-out infinite}
+.feeding-nfc-setup-toggle{display:inline-flex;align-items:center;justify-content:center;gap:7px;border:0;background:transparent;color:#315a40;font:inherit;font-size:12px;min-height:38px;padding:7px 10px;text-decoration:underline;text-underline-offset:3px}
+.feeding-nfc-setup-toggle:hover{color:#173b2b}
+@keyframes feeding-nfc-phone{0%,25%,85%,100%{transform:translateX(0)}45%,65%{transform:translateX(-10px)}}
+@keyframes feeding-nfc-waves{0%,25%,85%,100%{opacity:.25}45%,65%{opacity:1}}
