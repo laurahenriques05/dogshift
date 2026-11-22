@@ -437,8 +437,20 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{ou
 @keyframes feeding-nfc-waves{0%,25%,85%,100%{opacity:.25}45%,65%{opacity:1}}
 
 
-/* Mobile feeding card: stack content so meal details remain readable on narrow screens. */
-@media(max-width:700px){.feeding-control-card{grid-template-columns:minmax(0,1fr);gap:16px;padding:21px!important}.feeding-control-card .feeding-next-copy{min-width:0}.feeding-control-card .feeding-next-copy h2{font-size:clamp(27px,8vw,34px);line-height:1.12;overflow-wrap:normal;word-break:normal}.feeding-control-card .feeding-next-copy>.button{width:100%;min-width:0}.feeding-control-card .feeding-nfc-bowl-sticker{grid-column:1;grid-row:auto;width:min(100%,230px);justify-self:center;margin:0}.feeding-control-progress{grid-column:1}.feeding-control-card>.feeding-nfc-setup-toggle{grid-column:1;justify-self:start;margin-top:-4px}.feeding-control-details{grid-template-columns:1fr;gap:14px;margin-top:14px}.feeding-control-details .feeding-quick-actions{display:block}.feeding-control-details .feeding-quick-actions>div{margin-top:14px}}
+/* Restore the compact mobile bowl/phone beside the meal, with explicit grid slots. */
+@media(max-width:700px){
+ .feeding-control-card{grid-template-columns:minmax(0,1fr) 105px;grid-template-areas:"meal artwork" "progress setup";gap:12px;padding:21px!important}
+ .feeding-control-card .feeding-next-copy{grid-area:meal;min-width:0}
+ .feeding-control-card .feeding-next-copy h2{font-size:27px;line-height:1.12;overflow-wrap:normal;word-break:normal}
+ .feeding-control-card .feeding-next-copy>.button{width:100%;min-width:0}
+ .feeding-control-card .feeding-nfc-bowl-sticker{grid-area:artwork;width:132px;justify-self:end;margin:0 -13px 0 0}
+ .feeding-control-card .feeding-control-progress{grid-area:progress}
+ .feeding-control-card>.feeding-nfc-setup-toggle{grid-area:setup;justify-self:center;margin:0;min-height:44px;padding-inline:0;font-size:11px;text-align:left}
+ .feeding-control-details{grid-template-columns:1fr;gap:14px;margin-top:14px}
+ .feeding-control-details .feeding-quick-actions{display:block}
+ .feeding-control-details .feeding-quick-actions>div{margin-top:14px}
+}
+
 
 /* Feeding and Walks share the same NFC instructions and feedback spacing. */
 .feeding-tag-setup .feeding-tag-guide li{display:flex;align-items:center;gap:10px}

@@ -47,8 +47,8 @@ export function FeedingDailyOverview({dogName,next,recent,correctable,products,e
     <text className="feeding-nfc-dog-name" x="106" y="144">{dogName.slice(0,8).toUpperCase()}</text>
     <circle className="feeding-nfc-sticker" cx="231" cy="157" r="35"/>
     <path className="feeding-nfc-mark" d="M218 165c9-7 9-20 0-27M226 172c15-11 15-30 0-40M234 178c18-13 18-37 0-50"/>
-   <g className="feeding-nfc-phone"><rect className="feeding-nfc-outline" x="316" y="61" width="58" height="111" rx="12"/><circle className="feeding-nfc-phone-dot" cx="345" cy="155" r="3"/></g>
-   <path className="feeding-nfc-phone-signal" d="M283 111c9 9 9 24 0 33M292 102c15 15 15 36 0 51"/>
+   <g className="feeding-nfc-phone"><rect className="feeding-nfc-outline" x="322" y="61" width="58" height="111" rx="12"/><circle className="feeding-nfc-phone-dot" cx="351" cy="155" r="3"/></g>
+   <path className="feeding-nfc-phone-signal" transform="translate(-8 0)" d="M283 111c9 9 9 24 0 33M292 102c15 15 15 36 0 51"/>
    </svg>
    <button type="button" className="feeding-nfc-setup-toggle" aria-controls="feeding-nfc" onClick={onSetupTag}><Nfc size={16} aria-hidden="true"/>Set up feeding tag</button>
   </section>
