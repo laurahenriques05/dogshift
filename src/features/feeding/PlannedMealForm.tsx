@@ -37,7 +37,6 @@ export function PlannedMealForm({householdId,products,plan,source,initialMealId,
   {error&&<Notice error>{error}</Notice>}
   <Button className="feeding-nfc-confirm-button" disabled={busy||!items.length}>{busy?'Confirming…':'Confirm meal'}</Button>
   <button type="button" className="feeding-nfc-change" disabled={busy} onClick={()=>{setExpanded(true);setError('')}}>Change details</button>
-  <p className="feeding-nfc-quick-note">Nothing is recorded until you confirm.</p>
  </form>
  return <form className={`form-stack${source==='nfc'&&!event?' feeding-nfc-confirm':''}`} onSubmit={submit}><h2>{event?'Correct feeding record':source==='nfc'?'Change feeding details':'Record feeding'}</h2>{source==='nfc'&&!event&&<Notice><strong>{meal?.name||'Planned meal'}{meal?.time?` · ${meal.time}`:''}</strong><br/>Review the saved bowl and change only what is different.</Notice>}
  <label className="field">Which meal?<Select value={selected} disabled={busy||!!taskOccurrence} onChange={e=>{setSelected(e.target.value);chooseFood(plan.find(p=>p.id===e.target.value)?.items||[{product_id:products[0]?.id||'',quantity_grams:Number(products[0]?.portion_grams||100)}]);setDuplicate(false)}}>{event?.routine_meal_id&&!meal&&<option value={event.routine_meal_id}>{event.meal_name} (previous routine)</option>}{plan.map(p=><option key={p.id} value={p.id}>{p.name} · {p.time}</option>)}<option value="">Single food or treat</option></Select></label>

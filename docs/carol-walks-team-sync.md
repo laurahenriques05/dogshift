@@ -22,9 +22,9 @@ The Vercel connector last refused team access; a successful GitHub status alone
 is not independent verification of the exact production alias/READY metadata.
 Recheck current main and production before making a new release claim.
 
-## Current follow-up branch
+## Current retention state
 
-`codex/walks-seven-day-retention` replaces manual history deletion with a rolling
+Current source replaces manual history deletion with a rolling
 seven-day history, measured from completion (168 hours). Titles use the saved
 member display name followed by `'s Walk`; unavailable names use an honest generic
 fallback. Deleted/Not deleted filters and removal/restoration controls are removed
@@ -93,8 +93,10 @@ Never reapply the earlier deletion proposals to implement this new policy.
    behaviour on Android/iPhone. Background/screen-locked reliability is unverified.
 4. **NFC acceptance:** source now uses the requested explicit quick confirmation,
    followed by the same Start walk options as a manual start. Its next routine
-   slot/time is a preview only; missing/incomplete routines use a generic next-walk
-   label. Active-walk blocking and pending household intent remain in place.
+   slot/time is a preview only. Additional outings use the current household-local
+   period name and closest matching named slot, without inventing a tomorrow plan.
+   Change details closes the popup and opens the routine editor, preserving saved
+   values until Save routine. Active-walk blocking and pending household intent remain.
    Real tag/iPhone opening and sign-in recovery still need device validation.
    No Walks server push/calendar producer is implemented; contracts belong to Maria.
 5. Exact production alias/commit verification needs appropriate Vercel access.
@@ -109,7 +111,7 @@ Hosted migration ledger and function definitions were inspected read-only on
 source/hosted version mapping. Journal/routine preferences, waste/tracking,
 deleted-owner preview, pause duration and timeline corrections are installed.
 
-Current follow-up suite: 318 isolated tests/74 files passed on Node 22.23.5 with
+Current follow-up suite: 319 isolated tests/74 files passed on Node 22.23.5 with
 browser configuration blank; TypeScript/build and Markdown links also passed.
 See verification.md for current checks
 and evidence limits. Existing Zod annotation/bundle advisories remain.

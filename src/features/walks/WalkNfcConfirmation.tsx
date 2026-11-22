@@ -2,7 +2,7 @@ import { useEffect, useId, useRef } from 'react'
 import { Footprints, X } from 'lucide-react'
 import { Button, Notice } from '../../components/ui'
 
-export function WalkNfcConfirmation({dogName,title,time,loading,busy,blocked,onClose,onConfirm}:{dogName:string;title:string;time:string|null;loading:boolean;busy:boolean;blocked:string;onClose:()=>void;onConfirm:()=>void}) {
+export function WalkNfcConfirmation({dogName,title,time,loading,busy,blocked,onClose,onConfirm,onChangeDetails}:{dogName:string;title:string;time:string|null;loading:boolean;busy:boolean;blocked:string;onClose:()=>void;onConfirm:()=>void;onChangeDetails:()=>void}) {
  const dialog=useRef<HTMLDialogElement>(null),id=useId()
  useEffect(()=>{
   const previous=document.activeElement,element=dialog.current
@@ -18,7 +18,8 @@ export function WalkNfcConfirmation({dogName,title,time,loading,busy,blocked,onC
     <div className="walk-nfc-dog"><Footprints size={24} aria-hidden="true"/><span>A little adventure with <strong>{dogName}</strong>.</span></div>
     {blocked&&<Notice>{blocked}</Notice>}
     <Button className="feeding-nfc-confirm-button" disabled={busy||!!blocked} onClick={onConfirm}>Confirm start</Button>
-    {blocked?<Button className="secondary" disabled={busy} onClick={onClose}>Back to Walks</Button>:<p className="feeding-nfc-quick-note">Choose GPS and recording options next. Nothing starts until you confirm them.</p>}
+    <button type="button" className="feeding-nfc-change" disabled={busy||!!blocked} onClick={onChangeDetails}>Change details</button>
+    {blocked&&<Button className="secondary" disabled={busy} onClick={onClose}>Back to Walks</Button>}
    </div></div>
   </div>
  </dialog>
