@@ -316,3 +316,7 @@ dialog.walk-routine-summary{position:fixed;inset:0;margin:auto;height:fit-conten
 /* Walking-tag instructions stay left-aligned beside their icons. */
 .walk-tag-setup .feeding-tag-guide li{display:flex;align-items:center;gap:10px}
 .walk-tag-setup .feeding-tag-guide li>div{flex:1;text-align:left;padding-right:16px}
+
+.walk-nfc-dog{display:flex;align-items:center;gap:12px;padding:18px;border-radius:12px;background:#f3f6eb;color:#31553e}
+.walk-nfc-dog>svg{flex:none}.walk-nfc-estimate{display:flex;align-items:baseline;gap:6px;margin:12px 0 0;font-size:14px;color:#637168}
+.walk-nfc-confirmation .walk-nfc-estimate time{position:static;margin:0;font:inherit}

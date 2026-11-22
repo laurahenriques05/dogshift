@@ -121,7 +121,9 @@ persistent forecast recomputation is separate from in-app stock notices.
 - Set up collar tag opens/focuses/scrolls to the final Feeding-style NFC section.
   Three steps, browser writing where supported, NFC Tools fallback. Description
   normal weight; 12px between warning and Copy action. URL:
-  /walks?action=start&household=<UUID>. It opens setup, not unattended recording.
+  /walks?action=start&household=<UUID>. After sign-in/membership checks it opens
+  a Feeding-style Confirm walk popup, then the existing Start walk GPS/waste
+  options. Opening the link never records a walk by itself.
 
 Walks source now shows only completed adventures from the last 168 hours, with
 member-name titles and no Deleted/Not deleted selector or manual-removal crosses.
@@ -137,8 +139,7 @@ Main includes PRs #65–#78; #68 merged as
 are implemented, not outstanding. Neither rejected styling template was added.
 
 **Still pending:** reviewed seven-day retention migration/job rollout; routine SQL strict-hour hardening/reconciliation;
-physical NFC/Android/iPhone and background GPS acceptance; immediate NFC start
-following required consent; exact production alias verification. See team sync
+physical NFC/Android/iPhone and background GPS acceptance; exact production alias verification. See team sync
 before acting. No Walks calendar producer or server-push integration is implemented.
 
 ### Health and account
