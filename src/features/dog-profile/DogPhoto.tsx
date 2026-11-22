@@ -48,7 +48,7 @@ export function DogPhotoUpload({ householdId, dogId, name, onUploadingChange }: 
   finally { setBusy(false); onUploadingChange(false) }
  }
  return <section className="photo-upload" aria-labelledby={`${id}-heading`} aria-busy={busy}>
-  <div className="photo-upload-row"><DogPhoto householdId={householdId} dogId={dogId} name={name} version={version}/><div><h3 id={`${id}-heading`}>A face to love</h3><p className="muted">Add your dog’s photo to their profile and Home card.</p><label className={`button secondary photo-picker ${busy ? 'is-busy' : ''}`}><Camera size={17} aria-hidden="true"/>{busy ? 'Uploading…' : 'Upload or change photo'}<input type="file" accept="image/jpeg,image/png,image/webp" aria-label="Upload or change dog photo" aria-describedby={`${id}-hint`} disabled={busy} onChange={upload}/></label><p id={`${id}-hint`} className="photo-hint">JPG, PNG or WebP · up to 10 MB. Photos save immediately and stay private to your household.</p></div></div>
+  <div className="photo-upload-row"><DogPhoto householdId={householdId} dogId={dogId} name={name} version={version}/><div><h3 id={`${id}-heading`}>A face to love</h3><p className="muted">Add your dog’s photo to their profile and Home card.</p><label className={`button secondary photo-picker ${busy ? 'is-busy' : ''}`}><Camera size={17} aria-hidden="true"/>{busy ? 'Uploading…' : 'Upload or change photo'}<input type="file" accept="image/jpeg,image/png,image/webp" aria-label="Upload or change dog photo" disabled={busy} onChange={upload}/></label></div></div>
   {error && <Notice error>{error}</Notice>}{success && <Notice>Photo saved. You’ll see it on Home, too.</Notice>}
  </section>
 }

@@ -43,6 +43,5 @@ function HouseholdCalendar(){
    {loading?<p role="status" className="calendar-load">Loading shared events…</p>:<section className="calendar-day-list" aria-live="polite"><h3>{new Intl.DateTimeFormat(undefined,{dateStyle:'full',timeZone:'UTC'}).format(new Date(`${selected}T12:00:00Z`))}</h3>{selectedEvents.length===0?<p className="muted">No shared events for this day.</p>:<ul>{selectedEvents.map(event=><li key={event.id}><Link to={event.href}>{event.careKind?<span aria-hidden="true">{event.careKind==='feeding'?<Utensils size={18}/>:<Footprints size={18}/>}</span>:<span className={`calendar-event-dot calendar-dot-${event.source}`}/>} <div><strong>{event.title}</strong><small>{eventTime(event,zone)} · {event.careKind?`${calendarEventLabel(event)} · ${event.assigneeName} · ${careState(event)}`:`${calendarEventLabel(event)}${event.estimated?' · estimated':''}${event.status?` · ${event.status}`:''}`}</small></div><ChevronRight size={17}/></Link></li>)}</ul>}</section>}
   </section>
   {error&&<Button className="secondary" onClick={()=>setRetry(value=>value+1)}>Retry loading calendar</Button>}
-  <p className="calendar-footer-note">Routines update from Feeding and Walks. Add a task for extra care. Estimated routines are shown from today onwards; earlier days show saved activities. Each item opens its source feature.</p>
  </div>
 }
