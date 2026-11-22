@@ -63,7 +63,7 @@ export function WalksPage() {
   return()=>previousFocus.current?.focus()
  },[confirm])
  if(historyView&&!(active&&mine))return <WalkHistoryPage areaScope={session!.user.id} history={history} timezone={household!.timezone} loading={data.loading} ready={data.ready} error={data.error} onRetry={()=>data.reload()}/>
- return <div className="walk-page">{!(active&&mine)&&<PageTitle eyebrow="A LITTLE FRESH AIR" title={`Out with ${dog!.name}.`}/>}
+ return <div className="walk-page">{!(active&&mine)&&<PageTitle eyebrow="A LITTLE FRESH AIR" title={`Out with ${dog!.name}.`}>Little adventures with {dog!.name}, shared with your family one walk at a time.</PageTitle>}
   {taskId&&!(active&&mine)&&<section className="card" aria-label="Walking task">{care.loading?<p role="status">Loading task…</p>:care.error?<><Notice error>{care.error}</Notice><Button onClick={care.reload}>Reload task</Button></>:<p>{care.row?.title} · {care.row?.completed_at?'Completed with a saved walk.':'Pending until this walk is ended and saved.'}</p>}<Link to="/tasks">Back to Tasks</Link></section>}
   {nfcError&&!(active&&mine)&&<Notice error>{nfcError}</Notice>}
   {data.error&&<Notice error>{isSchemaUnavailable(data.error)?'This recording is waiting to sync. Retry when the connection is ready.':data.error}<p><Button className="secondary" onClick={()=>{void data.reload();void data.sync()}}>Retry connection</Button></p></Notice>}
