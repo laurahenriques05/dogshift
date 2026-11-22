@@ -1,16 +1,16 @@
 import { completedDailySlot } from './dailyWalks'
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Check, Circle, Footprints, LoaderCircle, Pencil } from 'lucide-react'
 import { Button, Field } from '../../components/ui'
 import type { DailyWalkRoutine } from './useDailyWalkRoutine'
 import { routineNames, routineOrder, validRoutineTimes } from './routineSchedule'
 import { WalkRoutineSummary } from './WalkRoutineSummary'
 
-export function TodaysWalks({routine,user,zone}:{routine:DailyWalkRoutine;user:string;zone:string}){
+export function TodaysWalks({routine,user,zone,editRequest=0}:{routine:DailyWalkRoutine;user:string;zone:string;editRequest?:number}){
  const [mode,setMode]=useState<'setup'|'edit'|null>(null)
  const editing=mode!==null
  const [value,setValue]=useState('3'),[draft,setDraft]=useState<{id:number;time:string}[]>([])
- const nextId=useRef(0)
+ const nextId=useRef(0),handledEditRequest=useRef(0),host=useRef<HTMLDivElement>(null)
  const times=draft.map(item=>item.time)
  const [selected,setSelected]=useState<number|null>(null),[saving,setSaving]=useState<number|null>(null),[feedback,setFeedback]=useState('')
  const name=(number:number)=>routine.names?.[number-1]??''
@@ -21,6 +21,16 @@ export function TodaysWalks({routine,user,zone}:{routine:DailyWalkRoutine;user:s
   const count=routine.count??3
   setValue(String(count));setDraft(Array.from({length:count},(_,i)=>({id:nextId.current++,time:routine.times[i]??''})));setMode(next);setFeedback('')
  }
+ useEffect(()=>{
+  if(!editRequest||handledEditRequest.current===editRequest||!routine.ready||routine.busy)return
+  handledEditRequest.current=editRequest
+  edit(routine.scheduleComplete?'edit':'setup')
+ },[editRequest,routine.ready,routine.busy,routine.scheduleComplete])
+ useEffect(()=>{
+  if(!mode)return
+  host.current?.scrollIntoView({behavior:'instant',block:'start'})
+  host.current?.querySelector<HTMLInputElement>('form input')?.focus({preventScroll:true})
+ },[mode])
  function changeTime(id:number,time:string){setDraft(previous=>previous.map(item=>item.id===id?{...item,time}:item))}
  function changeCount(value:string){
   setValue(value)
@@ -30,7 +40,7 @@ export function TodaysWalks({routine,user,zone}:{routine:DailyWalkRoutine;user:s
  async function withoutRoutine(){
   if(await routine.saveCount(undefined)){setMode(null);setFeedback('Routine removed.')}
  }
- return <div className="walk-routine-layout"><section className={`card walk-today${routine.ready&&!routine.scheduleComplete&&!editing?' is-unconfigured':''}`}>
+ return <div ref={host} className="walk-routine-layout"><section className={`card walk-today${routine.ready&&!routine.scheduleComplete&&!editing?' is-unconfigured':''}`}>
   <header className="walk-today-heading">
    <h2><span className="icon-tile"><Footprints size={28} aria-hidden="true"/></span>{routine.count===undefined||!routine.scheduleComplete?'Walking routine':'Today’s walk'}</h2>
    <div className="walk-routine-header-actions">{routine.ready&&!routine.scheduleComplete&&!editing&&<Button disabled={routine.busy} onClick={()=>edit('setup')}>Set routine</Button>}

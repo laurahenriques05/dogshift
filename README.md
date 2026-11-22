@@ -123,7 +123,9 @@ persistent forecast recomputation is separate from in-app stock notices.
   normal weight; 12px between warning and Copy action. URL:
   /walks?action=start&household=<UUID>. After sign-in/membership checks it opens
   a Feeding-style Confirm walk popup, then the existing Start walk GPS/waste
-  options. Opening the link never records a walk by itself.
+  options. Change details opens the walking-routine editor directly. Additional
+  outings use the local period’s walk name rather than an extra-walk title.
+  Opening the link never records a walk by itself.
 
 Walks source now shows only completed adventures from the last 168 hours, with
 member-name titles and no Deleted/Not deleted selector or manual-removal crosses.
