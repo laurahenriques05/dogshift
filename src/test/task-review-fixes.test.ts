@@ -18,7 +18,8 @@ async function fixture(includeFix = true) {
  grant select,insert,update,delete on storage.objects to authenticated;`)
  for (const file of readdirSync('supabase/migrations').filter(file => file.endsWith('.sql')).sort()) {
   // Keep the historical archive implementation when testing its upgrade.
-  if (!includeFix && file === '20261120140000_occurrence_care_tasks.sql') continue
+  // Retention depends on the care contract intentionally absent in this historical fixture.
+  if (!includeFix && (file === '20261120140000_occurrence_care_tasks.sql' || file === '20261122215728_walk_seven_day_retention.sql')) continue
   if (includeFix || file !== '20261115140000_task_review_fixes.sql') await sql.exec(readFileSync(`supabase/migrations/${file}`, 'utf8'))
  }
  await sql.exec(`insert into auth.users(id,email,email_confirmed_at) values('${owner}','a@example.test',now()),('${member}','b@example.test',now()),('${outsider}','c@example.test',now())`)

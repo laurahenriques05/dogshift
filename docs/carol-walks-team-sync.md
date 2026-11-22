@@ -24,17 +24,21 @@ Recheck current main and production before making a new release claim.
 
 ## Current follow-up branch
 
-`codex/walks-history-and-explicit-progress` is based on main `113aa25` (#77/#78
-merged). NFC copy is left-aligned again. Start walk now counts completed routine
-circles, including manual checks; an active start is not a completion. Walks and
-Maria’s calendar use the same explicit completion predicate: a real finished walk
-or a non-deleted manual check. Estimated times never complete either view.
+`codex/walks-seven-day-retention` replaces manual history deletion with a rolling
+seven-day history, measured from completion (168 hours). Titles use the saved
+member display name followed by `'s Walk`; unavailable names use an honest generic
+fallback. Deleted/Not deleted filters and removal/restoration controls are removed
+from the history and summary UI. Demo walks remain removed.
 
-The reported Deleted error was reproduced with the missing hosted RPC. Saved
-history remains accessible through View saved walks, while available own-deleted
-rows remain visible; family Deleted setup is explicitly pending. The user confirmed
-that Laura/Maria’s migration review is still outstanding. No hosted migration or
-real deletion was performed, and family-wide removal is not yet live.
+The UI change is distinct from physical deletion. Proposed migration
+`20261122215728_walk_seven_day_retention.sql` purges completed walks older than
+168 hours, including previously deleted walks, in batches of 1000 once per minute
+when pg_cron is installed. No initial purge runs during migration installation.
+Task completion is preserved via private, minimal occurrence receipts; walk GPS,
+notes and waste are not archived. This shared Tasks contract requires Maria/Laura
+review. The migration/job are NOT installed or verified on the hosted project:
+read-only inspection was blocked by automatic approval review's usage limit.
+Never reapply the earlier deletion proposals to implement this new policy.
 
 ## Approved behaviour to preserve
 
@@ -61,7 +65,7 @@ real deletion was performed, and family-wide removal is not yet live.
   the summary period selector sits at the top right, above the full-width title.
 - Pause freezes elapsed time and GPS; resume creates a segment. Notes/events can
   be corrected by their author, preserving all raw GPS. Save updates timeline.
-- History uses real saved walks only; Demo walks has been removed from the UI.
+- History uses real saved walks from the last 168 hours only; no Demo or Deleted view.
   Saved cards retain their existing titles; area-names controls/lookups are removed.
 - Open-map credits only in the small persistent footer, including active imagery
   sources; preserve Google native attribution. No style picker on a saved empty
@@ -72,15 +76,12 @@ real deletion was performed, and family-wide removal is not yet live.
 
 ## Genuine pending work
 
-1. **Family deletion rollout:** read-only inspection on 21 November confirms
-   hosted set_walk_deleted still requires the author and permanently_delete_walk
-   is absent. New `20261121102419_family_walk_removal.sql` is the single proposed
-   hosted rollout; it includes both removal RPCs, the metadata-only Deleted list
-   and a schema-cache notification. It supersedes the two earlier uninstalled
-   deletion proposals for this hosted project; do not apply/reapply them as a
-   workaround. Review with Laura and Maria before application, especially existing
-   task-link cleanup. Current members only, completed walks only; outsiders,
-   anonymous and former members are rejected. No real care records were deleted.
+1. **Seven-day retention rollout:** review the new migration and task-completion
+   receipts with Maria/Laura, inspect hosted definitions/ledger and pg_cron, then
+   install only the reviewed migration and verify the named job. Until then the
+   UI hides expired walks but physical deletion is not active. Earlier family
+   deletion proposals are superseded for this product flow, not newly authorized
+   installations. No real care records were deleted in this work.
 2. **Routine SQL hardening:** client requires all hours; hosted RPC still allows
    blank/partial estimates and preserves input order. The fixed-hours and stable-
    identity proposals remain unapplied. Review the final combined result before
@@ -105,7 +106,7 @@ Hosted migration ledger and function definitions were inspected read-only on
 source/hosted version mapping. Journal/routine preferences, waste/tracking,
 deleted-owner preview, pause duration and timeline corrections are installed.
 
-Current follow-up suite: 308 isolated tests/70 files passed on Node 22.23.5 with
+Current follow-up suite: 315 isolated tests/73 files passed on Node 22.23.5 with
 browser configuration blank; TypeScript/build and Markdown links also passed.
 See verification.md for current checks
 and evidence limits. Existing Zod annotation/bundle advisories remain.

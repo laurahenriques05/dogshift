@@ -11,7 +11,6 @@ import { WalkConnectionAlert } from './WalkConnectionAlert'
 import { WalkNotes } from './WalkNotes'
 import { WalkRecordingStatus } from './WalkRecordingStatus'
 import { WalkTimeline } from './WalkTimeline'
-import { RestoreWalkDialog } from './RestoreWalkDialog'
 import { WalkWastePanel } from './WalkWastePanel'
 import { useEffect, useRef, useState } from 'react'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
@@ -23,7 +22,8 @@ import { useWalks } from './WalkProvider'
 import { paceLabel, routeDistance, timeLabel } from './gps'
 import { RouteMap } from './RouteMap'
 import { clearWalkStart, pendingWalkStart, pendingWalkHousehold, collarMatchesHousehold } from './nfc'
-import { walkHistory } from './history'
+import { recentWalkHistory } from './retention'
+import { useWalkMembers } from './useWalkMembers'
 import { WalkHistoryPage } from './WalkHistoryPage'
 import { StartWalkDialog } from './StartWalkDialog'
 
@@ -33,7 +33,6 @@ export function WalksPage() {
  const taskId=search.get('task'),care=useCareTask(taskId,household!.id,'walk')
  const [noteDraft,setNoteDraft]=useState<{walk:string;draft:NoteDraft}|null>(null)
  const [timelineRevision,setTimelineRevision]=useState(0)
- const [deleting, setDeleting] = useState<string | null>(null)
  const nfcSection=useRef<HTMLDetailsElement>(null)
  function openTagSetup(){const section=nfcSection.current;if(!section)return;section.open=true;section.scrollIntoView({behavior:window.matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth',block:'start'});section.querySelector('summary')?.focus({preventScroll:true})}
  const [nfcError,setNfcError]=useState('')
@@ -42,7 +41,8 @@ export function WalksPage() {
  const historyView=search.get('view')==='history'
  const routine=useDailyWalkRoutine({dog:dog!.id,walks:data.walks,zone:household!.timezone,now:data.now,enabled:!historyView&&!(active&&mine)})
  useEffect(()=>{window.scrollTo(0,0)},[historyView])
- const history=walkHistory(data.walks,false,session!.user.id)
+ const names=useWalkMembers(household!.id)
+ const history=recentWalkHistory(data.walks,session!.user.id,names,data.now)
  const meters=mine?routeDistance(data.points):0
  const dialog=useRef<HTMLDivElement>(null),previousFocus=useRef<HTMLElement|null>(null)
  useEffect(()=>{
@@ -57,7 +57,7 @@ export function WalksPage() {
   dialog.current?.querySelector<HTMLButtonElement>('button')?.focus()
   return()=>previousFocus.current?.focus()
  },[confirm])
- if(historyView&&!(active&&mine))return <WalkHistoryPage householdId={household!.id} areaScope={session!.user.id} deletedHistory={walkHistory(data.walks,false,session!.user.id,true)} history={history} timezone={household!.timezone} loading={data.loading} ready={data.ready} error={data.error} onRetry={()=>data.reload()}/>
+ if(historyView&&!(active&&mine))return <WalkHistoryPage areaScope={session!.user.id} history={history} timezone={household!.timezone} loading={data.loading} ready={data.ready} error={data.error} onRetry={()=>data.reload()}/>
  return <div className="walk-page">{!(active&&mine)&&<PageTitle eyebrow="A LITTLE FRESH AIR" title={`Out with ${dog!.name}.`}/>}
   {taskId&&!(active&&mine)&&<section className="card" aria-label="Walking task">{care.loading?<p role="status">Loading task…</p>:care.error?<><Notice error>{care.error}</Notice><Button onClick={care.reload}>Reload task</Button></>:<p>{care.row?.title} · {care.row?.completed_at?'Completed with a saved walk.':'Pending until this walk is ended and saved.'}</p>}<Link to="/tasks">Back to Tasks</Link></section>}
   {nfcError&&!(active&&mine)&&<Notice error>{nfcError}</Notice>}
@@ -81,13 +81,12 @@ export function WalksPage() {
    </section>}
    {!(active&&mine)&&<>
    <TodaysWalks routine={routine} user={session!.user.id} zone={household!.timezone}/>
-   <WalkHistoryOverview history={history} timezone={household!.timezone} now={new Date(data.now)} onDelete={setDeleting}/>
+   <WalkHistoryOverview history={history} timezone={household!.timezone} now={new Date(data.now)}/>
    </>}
   </>}
   {!(active&&mine)&&<details id="walk-nfc" ref={nfcSection} className="feeding-disclosure walk-nfc-section"><summary><span>NFC tag</span><small>Configure or replace the household walking tag</small></summary><div className="feeding-disclosure-body"><WalkTagSetup householdId={household!.id}/></div></details>}
   {active&&mine&&data.warning!==null&&!data.ending&&<StationaryWalkDialog dogName={dog!.name} busy={data.busy} onYes={data.keepWalking} onNo={()=>{setConfirm(null);setFinishingWalk(active.id);void data.finish(noteDraft?.walk===active.id?noteDraft.draft:undefined)}}/>}
   <WalkConnectionAlert active={!!active&&mine} failed={data.connectionFailed} onReconnect={()=>data.reconnect()}/>
-  {deleting&&<RestoreWalkDialog action="delete" walkId={deleting} onCancel={()=>setDeleting(null)} onRestored={async()=>{await data.reload();setDeleting(null)}}/>}
   {confirm==='start'&&<StartWalkDialog dogName={dog!.name} busy={data.busy} blocked={taskId&&(care.loading||!!care.error||!care.row||!!care.row.completed_at)?'Reload this task before starting.':active?(mine?'You already have an active walk. Close this window and resume GPS.':'Another family member is already walking your dog. Wait until they finish.'):''} onCancel={()=>setConfirm(null)} onConfirm={(mode,trackGps)=>{setConfirm(null);void data.start(mode,trackGps,taskId||undefined)}}/>}
   {confirm==='end'&&active&&mine&&<div className="walk-dialog-backdrop"><div ref={dialog} className="card walk-dialog" role="dialog" aria-modal="true" aria-labelledby="walk-confirm-title" onKeyDown={e=>{if(e.key==='Escape')setConfirm(null);if(e.key==='Tab'){const buttons=dialog.current!.querySelectorAll<HTMLButtonElement>('button');if(e.shiftKey&&document.activeElement===buttons[0]){e.preventDefault();buttons[buttons.length-1].focus()}else if(!e.shiftKey&&document.activeElement===buttons[buttons.length-1]){e.preventDefault();buttons[0].focus()}}}}><h2 id="walk-confirm-title">Finish this walk?</h2><>{active&&mine&&<WalkFinishSummary timezone={household!.timezone} walk={active} user={session!.user.id} draft={noteDraft?.walk===active.id?noteDraft.draft:undefined}/>}</><div className="walk-actions"><Button className="secondary" onClick={()=>setConfirm(null)}>Cancel</Button><Button disabled={data.busy||!data.ready} onClick={()=>{setConfirm(null);if(active){setFinishingWalk(active.id);void data.finish(noteDraft?.walk===active.id?noteDraft.draft:undefined)}}}>Confirm end</Button></div></div></div>}
  </div>
