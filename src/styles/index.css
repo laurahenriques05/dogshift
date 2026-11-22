@@ -435,3 +435,7 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{ou
 .feeding-nfc-setup-toggle:hover{color:#173b2b}
 @keyframes feeding-nfc-phone{0%,25%,85%,100%{transform:translateX(0)}45%,65%{transform:translateX(-10px)}}
 @keyframes feeding-nfc-waves{0%,25%,85%,100%{opacity:.25}45%,65%{opacity:1}}
+
+
+/* Mobile feeding card: stack content so meal details remain readable on narrow screens. */
+@media(max-width:700px){.feeding-control-card{grid-template-columns:minmax(0,1fr);gap:16px;padding:21px!important}.feeding-control-card .feeding-next-copy{min-width:0}.feeding-control-card .feeding-next-copy h2{font-size:clamp(27px,8vw,34px);line-height:1.12;overflow-wrap:normal;word-break:normal}.feeding-control-card .feeding-next-copy>.button{width:100%;min-width:0}.feeding-control-card .feeding-nfc-bowl-sticker{grid-column:1;grid-row:auto;width:min(100%,230px);justify-self:center;margin:0}.feeding-control-progress{grid-column:1}.feeding-control-card>.feeding-nfc-setup-toggle{grid-column:1;justify-self:start;margin-top:-4px}.feeding-control-details{grid-template-columns:1fr;gap:14px;margin-top:14px}.feeding-control-details .feeding-quick-actions{display:block}.feeding-control-details .feeding-quick-actions>div{margin-top:14px}}
