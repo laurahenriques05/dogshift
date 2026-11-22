@@ -123,19 +123,20 @@ persistent forecast recomputation is separate from in-app stock notices.
   normal weight; 12px between warning and Copy action. URL:
   /walks?action=start&household=<UUID>. It opens setup, not unattended recording.
 
-Main includes a recording-only page while walking,
-a centred inactivity prompt after 2 stationary minutes (Yes continues, No finishes;
-5 unanswered minutes finishes), and permanent deletion with confirmation. The current follow-up proposes family
-soft/permanent removal for any current member, including directly from saved
-history, and a metadata-only family Deleted list. Its consolidated RPC migration
-is not installed on the hosted project.
+Walks source now shows only completed adventures from the last 168 hours, with
+member-name titles and no Deleted/Not deleted selector or manual-removal crosses.
+The proposed retention migration schedules physical deletion every minute (batch
+limit 1000), including old deleted walks, while preserving existing task completion
+proof without keeping the walk. It is not installed: hosted inspection was blocked
+by the connector's automatic-review usage limit. Review the shared Tasks contract
+with Maria/Laura before rollout. Client filtering is not evidence of server deletion.
+The recording-only page and stationary 2+5 minute prompt remain unchanged.
 
 Main includes PRs #65–#78; #68 merged as
 72016adb6ea353f6daca5006698d34ebe8ec36a2. The four final screenshot adjustments
 are implemented, not outstanding. Neither rejected styling template was added.
 
-**Still pending:** hosted consolidated family soft/permanent deletion RPC rollout (UI is merged, server still
-only permits author deletion); routine SQL strict-hour hardening/reconciliation;
+**Still pending:** reviewed seven-day retention migration/job rollout; routine SQL strict-hour hardening/reconciliation;
 physical NFC/Android/iPhone and background GPS acceptance; immediate NFC start
 following required consent; exact production alias verification. See team sync
 before acting. No Walks calendar producer or server-push integration is implemented.

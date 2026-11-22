@@ -1,3 +1,9 @@
+> Current product change: history now retains the last 168 hours from completion;
+> member-name titles replace Your/Family walk and manual deletion UI is removed.
+> `20261122215728_walk_seven_day_retention.sql` is proposed, not installed. It
+> supersedes the pending manual-deletion rollout for this flow and requires review
+> of its private Tasks completion receipts. See carol-walks-team-sync.md.
+
 # Walks implementation and rollout
 
 Current state: [team sync](carol-walks-team-sync.md). Source lives in

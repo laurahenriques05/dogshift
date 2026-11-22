@@ -8,7 +8,7 @@ import { WalkPeriodSelect } from './WalkPeriodSelect'
 import { WalkSummaryChart } from './WalkSummaryChart'
 import { WalkActivityCard } from './WalkActivityCard'
 
-export function WalkHistoryOverview({history,timezone,now,onDelete}:{history:HistoryEntry[];timezone:string;now:Date;onDelete:(id:string)=>void}) {
+export function WalkHistoryOverview({history,timezone,now}:{history:HistoryEntry[];timezone:string;now:Date}) {
  const [period,setPeriod]=useState<HistoryPeriod>('month')
  const [showStatistics,setShowStatistics]=useState(true)
  const summary=summarizeHistory(history,period,timezone,now)
@@ -21,7 +21,7 @@ export function WalkHistoryOverview({history,timezone,now,onDelete}:{history:His
   </section>
   <section className="card walk-last-adventure">
    <div className="walk-heading walk-history-heading"><h2>Last Adventure</h2><Link className="walk-show-more" to="/walks?view=history">History</Link></div>
-   {!history.length?<p className="walk-empty">Your first completed walk will appear here.</p>:<div className="walk-activity-list">{history.slice(0,1).map(walk=><WalkActivityCard key={walk.id} {...walk} loadRoute={!walk.demo} onDelete={!walk.demo?()=>onDelete(walk.id):undefined}/>)}</div>}
+   {!history.length?<p className="walk-empty">Your first completed walk will appear here.</p>:<div className="walk-activity-list">{history.slice(0,1).map(walk=><WalkActivityCard key={walk.id} {...walk} loadRoute={!walk.demo}/>)}</div>}
   </section>
  </div>
 }
