@@ -1,6 +1,6 @@
 {
-  "name": "PawShare",
-  "short_name": "PawShare",
+  "name": "DogShift",
+  "short_name": "DogShift",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#f7f8f2",

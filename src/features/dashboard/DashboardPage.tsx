@@ -16,7 +16,7 @@ export function DashboardPage() {
 }
 export function DogProfilePage() { const { dog, household, reload } = useHousehold(); return <><PageTitle eyebrow="YOUR DOG" title={`${dog!.name}’s profile`}>The little details that make them, them.</PageTitle><section className="card max-w-2xl"><DogForm dog={dog} householdId={household!.id} onSaved={reload}/></section></> }
 export function MorePage() {
- return <><PageTitle eyebrow="YOUR SPACE" title="A little more PawShare."/><MoreOptions/></>
+ return <><PageTitle eyebrow="YOUR SPACE" title="A little more DogShift."/><MoreOptions/></>
 }
 export function MoreOptions({onNavigate,showCareLinks=true}:{onNavigate?:()=>void;showCareLinks?:boolean}) {
  const { household, membership } = useHousehold(); const { session } = useAuth(); const [error, setError] = useState('')

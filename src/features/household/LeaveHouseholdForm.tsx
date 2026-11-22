@@ -37,7 +37,7 @@ export function LeaveHouseholdForm({ members, ready = true }: { members: FamilyM
   finally { setBusy(false) }
  }
  return <section className="card household-leave"><h2>Your household membership</h2>
-  <p className="muted">You can leave this family and join another using an invitation code. Your PawShare account stays active.</p>
+  <p className="muted">You can leave this family and join another using an invitation code. Your DogShift account stays active.</p>
   {!open ? <Button className="secondary" disabled={!verifiedMembers} onClick={() => setOpen(true)}>Leave household</Button> : <form className="form-stack" onSubmit={leave}>
    {soleMember?<Notice>You are the only member of {household?.name}. Leaving makes this family inactive. Its dog profile, records, photos and documents are kept. Your account stays active, and you can create or join another family. You can restore this family later from Account settings. Existing invitation codes will be revoked.</Notice>:<p className="muted">Leave {household?.name}? You’ll lose access to this family’s dog and shared information. The family and dog stay available to the remaining members.</p>}
    {owner && !soleMember && (others.length ? <label className="field">Choose the next owner<Select name="new_owner" required defaultValue=""><option value="" disabled>Select a family member</option>{others.map(member => <option key={member.user_id} value={member.user_id}>{member.display_name}</option>)}</Select><small>Ownership transfers when you confirm leaving.</small></label> : <Notice>Reload the family member list before leaving.</Notice>)}

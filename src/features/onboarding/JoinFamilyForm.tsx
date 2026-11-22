@@ -12,11 +12,11 @@ export function JoinFamilyForm() {
   event.preventDefault()
   const form = new FormData(event.currentTarget)
   const token = parseInvitationInput(String(form.get('invitation') || ''))
-  if (!token) { setError('Paste a complete PawShare invitation link or your invitation code.'); return }
+  if (!token) { setError('Paste a complete DogShift invitation link or your invitation code.'); return }
   navigate(`/invite/${token}`)
  }
  return <section className="onboard-join" aria-label="Join an existing family">
-  <p className="muted">Already have a family on PawShare?</p>
+  <p className="muted">Already have a family on DogShift?</p>
   <Button type="button" className="secondary" aria-expanded={expanded} aria-controls="join-family-form" onClick={() => setExpanded(value => !value)}>Join an existing family</Button>
   {expanded && <form id="join-family-form" onSubmit={join} className="form-stack">
    <p className="muted">Ask the family member to share an invitation from their Family page. Use the same email address they invited.</p>

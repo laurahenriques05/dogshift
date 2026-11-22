@@ -145,7 +145,7 @@
 .medication-card-header{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:12px}.medication-card-header h2{margin:0;min-width:0;overflow-wrap:anywhere}.medication-card-header .button.medication-edit-button{flex:0 0 auto;width:auto;min-height:36px;padding:6px 12px;border-radius:8px;border-color:#e3e8df;color:#637168;background:transparent;font-size:.78rem;font-weight:500;gap:4px}.medication-card-header .button.medication-edit-button:hover{background:#f5f7ee;border-color:#bccbb5;color:#244d3c}
 @media(pointer:coarse){.medication-card-header .button.medication-edit-button{min-height:44px}}
 
-/* Contrast and loading refinements from the PawShare UI research audit. */
+/* Contrast and loading refinements from the DogShift UI research audit. */
 :root{--paw-text-muted:#566459;--paw-text-accent:#506848;--paw-focus:#a7673f}
 .muted,.desktop-label,.nav-label,.sidebar nav>span,.bottom-nav>a,.bottom-nav>span,.steps,.section-heading>span,.home-private-label,.dog-summary dt,.empty-activity,.fine-print,.photo-hint,.task-history-note,.calendar-day-list li small,.academy-course-heading>span{color:var(--paw-text-muted)}
 .eyebrow,.steps .active{color:var(--paw-text-accent)}
@@ -221,7 +221,7 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{ou
 /* Keep Academy surfaces flat and calm; this override follows legacy rules below. */
 .academy-visual,.academy-resume{background:#f1f5ec}
 
-/* Product UI polish: flat PawShare surfaces instead of decorative gradients. */
+/* Product UI polish: flat DogShift surfaces instead of decorative gradients. */
 .feeding-page .feeding-overview{background:#f1f5ec}
 .academy-visual{background:#f7f9f3}
 .academy-resume{background:#f1f5ec}

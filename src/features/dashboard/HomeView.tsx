@@ -11,7 +11,7 @@ import { HomeCalendarCard } from '../tasks/HomeCalendarCard'
 import type { Dog, Household } from '../../lib/supabase/database.types'
 
 export function HomeView({ dog, household, photo, family }: { dog: Dog; household: Household; photo: ReactNode; family: ReactNode }) {
- return <div className="home-page"><PageTitle eyebrow="PAWSHARE" title={`Today with ${dog.name}`}>Care at a glance, shared with your family.</PageTitle>
+ return <div className="home-page"><PageTitle eyebrow="DOGSHIFT" title={`Today with ${dog.name}`}>Care at a glance, shared with your family.</PageTitle>
   <HomeToday household={household} dogName={dog.name}/>
   <HomeCalendarCard householdId={household.id} zone={household.timezone}/>
   <section className="card home-dog-card" aria-labelledby="home-dog-name"><div className="home-portrait-wrap">{photo}<Link className="home-photo-action" to="/more/dog" aria-label={`Add or change ${dog.name}’s photo`} title="Change dog photo"><Camera size={14}/></Link></div><div className="home-dog-copy"><p className="eyebrow">THE HEART OF YOUR FAMILY</p><h2 id="home-dog-name">{dog.name}</h2><p className="home-dog-breed">{dog.breed || 'One of a kind'}</p></div><Link className="home-profile-action" to="/more/dog">View profile<ArrowUpRight size={16}/></Link></section>
