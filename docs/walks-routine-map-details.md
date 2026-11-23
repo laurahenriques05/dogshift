@@ -13,6 +13,5 @@ in Git history rather than repeated as current requirements.
 
 Current CI presentation tests isolate browser configuration with an example origin
 and reject database access. Run tests with browser environment values blank so a
-local .env.local cannot mask missing-origin/SSR dependencies. No tests were weakened
-or removed to hide the earlier push/PR failure; current Verify status must be read
-for the relevant commit rather than inferred from old screenshots.
+local .env.local cannot mask missing-origin/SSR dependencies. Current Verify status must be read for the relevant commit rather than inferred
+from old screenshots. Historical implementation/debugging iterations live in Git.

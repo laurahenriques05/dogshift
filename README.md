@@ -1,6 +1,6 @@
 # DogShift
 
-[Live app](https://dogshift-lmbtah-7143.vercel.app) · [Repository](https://github.com/laurahenriques05/dogshift)
+[Live app](https://pawshare-laurahenriques05.vercel.app) · [Repository](https://github.com/laurahenriques05/dogshift)
 
 DogShift helps a family share the daily care of one dog: plan responsibilities,
 record what actually happened, and see the same care history on mobile or desktop.
@@ -41,6 +41,10 @@ or blindly replay migration files. npm run check:config is a separate read-only
 live connectivity check. Keep existing .env.local configuration intact.
 
 ## Current limits
+
+- The public app URL above was checked on 23 November. The newer
+  dogshift-lmbtah-7143.vercel.app alias redirects to Vercel login; do not use it
+  as the public demo/NFC URL until the owning team verifies access.
 
 - Physical NFC, outdoor/background GPS, screen lock and offline phone recovery
   still need real-device acceptance; browser support and location consent apply.

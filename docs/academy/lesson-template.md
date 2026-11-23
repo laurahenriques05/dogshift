@@ -2,7 +2,7 @@
 
 Use one copy of this template for each teammate's Academy module. Keep lessons
 short, practical and suitable for a household caring for one dog. This is a
-content format proposal; it does not define XP, unlocks, badges or streak rules.
+content authoring convention; it does not define XP, unlocks, badges or streak rules.
 
 ## Module
 
@@ -74,7 +74,7 @@ and direct medical questions to a veterinarian.
   distraction). Each part should have one observable goal and a few safe steps.
   Keep simple cues as one challenge. Part completion is shared and attributed,
   but awards no XP; only the explicit final challenge completion awards XP.
-- Maria's demo progression rules: courses unlock in order; explicit completion
+- Maria's progression rules: courses unlock in order; explicit completion
   awards 10 shared XP once per household/module; 50 XP advances one level;
   badges appear at 1, 5 and 20 completed modules; practice by any member counts
   toward the household streak in its time zone.

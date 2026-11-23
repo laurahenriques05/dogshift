@@ -11,9 +11,12 @@ Review and coordinate application of `supabase/migrations/202611110002_vet_appoi
 
 Each appointment belongs to a household (one dog per household). All current members can create/read/edit, including another member’s records. RLS checks live membership. Column grants prevent reassignment and audit spoofing. Browser deletion is available only after the separate appointment-deletion migration; RLS restricts it to current members. Database triggers set creator/editor and timestamps. UTC timestamptz storage; input and 24-hour display use household.timezone, independent of the device. Missing or ambiguous DST times are rejected with an instruction to choose another time. Editing is last-write-wins; concurrent conflict resolution is not included.
 
-## Maria integration pending agreement
+## Shared calendar
 
-Maria owns the existing shared calendar/reminder contracts; Health source links are documented in health-calendar-links.md. A source link does not itself enqueue a push reminder. Walks has its own notification adapter and summaries; that is not a general calendar contract. No event or notification is emitted here. Agree on household ID, appointment ID as stable source ID, source feature, title, instant, family timezone, deep link `/health/appointments`, optional responsible member and author/editor timestamps. Agree on upsert uniqueness (source + source ID), edits/cancellation, recipient preferences, timezone changes and scheduling ownership before integration. Do not create duplicate calendar records or a second delivery system. Home includes a real Health summary; its presence does not establish reminder delivery.
+Appointments already appear through Maria's source projection, with stable source
+IDs, household-local times and original Health links. Editing/deleting updates
+projection on reload/focus; do not create duplicate calendar records. Notifications
+are out of scope. Home's summary is actual data, not evidence of reminder delivery.
 
 ## Verification
 
@@ -25,4 +28,4 @@ Health now opens a month calendar of veterinary records, using the same table. C
 
 ## Appointment deletion
 
-All current family members may permanently delete appointments after explicit confirmation, as agreed. Appointment deletion is recorded in the hosted ledger as 20261115152455_appointment_deletion; do not reapply the source file. Select a date and choose Delete, or open a calendar appointment and choose Delete appointment. Confirm/Keep appointment controls prevent accidental deletion; failed requests retain the confirmation and allow retry. Calendar and list reload after success. Maria's shared source contract exists; actual Health sync/cancel integration must propagate deletion by source ID before reminder delivery is claimed.
+All current family members may permanently delete appointments after explicit confirmation, as agreed. Appointment deletion is recorded in the hosted ledger as 20261115152455_appointment_deletion; do not reapply the source file. Select a date and choose Delete, or open a calendar appointment and choose Delete appointment. Confirm/Keep appointment controls prevent accidental deletion; failed requests retain the confirmation and allow retry. Calendar and list reload after success. The shared calendar derives these source records; deleted appointments disappear on the next load.

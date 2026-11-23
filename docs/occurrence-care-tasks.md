@@ -1,10 +1,11 @@
 # Occurrence-based Feeding and Walks tasks
 
-Implementation branch: `feat/occurrence-care-tasks`. Proposed database change:
-`supabase/migrations/20261120140000_occurrence_care_tasks.sql`.
-**Not applied to hosted Supabase; not published or merged.** Review the migration
-and deploy it once to the intended project before releasing the new client.
-Do not reset the database or rerun prior migrations.
+Integrated source: supabase/migrations/20261120140000_occurrence_care_tasks.sql.
+Read-only 23 November inspection confirms save_care_task, record_task_meal,
+start_task_walk and assignment/completion contracts on the hosted project. Manual
+installation is not fully represented in the ledger. Do not reapply the file;
+reconcile exact definitions before any new shared schema change. Live two-member
+browser acceptance remains separate from function presence.
 
 ## Existing contracts and files
 
@@ -30,7 +31,7 @@ saved meal or walk name, date/time and responsible member. Health/Other restore
 free-name general tasks, with optional details and the existing manual completion.
 These choices do not create clinical records. The follow-up calendar-topic change
 persists Health/Other through a separate atomic RPC and adds subject filters;
-see [calendar topics](calendar-topics.md) for its pending migration.
+see [calendar topics](calendar-topics.md) for its installed-definition evidence.
 The responsible member defaults to you; choosing Unassigned remains explicit.
 Recurrence stays in Advanced options. An unassigned occurrence can be taken;
 changing responsibility only updates that occurrence. There is no rotation,
@@ -50,7 +51,8 @@ starts a walk or GPS. Only its explicit confirmation calls `start_task_walk`,
 which uses the existing start/options RPC and links that real walk. A pre-existing
 unrelated active walk cannot be attached silently. The task remains pending
 until the linked walk has a saved end. Existing pause/GPS/finish/retry behavior is
-unchanged. Removing a walk reopens its task. Stopping a recurring series preserves
+unchanged. Explicit legacy source removal reopens its task; automatic seven-day retention
+preserves real completion through minimal private receipts. Stopping a recurring series preserves
 an already linked walk, including one started before its scheduled time.
 
 The calendar projects the same occurrences, with action, time, responsible member
@@ -101,26 +103,11 @@ transactions need a staging PostgreSQL integration check after migration review.
 
 Data refreshes on route entry/return to the window. No realtime subscription,
 notification system or deployment is introduced. Device GPS/background behavior
-continues to have the existing Walks limitations. Before release, apply the
-reviewed migration in the intended Supabase project and repeat the two-member
-Feeding/Walks smoke test there. Preserve all previous migrations and data.
+continues to have the existing Walks limitations. Before claiming end-to-end
+completion, repeat the two-member Feeding/Walks smoke test with disposable hosted
+accounts, including rejected actions and save/reload. Notifications are out of scope.
 
-### Completed local checks (20 November 2026)
-
-- `npm test -- --maxWorkers=1`: **64 files, 290 tests passed**.
-- `npm run typecheck`: passed.
-- `npm run build`: passed; existing large-bundle advisory remains.
-- `git diff --check`: passed.
-- Browser: desktop and 390 × 844 mobile, no horizontal page overflow; create from
-  calendar intent; suggested walk name/current responsible member; take and swap;
-  explicit meal confirmation reflected in Tasks and Calendar; loading, empty and
-  simulated connection error; native dialog Escape and focus restoration.
-- Preview used temporary authentication/data only and its server was stopped.
-  A screenshot of the isolated mobile verification is `/tmp/pawshare-care-mobile.jpg`.
-- No hosted migrations, external data writes, push, PR, merge or deployment.
-
-General-task restoration: Health and Other are available again alongside Feeding
-and Walk. Fourteen relevant Tasks tests, typecheck and build passed. An isolated
-browser check created both general task kinds with real temporary database writes,
-retained optional details and verified manual completion; no shared data changed.
-No additional migration is needed.
+General Health/Other task creation is integrated. Local SQL-to-calendar tests
+cover actual Feeding confirmation, one stock deduction, linked Walk finish,
+correction and explicit assignment. Browser fixtures use temporary data only;
+current test counts and evidence limits are in verification.md.

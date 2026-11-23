@@ -47,10 +47,10 @@ buttons. Its own examples present the animated list as a way to showcase
 notifications/events and the shimmer button as a visual effect. DogShift should
 only use such motion for genuine state changes: a looping or staged list could
 make care records look live when they are not, and a shimmering primary button
-would distract from routine actions. The repository has no Motion dependency,
-so importing these components would also add a new dependency for effects that
-do not improve task completion. Prefer the current local primitives; evaluate a
-Magic UI component when a real feature can benefit from it.
+would distract from routine actions. The repository has no Motion dependency. The approved implementation keeps the
+existing local primitives and restrained line icons; no new UI library or motion
+package is pending installation. Preserve this choice unless a future request
+explicitly changes scope.
 
 ## References
 

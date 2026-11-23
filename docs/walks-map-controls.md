@@ -42,8 +42,12 @@ acknowledged buffers are cleared; real storage/network failures remain visible.
 Active GPS metrics sit near the map's lower right beside the lower-left scale.
 Time-only states keep readable metrics without pretending to have a route.
 
-Internet Connection Failure has Reconnect; retry invokes sync without ending GPS
-or changing operating-system settings. Missing schema, permission and sequence
+Connection lost stops GPS collection without ending the walk. Its compact alert
+is centred, with only a heading/Reconnect. Online alone does not restart GPS;
+Reconnect verifies connectivity, flushes the existing queue and resumes the same
+walk in a fresh segment. Manual pauses/queued finishes are respected. No points
+are collected during the detected outage and its gap is not drawn. Earlier
+points remain; no operating-system settings are changed. Missing schema, permission and sequence
 errors must not be mislabeled as internet loss. No background reliability promise.
 
 Journal notes and event correction are documented in walks-journal-daily.md and

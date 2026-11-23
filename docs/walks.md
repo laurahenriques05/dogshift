@@ -15,7 +15,7 @@ history. Never infer hosted installation from a migration filename.
 
 - /walks: start/setup, recording, optional routine, summaries, Last Adventure and
   the final NFC tag disclosure. Shared shell/auth/household guards remain.
-- /walks?view=history: Past Adventures, period/status filters and 20-entry paging.
+- /walks?view=history: Past Adventures, period filters and 20-entry paging; no Demo/Deleted selector.
 - /walks/:walkId: saved detail, route, notes/waste/timeline and author corrections.
 - /walks?action=start&household=<UUID>: public NFC URL, authenticated/member flow.
 - /walks/gps-test: memory-only location diagnostic; no saved walk or upload.
@@ -50,7 +50,7 @@ Reconnect verifies the server, flushes the existing queue and resumes that same
 walk only if GPS was running before the outage. A manual pause stays paused;
 a queued finish is saved without restarting. Fresh fixes begin a separate segment,
 so the outage is neither drawn nor included in route distance. The compact dialog
-shows a connection heading and Reconnect only. Physical-phone acceptance remains
+shows a connection heading and Reconnect only, centred in the viewport. Physical-phone acceptance remains
 pending; simulated-provider checks are recorded in verification.md.
 
 GPS inactivity warning: after 2 minutes within 30m with fresh continuous GPS,
@@ -68,17 +68,13 @@ private to the recorder; current members read the completed route. Direct browse
 writes are revoked. RPCs enforce membership, ownership, validation and retries.
 Other household members cannot append, finish or correct the recorder's activity.
 
-Approved deletion change: any current member may soft-delete a completed family
-walk; restoration/correction remain author-only. The merged UI offers it, but the
-hosted deletion RPC is still author-only until the reviewed new migration is
-applied. Deleted history remains author-only; no ongoing walk can be deleted.
-The requested final contract permits any current member to permanently remove
-completed family walks, directly or after soft deletion, with irreversible
-confirmation. Restoration/correction remain author-only. Deleted family summaries
-come from get_deleted_walk_history (no notes/waste/GPS), while direct deleted-row
-and private-route SELECT policies remain unchanged. Existing task-link cleanup and
-child cascades remain transactional. The consolidated migration below requires
-Laura/Maria review before hosted application.
+Completed walks older than 168 hours are physically removed by the installed
+once-per-minute retention job, regardless of author or soft-deletion state.
+Routes, notes and waste are not archived. Minimal private receipts retain linked
+Task completion; active walks are not purged. The current UI has no Deleted view,
+manual removal/restore actions or Demo walks. Earlier deletion proposals remain
+in Git/migration history but are not current rollout work. See team sync for
+approval, exact installed versions and live evidence. Do not reapply them.
 
 ## Routine, summaries and maps
 
@@ -86,10 +82,10 @@ Laura/Maria review before hosted application.
 - [Journal/manual checks](walks-journal-daily.md).
 - [Event/note editor](walks-editing-refinements.md).
 - [Maps/pause/recovery](walks-map-controls.md), [nearby places](walks-nearby-timeline.md).
-- [Waste and deletion](walks-dog-waste.md), [demo/statistics](walks-demo.md).
+- [Waste and deletion](walks-dog-waste.md), [history/statistics](walks-demo.md).
 - [Collar overview and NFC setup](walks-collar-overview.md).
 
-## Hosted migration mapping — inspected 20 November 2026
+## Hosted migration mapping — core checked 20 November; retention 23 November
 
 The shared project is jqxeszipztucnqcywkab. Some source timestamps differ from
 hosted ledger versions because installations were coordinated separately.
@@ -105,35 +101,21 @@ hosted ledger versions because installations were coordinated separately.
 | 20261118200000_walk_pause_and_notes.sql | 20261119192900_walk_pause_and_notes |
 | 20261118223000_walk_paused_duration.sql | 20261119192909_walk_paused_duration |
 | 20261119191348_walk_timeline_corrections.sql | 20261119192918_walk_timeline_corrections |
+| 20261122215728_walk_seven_day_retention.sql | 20261123142032_walk_seven_day_retention |
+| 20261123142121_enable_walk_retention_schedule.sql | 20261123142146_enable_walk_retention_schedule |
 
-Do not rerun any installed capability under its source timestamp. In particular,
-filename ordering alone is not a safe hosted upgrade plan. These later proposals
-are absent from the inspected hosted ledger:
-
-- 20261119195302_walk_routine_schedule.sql: superseded solar proposal; not an
-  approved product requirement. Never deploy alone.
-- 20261119203310_fixed_walk_routine_periods.sql: location-free strict estimates,
-  but sorts input; must be reconciled with stable slot identity.
-- 20261120152152_preserve_walk_routine_slot_identity.sql: final order-preserving
-  compatibility/hardening proposal; test the combined dependency chain.
-- 20261120155307_shared_walk_history_deletion.sql: required for family deletion.
-- 20261120215833_permanently_delete_walk.sql: earlier author-only proposal,
-  superseded for hosted rollout by the consolidated migration below.
-- 20261121102419_family_walk_removal.sql: final soft/permanent family removal
-  and metadata-only Deleted list. Tested both in the complete local chain and
-  directly over the installed core/pause contract without either earlier deletion
-  proposal. This is the one candidate to review/apply on the existing project;
-  do not apply the earlier deletion proposals as prerequisites. Not hosted.
-
-For a new isolated project, review the complete migration chain and dependencies;
-for the existing hosted project, reconcile actual definitions/ledger first. Apply
-only reviewed, explicitly authorized changes. Do not reset, edit applied files,
-apply solar requirements or rerun teammates' installations.
+Never rerun installed capabilities under their source timestamps. Source filename
+ordering is not a hosted upgrade plan. Read-only 23 November set_walk_routine
+inspection confirms required membership and input order, but allows partial/blank
+hours. Strict-hour hardening must reconcile fixed periods with stable slot identity
+before reviewed rollout. The old solar/sorting and manual family-deletion proposals
+are superseded; none is permission to install old SQL. Review complete dependencies
+for a new isolated backend; never reset the shared project or edit applied SQL.
 
 ## Verification limits
 
 Tests use isolated PGlite/minimal Auth/Storage roles, pure GPS/queue helpers and
-sample component fixtures. They do not establish physical NFC, push/email delivery,
+sample component fixtures. They do not establish physical NFC, email recovery,
 all hosted writes, Google billing/key readiness or locked-screen GPS. Keep fixture,
 read-only hosted schema, actual account write and phone evidence separate.
 Use docs/verification.md for checks and docs/collaboration.md for releases.

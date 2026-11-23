@@ -41,7 +41,7 @@ settings/events and Walks routine/check tables must exist, along with the existi
 care-task contracts. Missing/failed reads show the existing calendar error/retry
 state rather than invented or partially successful data.
 
-Laura and Carol should review source matching, labels and dates before merging.
+The source projection is integrated in main; future shared changes need owner review.
 Laura coordinates production release. No hosted schema or care records were
 changed by this implementation. No notification delivery is enabled.
 
@@ -60,10 +60,7 @@ walks or manual daily checks were recorded by browser checks. Real-phone deliver
 GPS and simultaneous multi-device updates are not claimed. Calendar refreshes on
 route entry/window focus; this is not realtime synchronization.
 
-Final checks: 306 tests across 70 files passed with one worker; typecheck,
-production build and diff checks passed. Existing bundle/dependency advisories
-remain. The earlier audit test is included as regression coverage in this branch.
-
+Current test counts and remaining integration evidence: verification.md.
 
 ## Cross-feature review
 
@@ -85,13 +82,12 @@ across midnight. Request-version guards discard stale results; both calendar vie
 remount their household-scoped state on family/timezone changes. This preserves
 existing refresh-on-return behavior rather than promising realtime synchronization.
 
-Additional isolated coverage executes real medication given/skipped RPCs, vaccine
-rescheduling/deletion, one idempotent follow-up from a visit summary, more than
-1,000 appointments, a failed producer read and cross-family rejection. Final checks:
-307 tests across 70 files passed; typecheck, build and diff checks passed. These
-SQL writes used disposable PGlite only. Local browser Health views confirmed real
-saved-dose labels/links without changing any shared clinical record. Home focus/
-family lifecycle handling was code-reviewed; no hosted multi-client race is claimed.
+Isolated coverage includes medication given/skipped, vaccine rescheduling/deletion,
+idempotent follow-ups, more than 1000 appointments, failed reads and cross-family
+rejection. Local browser checks read existing labels/links without modifying real
+clinical records. Populated multi-user writes and race behaviour still require
+live disposable-account acceptance. Notifications are out of scope.
 
-All additions stay in the same review PR. No hosted migration, delivery setting,
-producer write rule or production deployment was changed.
+Seven-day walk retention removes expired actual walk rows from this projection.
+Minimal private receipts preserve linked Task completion without retaining GPS,
+notes or waste. Estimated routine time never creates an actual completion.

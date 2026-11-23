@@ -19,8 +19,7 @@ records before/after without exposing it through browser grants.
 
 Successful Save rerenders and opens the corrected timeline immediately, with
 refreshed waste events; no manual reload or Walk updated sentence. Other members
-read completed summaries but cannot edit another person's activity. Family-delete
-permission is a separate proposed rollout, not permission to correct GPS/events.
+read completed summaries but cannot edit another person's activity. Automatic seven-day retention does not grant correction rights to other members.
 
 Installed hosted versions (read-only rechecked 20 November):
 

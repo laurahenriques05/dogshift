@@ -41,7 +41,7 @@ and household-local start day, deduplicated by walk ID and ordered by real start
 Ongoing walks fill a dark circle with in-progress status, not completed Summary.
 Finish makes Summary available automatically. Overflow stays in real totals/history,
 never fills another period. Overnight uses the start day. Deleted walks free slots;
-restored walks reassign. Legacy count-only plans retain their old handling until
+restored legacy walks reassign; the current UI exposes no restore/removal actions. Legacy count-only plans retain their old handling until
 estimates are completed. Manual attestations occupy stable slots; no fake GPS/time.
 
 Overview counts the same completed slots as the circles, including explicit

@@ -6,13 +6,13 @@ not an old branch review or another member's approval.
 Academy is progressive dog-trick training. Walking basics is archived; /walks/learn
 redirects to Walks. Preserve old IDs/history/XP without reviving a walking course.
 
-Stationary warnings belong only to the recorder. Keep walking, movement/GPS gaps,
-leaving recording and hidden pages must clear local warning state appropriately.
-Do not send household-wide coordinates or connect Walks to a second push system.
-Existing show/cancel adapter is not proof of a registered server-push integration.
+Stationary warnings belong only to the recorder. Fresh continuous GPS is required
+to initiate them; once shown, the unanswered five-minute deadline remains even
+if the app is hidden. Yes/Pause/connection interruption clear the local warning;
+no household-wide coordinates or server push are involved.
 
-The shared calendar belongs to Maria and accepts its existing source contracts.
-Walks currently emits no calendar source. A planned walk may be a family task;
-a completed GPS route stays in Walks history. Future integrations need agreed
-stable source IDs, ownership, idempotency/cancellation and recipient semantics.
-No branch combination, migration application or permission is implied here.
+Maria's shared calendar directly projects routines, real walks and explicit daily
+checks, without reading GPS. Linked care Tasks complete only from their real
+saved activity; retention keeps minimal proof after removing an expired walk.
+See calendar-care-routines.md and occurrence-care-tasks.md. No separate Walks
+calendar/notification producer is required. Notifications are out of scope.

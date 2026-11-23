@@ -1,11 +1,10 @@
 # Tasks and Academy experience
 
-Current source integrated into main; owner: Maria. No notifications UI or new
-notification delivery is enabled by this presentation.
+Current source integrated into main; owner: Maria. Notifications are out of scope, not pending delivery work.
 
 ## Tasks
 
-- Today is the first section, using the household's local date. Earlier overdue
+- Numeric group/Completed badges are removed. Today is the first section, using the household's local date. Earlier overdue
   work and future dates follow it; completed history is collapsed at the bottom.
 - Add/edit uses an accessible native modal with focus containment, Escape,
   focus restoration and the first field focused. Title, date and assignee are
@@ -55,7 +54,7 @@ of silently presenting a shortened streak. Existing RLS remains authoritative.
 
 The informational action is named Training tip and uses a Lightbulb icon. It
 opens the existing teaching advice, not a scheduled reminder or notification.
-No notification functionality is added. No migration is required; release needs
+No notification functionality or migration is required. Future releases follow
 independent teammate review and the normal merge/deployment procedure.
 
 Regression checks cover 1,100 practices in one day plus two earlier days, a
@@ -63,13 +62,11 @@ Regression checks cover 1,100 practices in one day plus two earlier days, a
 deleted/foreign-household rows and a failed later page. Real-household saves are
 not used by these tests. Mobile/desktop browser checks cover the tip dialog and
 its Escape behavior; saved-history counts were tested with isolated fixtures.
-Final validation for this correction: 312 tests in 71 files, typecheck, build and
-diff checks passed. Existing bundle/dependency warnings remain. No hosted data or
-schema was changed.
+Current test evidence is consolidated in verification.md.
 
 ## Database and release
 
-Two new migrations relative to the team main at this review base:
+Installed source capabilities (do not reapply):
 
 1. `20261117140000_tasks_reliability.sql` — PR #35's earlier date/departure fixes.
 2. `20261118230000_task_quick_assignment.sql` — protected occurrence assignment.
@@ -117,7 +114,7 @@ Challenges retain their existing saved-practice flow, ownership rules, shared XP
 
 Challenge quick actions open native dialogs for practice, the existing knowledge reminder and family notes. Closing the practice dialog preserves its draft; saving keeps the existing RPC/XP rules and is protected from dismissal while busy. The guide keeps its three illustrations in a horizontal sequence, using consistent green Lucide outlines and a specific icon set for each of the 11 challenges across five course levels. Advanced challenges show the same diagram above their existing saved-part path. Full instructions, suitability warnings, practice dialogs, prerequisites and XP rules are preserved. Reading a step or viewing an icon never saves practice. This is a client-only change; no migration is required.
 
-Compact-guide validation: 10 Academy tests across three files, TypeScript and
-production build passed. Isolated browser checks covered desktop, 390px mobile,
-step navigation, practice-dialog opening/Escape, the advanced saved-part path,
-and icon rows across all five levels. No real practice or hosted data was saved.
+
+Locked Academy stages use opaque pale-green surfaces and muted normal-weight
+text; locked lessons/parts remain readable. Back has solid colours even when
+disabled at the first step; navigation semantics are unchanged.

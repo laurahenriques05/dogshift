@@ -9,7 +9,10 @@ Health → Medication schedules & dose logs (`/health/medications`). All current
 
 ## Schema dependency and rollout verification
 
-Review and coordinate `supabase/migrations/202611110003_medications.sql` before applying it once to the shared project. This task does not apply it, deploy, send notifications, or change Auth. The existing appointments migration is unchanged. No environment changes or new dependencies.
+Source dependency: supabase/migrations/202611110003_medications.sql. Medication
+capabilities exist on the hosted project; manual SQL may be absent from its ledger.
+Never replay the file without reconciling definitions with Beni/Laura. No Auth,
+notification or unrelated environment change is authorized.
 
 Schedules contain the medication name and prescribed instructions entered by the family. No recommendations or dose calculations. Create one dose or up to 366 daily doses at one chosen local time. Edit a schedule to add another series (for example another prescribed daily time). There is no indefinite recurrence. Planned times are materialized as UTC instants; subsequent family timezone changes affect display, not the stored instants. DST gaps/overlaps fail the whole client submission rather than silently shifting times. The existing timezone helper is used.
 
@@ -23,9 +26,12 @@ RLS restricts reads to current members. Browser roles have no direct table write
 
 After coordinated migration application, create a disposable schedule, add multiple daily times, reload, log a dose, correct your log, and test another member being blocked from changing it. Check family switching, offline save/load/retry, 375px layout, keyboard use and a device timezone different from the family. Hosted Supabase/browser interaction is not verified by the unit tests. Do not test with real medication decisions or send notifications.
 
-## Maria integration
+## Shared calendar
 
-No notification delivery or shared calendar writes. Agree on source type, stable schedule/dose IDs, household, planned UTC timestamp, family timezone, schedule title, source deep link, recipients, responsible person if applicable and audit fields. Use dose ID for idempotent event upsert; rescheduling must replace reminders and given/skipped must cancel them. Agree on corrections and future cancellation before enabling integration. No second calendar or scheduler is introduced.
+The calendar projects dose source records, using stable dose IDs, household-local
+display and /health/medications?dose=<UUID>. Given/Skipped remain visible. Source
+changes update on reload/focus without duplicate calendar rows. Notifications are
+out of scope; no reminder sync/cancel rollout is required.
 
 ## Current administration-date rule — 23 November 2026
 
@@ -36,10 +42,9 @@ Actual administration time must be finite, non-null and not in the future.
 Membership and recorder permissions remain enforced. Existing records are not
 rewritten. Keep both versioned migration files; do not edit or repeat applied SQL.
 
-Commit df7bc10 is on main. On 23 November GitHub reported Vercel success for it,
-and the public JavaScript bundle contained the updated future-dose message.
-This confirms the released client rule, not the installed hosted function body.
-Both SQL files were supplied to the owner for manual application; independent
-hosted function inspection and an authenticated save/reload test remain unverified.
-Eight focused tests passed (including the follow-up SQL in temporary PGlite),
-plus TypeScript/build; these are isolated evidence, not real medication records.
+Current source is integrated in main. Read-only 23 November inspection of hosted
+log_medication_dose independently confirmed the future-day guard, finite/nonfuture
+actual administration time and membership/recorder checks. Do not rerun either SQL
+file based on missing ledger entries. Authenticated save/reload/correction still
+needs disposable-account acceptance. Local SQL tests are not real dose records;
+see verification.md for current suite evidence.

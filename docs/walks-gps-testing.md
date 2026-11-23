@@ -41,3 +41,13 @@ Record actual phone results here before promising background tracking:
 | --- | --- | --- | --- | --- | --- | --- |
 | iPhone / Safari | Pending | Pending | Pending | Pending | Pending | Pending |
 | Android / Chrome | Pending | Pending | Pending | Pending | Pending | Pending |
+
+## Persisted-walk acceptance (not the diagnostic prototype)
+
+Use disposable data and the approved public HTTPS app. Start one walk, record a
+short outdoor segment, disable internet and verify collection stops after the
+outage is detected. Restore internet: recording must stay stopped until Reconnect.
+Press it and verify the same walk resumes, prior points remain and the gap is not
+drawn. Test retries with a pre-outage pending point, manual pause, denied permission
+and a queued finish. Repeat on iPhone/Android with screen lock/app switching.
+Record actual observed results; simulated provider tests do not complete this table.

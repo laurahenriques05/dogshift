@@ -35,7 +35,7 @@ fails. iPhone browser writing is not supported.
 3. Keep only the intended walking URL record, select Write and hold the writable
    tag against the phone until success. Do not permanently lock it during setup.
 4. Close the writer, unlock the phone, tap the tag and open the URL notification.
-5. Sign in if needed, select GPS/waste options and confirm start/location.
+5. Sign in if needed, use Confirm walk, then select GPS/waste and confirm location/start.
 
 The tag is a shortcut; the phone supplies GPS. Everyday users do not need to
 open the writing app. Authentication/current membership and household mismatch
@@ -45,8 +45,10 @@ require tapping again. Merely opening a URL never records a walk.
 
 ## Limits
 
-Immediate recording after required authentication/membership/consent remains
-unimplemented: current NFC opens setup/confirmation. Physical tag writing,
+The approved flow is explicit confirmation, not immediate recording from a URL.
+Confirm walk uses the next period name and Estimated hour; Change details opens
+the saved routine editor. The full action=start URL is required for this popup;
+/walks alone is ordinary navigation. Physical tag writing,
 tapping, phone permissions and locked-screen GPS require actual Android/iPhone
 validation. Component fixtures verified disclosure navigation, focus, copy feedback
 and narrow/desktop containment, not physical NFC. No new schema for this section.
