@@ -42,9 +42,8 @@ live connectivity check. Keep existing .env.local configuration intact.
 
 ## Current limits
 
-- The public app URL above was checked on 23 November. The newer
-  dogshift-lmbtah-7143.vercel.app alias redirects to Vercel login; do not use it
-  as the public demo/NFC URL until the owning team verifies access.
+- The public app URL above is the current DogShift production alias and is the
+  URL to use for the demo and NFC setup.
 
 - Physical NFC, outdoor/background GPS, screen lock and offline phone recovery
   still need real-device acceptance; browser support and location consent apply.
@@ -52,8 +51,8 @@ live connectivity check. Keep existing .env.local configuration intact.
   hosted retention job, checked every minute in batches of 1000. Active walks are
   preserved. Only minimal private proof of linked Task completion remains.
 - Notifications are out of scope. Do not promise push/email reminders.
-- Account/family deletion Edge Functions were not deployed in the 23 November
-  hosted check; their UI/source alone is not evidence of working cleanup.
+- Account/family deletion is not part of the demo scope and its UI remains
+  disabled; do not present it as a completed user-facing feature.
 - Live multi-account workflows and file cleanup still need disposable-account
   acceptance. Local tests are not proof of every hosted integration.
 - React/TypeScript replaces the course's Python stack; teaching-staff approval
