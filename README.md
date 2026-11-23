@@ -1,6 +1,6 @@
 # DogShift
 
-[Live app](https://pawshare-laurahenriques05.vercel.app) ·
+[Live app](https://dogshift-lmbtah-7143.vercel.app) ·
 [Repository](https://github.com/laurahenriques05/pawshare)
 
 Private, mobile-first care for one dog per household. React 19, TypeScript, Vite,
