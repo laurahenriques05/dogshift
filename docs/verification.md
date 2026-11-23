@@ -4,6 +4,28 @@ Reconciled 23 November 2026. Test counts are observations, not permanent guarant
 Use Node 22.x >=22.12; npm test, npm run typecheck, npm run build and git diff
 --check. Tests must not call the hosted database or send real emails/push.
 
+## Node 22 reliability check — 23 November 2026
+
+Base main: `6bb4c33018522e2778108aaa68782420dcabbf40`.
+A clean exported checkout used Node 22.23.5 (official darwin-x64 binary, SHA-256
+verified) and fresh `npm ci`: 145 packages installed, audit reported zero known
+vulnerabilities. No .env.local was copied; SQL tests used temporary PGlite only.
+
+Default parallel `npm test` reproduced the Health/calendar timeout on this
+computer even under Node 22. Node version alone does not explain the earlier
+failure. Running the complete unchanged suite with `--maxWorkers=1` passed
+**322 tests in 76 files** in 191.47 seconds. This supports resource contention
+between concurrent database fixtures as a contributor; it is not a CPU/memory
+profile or proof of the sole cause. A separate repeat of the two previously
+failing files passed all five tests in 17.27 seconds. Node 22 TypeScript and
+production build also passed; existing Zod/bundle-size advisories remain.
+
+`npm test` now sets `vitest run --maxWorkers=1`, so local use and GitHub's existing
+`npm test` step share the bounded worker setting. No assertions, tests, isolation
+or per-test timeouts were removed or relaxed. Each file retains its isolated
+worker; files execute sequentially. This is test infrastructure only, not a change
+to application concurrency or shared-database behaviour.
+
 ## Historical checks — 21 November Walks progress/history fallback
 
 On `codex/walks-history-and-explicit-progress` (base main `113aa25`), all

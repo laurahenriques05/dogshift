@@ -203,7 +203,9 @@ npm run typecheck
 npm run build
 ```
 
-Use isolated tests, never real care data. Run browser tests at narrow/mobile and
+The test command runs one worker to keep the temporary PostgreSQL fixtures from
+competing for memory/CPU on developer computers and CI. Assertions and per-test
+timeouts are unchanged. Use isolated tests, never real care data. Run browser tests at narrow/mobile and
 desktop widths; keep sample fixtures separate from hosted account/phone evidence.
 Node 22 is the required runtime. See docs/verification.md for the latest measured
 counts, known warnings and remaining integration/device checks. Type generation
