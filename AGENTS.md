@@ -1,4 +1,4 @@
-# PawShare — shared agent instructions
+# DogShift — shared agent instructions
 
 ## Stack and scope
 
@@ -65,7 +65,7 @@ Two household tags: Feeding and Start Walk. Tags store public HTTPS routes plus 
 
 Walks should start immediately after required authentication, membership and location consent, with duplicate-start protection. Carol owns `/walks?action=start&household=<UUID>`. Set up collar tag opens the final Feeding-style NFC disclosure, with supported-browser writing and NFC Tools fallback. Current tapping opens setup/confirmation; immediate start remains pending. GPS route is shared after the walk, not live location. Warn after 2 minutes stationary with “Still on your adventure with (dog name)?”, offer Yes/No, finish on No and end after 5 more minutes unanswered; background/iPhone reliability requires real-device validation.
 
-Use Web NFC writing only when the browser supports it (compatible Android Chrome). iPhone browsers cannot write tags: an optional trusted writing app can configure the URL once; everyday tapping opens PawShare without that writer. Do not promise browser NFC support or background GPS that devices have not demonstrated.
+Use Web NFC writing only when the browser supports it (compatible Android Chrome). iPhone browsers cannot write tags: an optional trusted writing app can configure the URL once; everyday tapping opens DogShift without that writer. Do not promise browser NFC support or background GPS that devices have not demonstrated.
 
 ## Product UI and interaction language
 
