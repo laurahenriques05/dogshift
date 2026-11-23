@@ -26,3 +26,7 @@ After coordinated migration application, create a disposable schedule, add multi
 ## Maria integration
 
 No notification delivery or shared calendar writes. Agree on source type, stable schedule/dose IDs, household, planned UTC timestamp, family timezone, schedule title, source deep link, recipients, responsible person if applicable and audit fields. Use dose ID for idempotent event upsert; rescheduling must replace reminders and given/skipped must cancel them. Agree on corrections and future cancellation before enabling integration. No second calendar or scheduler is introduced.
+
+## Same-day administration
+
+Given is restricted to the scheduled household-local day; historical/future details, skipped logs and undo remain available. The proposed `20261123160000_medication_same_day.sql` migration enforces the scheduled date and actual administration date server-side while retaining membership, recorder ownership and future-time checks. It has not been applied to hosted Supabase. Review/install before releasing the client; existing saved records are not rewritten.

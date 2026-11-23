@@ -1,3 +1,4 @@
+import { canGiveDose } from './medicationDay'
 import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { Check, Circle, LoaderCircle, Minus, Pill } from 'lucide-react'
 import { EmptyState } from '../../components/ui'
@@ -25,7 +26,7 @@ export function MedicationProgress({ doses, name, zone, busy, onTake, renderDose
  const full = new Intl.DateTimeFormat('en-GB', { timeZone: zone, day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' })
  async function take(dose: MedicationDose) {
   if (busy || inFlight.current) return
-  if (dose.status !== 'scheduled' || dose.recorded_at) { setSelected(dose.id); return }
+  if (!canGiveDose(dose.scheduled_at,zone) || dose.status !== 'scheduled' || dose.recorded_at) { setSelected(dose.id); return }
   inFlight.current = true; setSaving(dose.id)
   try { await onTake(dose) } finally { inFlight.current = false; setSaving(null) }
  }
@@ -37,7 +38,7 @@ export function MedicationProgress({ doses, name, zone, busy, onTake, renderDose
     <span><strong>{Math.round(progress)}%</strong><small>given</small></span>
    </div>
    <div className="medication-summary-copy"><p className="eyebrow">Treatment progress</p><h3>{given} of {doses.length} doses given</h3>
-   <p className="muted">Tap each scheduled day and time to confirm you have given the medication.</p></div>
+   <p className="muted">Confirm medication only on its scheduled day. Other dates remain available to view.</p></div>
   </div>
   {doses.length ? <ul className="dose-bubbles" aria-label={`${name} scheduled doses`}>
    {doses.map(dose => {
@@ -45,7 +46,7 @@ export function MedicationProgress({ doses, name, zone, busy, onTake, renderDose
     const state = dose.status === 'given' ? 'Given' : dose.status === 'skipped' ? 'Skipped' : Date.parse(dose.scheduled_at) < Date.now() ? 'Overdue' : 'Scheduled'
     return <li key={dose.id} className={dose.status === 'given' ? 'dose-step is-given' : 'dose-step'}>
      <button type="button" className={`dose-bubble ${dose.status === 'given' ? 'is-given' : ''}`} disabled={busy || saving !== null}
-      aria-label={`${name}, ${full.format(when)}, ${state}. ${dose.status === 'scheduled' && !dose.recorded_at ? 'Confirm taken' : 'View record'}`}
+      aria-label={`${name}, ${full.format(when)}, ${state}. ${canGiveDose(dose.scheduled_at,zone) && dose.status === 'scheduled' && !dose.recorded_at ? 'Confirm taken' : 'View record'}`}
       aria-busy={saving === dose.id} onClick={() => void take(dose)}>
       <span className="dose-bubble-day">{date.format(when)}</span><strong>{time.format(when)}</strong>
       <span className="dose-bubble-mark" aria-hidden="true">{saving === dose.id ? <LoaderCircle size={16} strokeWidth={1.8}/> : dose.status === 'given' ? <Check size={16} strokeWidth={1.8}/> : dose.status === 'skipped' ? <Minus size={16} strokeWidth={1.8}/> : <Circle size={14} strokeWidth={1.8}/>}</span>
