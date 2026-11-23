@@ -4,6 +4,25 @@ Reconciled 23 November 2026. Test counts are observations, not permanent guarant
 Use Node 22.x >=22.12; npm test, npm run typecheck, npm run build and git diff
 --check. Tests must not call the hosted database or send real emails/push.
 
+## Hosted retention and recovery — 23 November
+
+Carol confirmed Maria/Laura approval. Retention migration installed as
+`20261123142032_walk_seven_day_retention`; scheduling as
+`20261123142146_enable_walk_retention_schedule` (source filenames are recorded
+in carol-walks-team-sync.md). pg_cron is enabled and the postgres-owned job runs
+once per minute. First scheduled run succeeded: expired walk count 7 → 0;
+recent walks stayed 37, completed Tasks stayed 1, and orphan GPS/notes/waste were
+zero. No active walks existed during this live check; isolated SQL tests cover
+active preservation and minimal completion receipts. No old migrations reran.
+Notifications remain out of scope; no sender was deployed/enabled.
+Recovery UI follow-up: 322 isolated tests/76 files, Node 22 TypeScript/build
+and diff checks passed. PGlite fixtures omit only the pg_cron setup migration
+because that extension is unavailable there; all retention/domain SQL and
+assertions remain. Actual-component browser fixtures verified unsuccessful
+Reconnect feedback and a repeatable map failure/retry at 390px and 1440px,
+without horizontal overflow. GPS denial/recovery messages now reach the screen.
+This is simulated failure UI, not outdoor GPS or real connectivity acceptance.
+
 ## Node 22 reliability check — 23 November 2026
 
 Base main: `6bb4c33018522e2778108aaa68782420dcabbf40`.
