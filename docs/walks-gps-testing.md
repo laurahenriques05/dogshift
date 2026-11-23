@@ -39,8 +39,16 @@ Record actual phone results here before promising background tracking:
 
 | Device/browser | Foreground | Screen locked | Other app | Offline | Refresh after reconnect | Permission denied |
 | --- | --- | --- | --- | --- | --- | --- |
-| iPhone / Safari | Pending | Pending | Pending | Pending | Pending | Pending |
+| iPhone / Safari | 7 positions, ±8 m | 77 s delivery gap; 24 positions, age 0 s after return | 120 s delivery gap | Pending | Pending | Pending |
 | Android / Chrome | Pending | Pending | Pending | Pending | Pending | Pending |
+
+23 November 2026, public `/walks/gps-test`: results above were manually reported
+by Carol from her iPhone/Safari, not observed through automation. Device/iOS/Safari
+versions and outdoor conditions were not recorded. After Stop GPS test, Carol
+confirmed Test stopped; an unchanged count after 20 seconds was not separately
+confirmed. Screen lock/app switching interrupted delivery; background continuity
+is not established. No saved walk or coordinates were created/shared by this
+diagnostic. These results do not validate persisted-walk recovery or NFC.
 
 ## Persisted-walk acceptance (not the diagnostic prototype)
 

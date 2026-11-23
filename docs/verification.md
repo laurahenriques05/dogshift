@@ -98,6 +98,13 @@ projector. Phone GPS/NFC checks are separate in walks-gps-testing.md.
 
 ## Still unverified
 
+Carol manually tested the public GPS diagnostic on iPhone/Safari: foreground
+positions arrived (7, ±8 m); screen lock produced a 77-second delivery gap and
+switching apps a 120-second gap. Test stopped was confirmed. Device versions,
+outdoor conditions and stable post-stop count remain unconfirmed. This is
+diagnostic-only, not a persisted walk; background continuity is not established.
+See walks-gps-testing.md for the current device matrix.
+
 Disposable-account sign-in/registration/email recovery/invitations; two-member
 Feeding stock/save/reload and Tasks completion/assignment; another-household
 rejection; private file upload/delete/cleanup and account/family deletion rollout;
