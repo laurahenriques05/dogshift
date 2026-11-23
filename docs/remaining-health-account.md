@@ -7,7 +7,7 @@ health-calendar-links.md for newer source-link/modal and reported migration stat
 
 ## Scope
 
-Health now links treatment history, veterinarian contacts, private documents and weight history. All current family members may create/edit treatments, contacts and weight records; no browser deletion of those records. Documents: all current members upload/read, uploader or current owner deletes with confirmation. Account settings are under More → Account; display names stay in profiles and password updates use Supabase Auth. Notification delivery/preferences remain deferred following Beni's request not to implement notifications. No calendar or notification subsystem is introduced.
+Health now links treatment history, veterinarian contacts, private documents and weight history. All current family members may create/edit treatments, contacts and weight records; no browser deletion of those records. Documents: all current members upload/read, uploader or current owner deletes with confirmation. Account settings open from the header family/avatar menu; display names stay in profiles and password updates use Supabase Auth. Notifications are out of scope, confirmed by Carol on 23 November. No calendar or notification subsystem is introduced.
 
 Home has a compact live Health summary (next appointment, earliest recorded vaccine due date, overdue unlogged medication count). The placeholder Health preview is removed. The summary refreshes when mounted or retried; it is not realtime.
 
@@ -27,6 +27,11 @@ Do not rerun earlier applied migrations. No .env.local edits were made.
 
 ## Privileged deletion deployment
 
+Independent 23 November hosted check returned no Edge Functions. Therefore
+account/family deletion endpoints are not deployed; source/UI and database guards
+do not prove working Auth/Storage cleanup. Beni owns any separately authorized,
+reviewed rollout. Do not deploy them as an unrelated Walks fix.
+
 Two Supabase Edge Functions are prepared in `supabase/functions/delete-account` and `delete-household`; the shared handler uses server-side SUPABASE_URL, SUPABASE_ANON_KEY and SUPABASE_SERVICE_ROLE_KEY. Configure `APP_ORIGIN` to the exact approved application origin (e.g. local development OR production); requests from other origins fail. Keep JWT verification enabled and independently validate the user with Auth getUser. Deploy through the team's agreed workflow after database review. No browser service key, Auth configuration or email configuration changes.
 
 Family deletion requires sole current owner membership and typing the family name. The server freezes household data, recursively removes dog photos and health documents through Storage API, then transactionally deletes the family and cascaded care records/invitations/membership. Other users' personal accounts remain. Joining/writes are guarded during cleanup. Partial Storage failures retain the deletion request; retry the same request, with the family ID persisted per user locally. No automatic rollback of already deleted files. If the function is undeployed/misconfigured, errors are shown and nothing is reported as successfully deleted. The UI requires typing confirmation on each attempt.
@@ -37,11 +42,17 @@ This follows the Supabase server-side user deletion model: https://supabase.com/
 
 ## Validation and remaining verification
 
-Validation: 122 tests passed with `npm test -- --maxWorkers=1 --hookTimeout=120000 --testTimeout=120000`; parallel runs experienced execution timeouts. Build passed. Both Edge Function entry points passed `deno check` without deployment. The Health links and weight form were inspected in the local mobile-sized browser. Added embedded PostgreSQL tests execute migrations and cover family isolation, shared permissions, weight/profile consistency, future measurements, private document permissions, deletion authorization, sole-member restriction, joining freeze, retained/anonymized history and logged dose protection. File tests cover size and content signatures. Auth/Storage are minimal test schemas, not live services.
+Embedded PostgreSQL tests cover family isolation, shared permissions, weight/profile
+consistency, invalid/future measurements, private files, deletion authorization,
+sole-member restrictions, frozen writes and retained/anonymized history. File
+checks cover size/signatures. Auth/Storage fixtures are minimal local schemas,
+not live services. Current suite evidence is in verification.md.
 
 Before release, with disposable data only: validate both Edge Functions in Deno/Supabase, exercise successful/failed/retried Storage cleanup, Auth deletion/session expiry and retained shared records. Verify server-side environment/origin/JWT configuration; do not enable service-role access in the frontend. Test each screen at phone/desktop widths, keyboard navigation, denied access, empty/loading/errors, offline failures, family switching, profile-name propagation, Auth password policy/recent-login errors, weight historical corrections and document download/delete. Live deployment and browser interaction are not established by automated unit tests.
 
-Maria integration uses the agreed source links in health-calendar-links.md; persistent sync/cancel, recipient and date-only reminder semantics still need integration validation. No notifications/emails or shared calendar writes are emitted.
+Health source records already project into Maria's shared calendar; see
+calendar-care-routines.md and health-calendar-links.md. No duplicate calendar
+store or reminder delivery is required. Notifications will not be implemented.
 
 ## Weight trend presentation
 

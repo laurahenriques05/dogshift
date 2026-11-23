@@ -21,17 +21,20 @@ Do not send team messages unless explicitly asked.
 
 ## Project and latest evidence
 
-Repository: laurahenriques05/dogshift. Production app:
-https://dogshift-lmbtah-7143.vercel.app. Vercel project dogshift,
-prj_4tp8vt9Qb3J8KgFWI9Vn5qxVEpL5, team slug lmbtah-7143.
-Preferred production branch is main. Do not change settings to bypass access.
+Repository: laurahenriques05/dogshift (renamed from pawshare; local checkout path
+remains pawshare). Public app verified 23 November:
+https://pawshare-laurahenriques05.vercel.app. The newer
+https://dogshift-lmbtah-7143.vercel.app redirects unauthenticated visitors to
+Vercel login; do not call it the public demo/tag URL until verified by the team.
+No protection or domain settings were changed.
 
-On 20 November, main includes PR #68 at
-72016adb6ea353f6daca5006698d34ebe8ec36a2; its GitHub Vercel status reports success.
-Connected Vercel access last returned 403 for that team, so exact current alias/
-READY/source linkage was not independently reverified. This is distinct from a
-failed build or proof of an outdated public app. Inspect the owning project when
-access is available; no manual deployment or permission change is implied.
+Vercel project dogshift, prj_4tp8vt9Qb3J8KgFWI9Vn5qxVEpL5, team lmbtah-7143.
+Main through PR #111 is b5f714674950ba9dce6e45f8ab60ab9c6c81ef4b; GitHub Vercel
+status is success. The public app assets include the centred compact connection
+alert and same-walk reconnect code. Exact READY/alias/commit metadata still needs
+owning-team access: the connected Vercel account lacks that team's grant. This is
+not evidence of a failed current build. Do not broaden permissions or republish
+merely to bypass that access limitation.
 
 ## Hosted migrations
 

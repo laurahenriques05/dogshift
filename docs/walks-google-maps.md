@@ -1,6 +1,6 @@
 # Optional Google Maps provider
 
-Default is MapLibre/OpenFreeMap with Leaflet fallback, not Google or Apple imagery.
+Without a configured Google key, maps use MapLibre/OpenFreeMap with Leaflet fallback.
 Google code remains optional when VITE_GOOGLE_MAPS_API_KEY is configured; do not
 claim it is active, billed/configured or runtime-verified without checking the
 actual environment and device. No keys or billing changes were made by Walks.
@@ -20,8 +20,8 @@ load/retry, all maps and physical gestures. Google SDK requests can expose map
 coordinates and network/device information; preserve provider privacy disclosures.
 
 Loader tests mock Google and cover missing-key, shared loading and failure retry.
-They are not live Google, billing or phone evidence. Demo isolation and kilometre
-formatting follow walks-demo.md; no provider-specific fixture totals exist.
+They are not live Google, billing or phone evidence. Real-history isolation and kilometre formatting follow walks-demo.md; demo walks
+are not exposed in the app and no provider-specific totals exist.
 
 Official references:
 - https://developers.google.com/maps/documentation/javascript/get-api-key

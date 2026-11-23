@@ -16,6 +16,6 @@ a usable position and server-authorized start. Empty/live maps distinguish waiti
 for the first point from a completed time-only route.
 
 Consent/location for actual recording is separate from location-free routine
-setup and from optional approximate-area history naming. See walks.md for privacy
+setup. Automatic approximate-area history naming is removed. See walks.md for privacy
 and walks-gps-testing.md for real-phone acceptance. Local sample/map checks are
 not real GPS evidence; screen-lock/background delivery remains unverified.

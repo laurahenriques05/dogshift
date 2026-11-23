@@ -12,27 +12,16 @@ UUIDs do not duplicate events and conflicts fail. Active data stays recorder-
 private; current members read after completion. End-mode recording and correction
 preserve existing permissions; offline retries do not claim unacknowledged saves.
 
-## Delete and restore
+## Retention and privacy
 
-Full history, Last Adventure and detail expose a compact delete action for saved
-completed family walks, with explicit confirmation. Demo records and active walks
-are excluded. Deleted walks leave real history/statistics/routine assignment.
-Only the recorder sees Deleted history and can restore, preserving the same walk
-and its saved route/waste rather than creating a replacement. Restoration does
-not authorize another person's note/event corrections.
+No manual delete/restore UI or Deleted/Demo history remains. The installed retention
+job removes expired completed walks and their waste/settings/notes/GPS after
+168 hours, independent of recorder; active walks are preserved. Minimal private
+linked-Task completion receipts remain, not archived walk contents. Earlier
+family-deletion RPC proposals are superseded and must not be installed for this
+flow. Source/hosted mapping and actual deletion evidence are in team sync.
 
-The approved family-delete permission is NOT yet installed on hosted Supabase:
-20 November read-only function inspection still requires recorder identity.
-20261120155307_shared_walk_history_deletion.sql is proposed/unapplied; it permits
-current-member deletion while preserving author-only restoration, active-walk
-protection and outsider/former-member/anonymous denial. Coordinate with Laura
-before application. Do not pretend that exposing a button changes server rights.
-
-Waste/tracking/deleted-owner-preview migrations are installed under different
-hosted timestamps; see walks.md. Do not rerun them. Deleted-route SELECT remains
-limited to the author; broadening delete must not expose ongoing/deleted GPS.
-
-Tests use isolated PostgreSQL roles and cover accepted/rejected recording,
-idempotency, privacy, family deletion, author restore and membership revocation.
-No real activities were deleted as validation and no physical-phone result is
-claimed. Current release status is in carol-walks-team-sync.md.
+Isolated SQL tests cover accepted/rejected waste recording, idempotency, recorder
+privacy, retention cascades and active-walk preservation. Physical-phone recording
+and populated multi-user acceptance remain separate checks. Do not rerun installed
+waste/tracking migrations under their differing source timestamps.

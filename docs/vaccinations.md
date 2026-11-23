@@ -19,9 +19,10 @@ Run `npm test` and `npm run build`. Embedded Postgres tests execute the migratio
 
 After migration application, open Health → Vaccination records, create a disposable record, refresh and edit from another member account. Check missing next date, overdue/today/future next dates, offline save/load/retry, denied access, family switching, 375px layout and keyboard use. Hosted Supabase and browser interaction still need manual verification.
 
-## Maria integration
+## Shared calendar
 
-No notifications or shared-calendar writes. Before integration agree on source type/record ID, household ID, vaccine title, date-only next_due_on semantics, family timezone, deep link, recipients and audit metadata. Agree on reminder time for a date-only record and idempotent upsert/cancellation on edits. No new scheduler/calendar system is introduced. Documents and other Health features remain out of scope.
+Notifications are out of scope. Date-only next_due_on semantics and source links
+remain authoritative; no second scheduler or calendar store is introduced.
 
 Next due dates now appear as date-only entries on the Health calendar, derived directly from vaccination records. No duplicate appointments/events are persisted. Changing/clearing next_due_on updates/removes the entry on the next calendar load. Each entry links to its source vaccination for editing. No notifications or shared calendar infrastructure are created.
 

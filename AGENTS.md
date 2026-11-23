@@ -11,7 +11,7 @@ Keep the UI mobile-first, compact, clear, accessible and harmonious with the gre
 - Laura: Feeding, stock and feeding NFC.
 - Carol: Walks, GPS routes/statistics and walk NFC.
 - Beni: Health and account settings.
-- Maria: Family tasks, calendar, notifications and Academy.
+- Maria: Family tasks, calendar and Academy. Notifications are out of scope.
 - Proposed coordination default: Laura coordinates migration ordering and shared routes, shell, styles, environment configuration and database types. Feature owners author their migrations; coordinate with Laura and affected owners before changing shared contracts. The team may revise this assignment through review.
 
 One agent per checkout at a time. Do not overwrite another member's uncommitted work. Keep feature logic in its feature directory; keep shared UI in components/ui, shell/routing in app and infrastructure in lib. All members need to understand the complete project.
@@ -45,25 +45,23 @@ Preserve RLS and private storage. Enforce permissions in SQL/RPC, not only by hi
 
 ## Shared product rules
 
-One dog per household. Members edit only their own activities; shared purchases/products and shared routine may be corrected by household members. Approved Walks exception: current members may remove completed family walks, while correction/restoration stay author-only. Any current member may permanently remove completed family walks, directly or from Deleted, after an irreversible confirmation. Deleted family summaries are shared through a metadata-only RPC; deleted GPS, notes and waste remain author-private. Hosted rollout of both deletion RPCs remains pending; consult docs/carol-walks-team-sync.md before claiming it works. Stock equals opening baseline + purchases - food served, including discarded food. Skipped meals serve nothing. Duplicate-meal warnings concern only regular meals too soon after the previous regular meal; treats remain separate. Persist mixed-food meals atomically and make retries idempotent.
+One dog per household. Members correct only their own activities; shared purchases/products and routines may be corrected by household members. Walks history retains completed walks for 168 hours from completion. The installed postgres-owned retention job permanently removes older completed walks and GPS/notes/waste every minute, up to 1000 per run; active walks are preserved. Minimal private linked-Task completion receipts remain. No Demo/Deleted selector or manual-removal crosses remain. Earlier family-deletion RPC proposals are superseded, not pending rollout; never install/reapply them for this flow. See docs/carol-walks-team-sync.md for source/hosted migration mapping and evidence.
+
+Stock equals opening baseline + purchases - food served, including discarded food. Skipped meals serve nothing. Duplicate warnings concern regular meals too soon after the previous regular meal; treats remain separate. Persist mixed-food meals atomically and make retries idempotent.
 
 Preserve private email-bound invitation codes and explicit acceptance. Join-another-family controls appear after leaving on onboarding, not while a current household is active. Source includes a separate preserving sole-member departure/inactive-family recovery flow; hosted installation must be verified. Multi-member owner departure still requires transfer. Never treat this as permission for permanent family/account deletion.
 
-## Calendar / notification interface agreement
+## Calendar and scope
 
-One household calendar, initially month view, with task, food-restocking and Health filters; each item opens its source feature. Store instants consistently and present household-local times. These are agreed product requirements, not claims of an implemented shared calendar schema.
+Maria owns the shared month calendar. It projects Tasks, Feeding routines/actual meals/restocking, Walks routines/manual checks/actual activity and Health source records using stable IDs, household-local display and original source links. Opening a link never records care. Elapsed routine time never proves a walk happened. Do not create a duplicate feature calendar or infer arbitrary task completion from unrelated activity. See docs/calendar-care-routines.md and docs/occurrence-care-tasks.md.
 
-Cross-feature source records need a stable source ID, household ID, source module/record ID, title, event time, reminder time, optional assignee and source route. Maria owns the final shared API/schema; agree it with producers before implementation. Upsert by stable source ID and cancel/update obsolete reminders when source records change. Do not create duplicate feature-specific calendar/notification systems.
-
-The existing Feeding proposal is `foodRestockingEvents` in src/features/feeding/integrations.ts. Its ID is `food-restock:<product UUID>`; occursAt and remindAt already represent the buy-by instant, and estimatedRunOutAt is separate. Do not subtract the reminder lead twice. Expected use zero means no forecast event. Recompute persistently/server-side for background reminders, not only while a page is open.
-
-Phone push is intended. Defaults: tasks 1 hour before, appointments 1 day before, food 7 days before projected depletion; medication at dose time. Assigned tasks notify the assignee, then other members after 1 hour overdue. Medication tracks scheduled/given/skipped/overdue with a 1-hour overdue escalation. Confirm any unresolved recipient/recurrence details with the owner before building them. Respect preferences and prevent duplicate delivery. Push/calendar persistence are not implemented by Feeding.
+Notifications will not be implemented (Carol confirmed 23 November). Existing queue/RPC/adapter/send-push source is legacy infrastructure, not authorization to deploy delivery, configure secrets/permissions or add reminder UI. Do not describe notifications as pending product work. Feeding's forecast ID remains food-restock:<product UUID>; buy-by occursAt/remindAt already include its lead, and zero expected use yields no forecast.
 
 ## NFC interface agreement
 
 Two household tags: Feeding and Start Walk. Tags store public HTTPS routes plus household identifier, never credentials. Membership/auth checks remain mandatory. Feeding opens a prefilled confirmation; opening/tapping a URL must not record food. Current Feeding URL: `<VITE_APP_URL>/feed?quick=1&household=<UUID>`. Preserve planned foods/amounts, source attribution and atomic stock deduction. If sign-in loses intent, current fallback is tapping again; do not claim automatic recovery.
 
-Walks should start immediately after required authentication, membership and location consent, with duplicate-start protection. Carol owns `/walks?action=start&household=<UUID>`. Set up collar tag opens the final Feeding-style NFC disclosure, with supported-browser writing and NFC Tools fallback. Current tapping opens setup/confirmation; immediate start remains pending. GPS route is shared after the walk, not live location. Warn after 2 minutes stationary with “Still on your adventure with (dog name)?”, offer Yes/No, finish on No and end after 5 more minutes unanswered; background/iPhone reliability requires real-device validation.
+Walk NFC opens Confirm walk after authentication/membership checks; explicit confirmation opens the same GPS/waste setup as Start walk, with duplicate-start protection. Carol owns `/walks?action=start&household=<UUID>`. Set up collar tag opens the final Feeding-style NFC disclosure, with supported-browser writing and NFC Tools fallback. Keep this explicit confirmation; automatic start from opening a URL is not pending work. Change details opens the saved walking-routine editor directly. GPS route is shared after the walk, not live location. Warn after 2 minutes stationary with “Still on your adventure with (dog name)?”, offer Yes/No, finish on No and end after 5 more minutes unanswered; background/iPhone reliability requires real-device validation.
 
 Use Web NFC writing only when the browser supports it (compatible Android Chrome). iPhone browsers cannot write tags: an optional trusted writing app can configure the URL once; everyday tapping opens DogShift without that writer. Do not promise browser NFC support or background GPS that devices have not demonstrated.
 
@@ -83,7 +81,7 @@ Treat the Feeding tab as the reference interaction for the whole product: calm, 
 - Use real saved data and honest states. Never fill an empty screen with invented activity just to make it look complete; use a useful empty-state explanation and a next step instead.
 - Check every changed flow at a narrow mobile width and desktop width. A user should understand the screen and complete its main action without a walkthrough.
 
-## Handoff
+## Completion reporting
 
 Update README and relevant docs when workflows/status change. Report exactly what changed, checks run, remaining limits, migration status, remote branch/PR and deployment state. Keep unfinished capabilities distinct from implemented and verified ones.
 
@@ -94,3 +92,5 @@ They distinguish merged source, installed hosted contracts and real pending work
 Do not reimplement merged requests or either rejected Walks layout template.
 Keep documentation concise/current; Git holds historical iterations. A new chat
 has this repository and needs no duplicate handoff document.
+
+Current Walks recovery: detected connection loss stops GPS collection, preserving the same walk and previous points. Online alone does not resume. Reconnect verifies the server, saves the pending queue and resumes a fresh segment; no gap interpolation or duplicate walk. Manual pause and pending finish are preserved. The compact connection alert has only a heading/Reconnect and is centred in the viewport. PRs #109–#111 are merged; do not reimplement them. Physical-phone acceptance remains separate.

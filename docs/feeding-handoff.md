@@ -15,7 +15,7 @@ Integrated source; owner Laura. Feeding stock was installed on 11 November (sour
 - Positive stock enforcement; edits/removals that would produce negative current stock are rejected.
 - Product-specific days-remaining and buy-by estimates, default seven-day restocking warning, and honest 'no estimate' for irregular consumption.
 - Feeding NFC setup URL. Opens quick feeding with confirmation; it never logs on GET/tap.
-- A typed proposed integration adapter for Maria. No shared calendar/notification schema was invented.
+- A typed forecast adapter consumed by the shared calendar projection; no duplicate store.
 
 ## Schema and security
 
@@ -25,11 +25,11 @@ Stock = opening baseline + nonremoved purchases − nonremoved feeding quantitie
 
 Only current balance is enforced, not a historical stock timeline. Backdated corrections can be entered. Timestamps are stored as timestamptz; entry inputs explicitly use the device's local time, while history/daily totals use household timezone. Treat logs do not count toward regular meals/day.
 
-Profiles for departed users are not disclosed; their past logs show 'Former family member'. Audit/entry creator FKs must be considered by Beni's future account-deletion design rather than blindly cascading away stock history.
+Profiles for departed users are not disclosed; their past logs show 'Former family member'. Audit/entry creator FKs must be considered by Beni's account-deletion design rather than blindly cascading away stock history.
 
-## Calendar / notifications handoff (Maria)
+## Shared calendar forecast
 
-`foodRestockingEvents(products, entries, now)` in `src/features/feeding/integrations.ts` returns proposed source records:
+`foodRestockingEvents(products, entries, now)` in `src/features/feeding/integrations.ts` returns source records:
 
 - stable `id = food-restock:<product UUID>`;
 - householdId, source='feeding', sourceRecordId;
@@ -38,9 +38,11 @@ Profiles for departed users are not disclosed; their past logs show 'Former fami
 - estimatedRunOutAt = separate projected depletion instant;
 - lowStock flag.
 
-The adapter is a proposal for mapping into Maria's eventual interface, not a second calendar implementation. Upsert by stable source ID; replace/cancel the old schedule when stock/daily-use/reminder changes. Do not subtract seven days a second time: remindAt already includes the user's lead time. Unassigned restocking reminders should reach all household members with preferences respected. Recompute forecasts server-side on changes and periodically; do not rely on a page being open. Expected daily use=0 yields no event. Current stock is not silently consumed by time passing—only recorded meals reduce actual stock.
-
-Phone push delivery and persistent calendar events are NOT implemented by this branch. In-app low-stock notices work once the migration is applied.
+The shared calendar consumes this forecast directly with stable IDs. Do not subtract
+the lead twice: remindAt already includes it. Zero expected daily use yields no
+forecast; only recorded food served reduces actual stock. Calendar reload/focus
+refreshes source projection. Notifications/background push are out of scope, not
+remaining integration work. In-app stock notices remain separate.
 
 ## NFC handoff (Carol)
 
@@ -64,9 +66,9 @@ No credentials in the tag. The route requires authentication and existing member
 
 ## Remaining refinements
 
-Mixed-food routines and grouped meal outcomes are implemented (see below). Remaining work includes phone push integration, calendar persistence, physical NFC testing and recovery of NFC intent across sign-in. The ledger is paged in 500-record batches to avoid silent PostgREST truncation; a server snapshot/aggregate endpoint would improve large-history consistency and efficiency. Shared data refreshes manually or on window focus; the checklist clock is not a cross-device data subscription.
+Mixed-food routines and grouped meal outcomes are implemented (see below). Remaining acceptance includes physical NFC and sign-in intent recovery. Calendar projection is implemented; notifications are out of scope. The ledger is paged in 500-record batches to avoid silent PostgREST truncation. Shared data refreshes manually or on window focus; the checklist clock is not a cross-device data subscription.
 
-Verification: the migration and authorization rules were executed in embedded PostgreSQL (PGlite), with pure calculation/adapter tests. Actual React product and meal forms were visually checked using labelled sample-data previews at desktop and 390px widths; this is not a hosted browser-to-Supabase onboarding test. A live Supabase transaction under the authenticated role verified purchases, idempotent retries, deductions, duplicate warnings, edits/removal, and outsider isolation; all test data was rolled back. Phone push and physical tag verification remain pending. See collaboration.md and current Git/Vercel records for publication status; chat history is not required.
+Verification: the migration and authorization rules were executed in embedded PostgreSQL (PGlite), with pure calculation/adapter tests. Actual React product and meal forms were visually checked using labelled sample-data previews at desktop and 390px widths; this is not a hosted browser-to-Supabase onboarding test. A live Supabase transaction under the authenticated role verified purchases, idempotent retries, deductions, duplicate warnings, edits/removal, and outsider isolation; all test data was rolled back. Physical tag verification remains pending; notifications are out of scope. See collaboration.md and current Git/Vercel records for publication status; chat history is not required.
 
 ## Detailed daily routine update
 
@@ -74,10 +76,15 @@ The installed detailed routine capability (source `20261111123255_detailed_feedi
 
 Record feeding/NFC can select a planned meal and prefill every ingredient, adjust actual quantities, and save the whole meal atomically. `feeding_meal_events` groups ledger lines: a mixed-food meal counts once, each product stock is deducted once, and operation retries do not duplicate the event. History groups meal outcomes and food lines for creator-only correction/removal. Single-food/treat logging remains available.
 
-The duplicate warning uses an optional user-selected minimum gap, or the shortest gap between scheduled meals (including overnight) if left blank. The threshold is not a nutritional calculation or a requirement to feed at an exact minute. Times use the household timezone, while actual datetime inputs identify the device-local timezone as before. No phone reminders are sent by this routine until the shared notification integration exists. Maria can read `feeding_settings.meal_plan` as the source for future meal reminders; use meal UUIDs for stable source identifiers.
+The duplicate warning uses an optional user-selected minimum gap, or the shortest gap between scheduled meals (including overnight) if left blank. The threshold is not a nutritional calculation or a requirement to feed at an exact minute. Times use the household timezone, while actual datetime inputs identify the device-local timezone as before. The shared calendar reads feeding_settings.meal_plan directly, using meal UUIDs for stable source identifiers. No phone reminder integration is planned.
 
 ## Daily checklist and feeding outcomes
 
 The installed checklist capability (source `20261111130122_feeding_checklist_outcomes.sql`, hosted version 20261111130744) extends grouped meal events with actual time, outcome, notes, source and a soft-delete marker, plus eaten grams per ingredient. `save_meal_result` validates membership/creator rights, serializes household writes and updates a result plus all ledger lines atomically. Given means eaten in full; partial requires positive consumption less than served; refused means served but zero eaten; skipped means no food served and no ledger deduction. Stock always tracks served food, not eaten food. Corrections replace ingredient lines transactionally and preserve audit history. Removing the whole event restores all served quantities.
 
-The daily checklist matches the routine meal UUID and the event's household-local date; mixed ingredients never count as separate meals. It displays Upcoming/Due or the recorded outcome, actor and actual time. Due starts at the saved meal time; the screen's clock refreshes every 30 seconds. Removed results are excluded. Unmatched legacy/ad-hoc records remain in history and are not guessed into scheduled slots. The next highlight prioritizes the earliest unrecorded meal today, including due meals. If all slots have records it says so, rather than pretending an extra meal is required. Phone reminder delivery is still separate from this UI.
+The daily checklist matches the routine meal UUID and the event's household-local date; mixed ingredients never count as separate meals. It displays Upcoming/Due or the recorded outcome, actor and actual time. Due starts at the saved meal time; the screen's clock refreshes every 30 seconds. Removed results are excluded. Unmatched legacy/ad-hoc records remain in history and are not guessed into scheduled slots. The next highlight prioritizes the earliest unrecorded meal today, including due meals. If all slots have records it says so, rather than pretending an extra meal is required. Notifications are out of scope.
+
+NFC presentation follows the shared approved three-step layout. The feeding tag
+setup link sits under the bowl artwork and stays on one line on mobile; Walks uses
+the collar version. The generic Saved feeding/stock banner and meal-introduction
+helper sentence are removed; preserve specific operation/error feedback.
