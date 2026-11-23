@@ -1,7 +1,7 @@
 # DogShift
 
 [Live app](https://dogshift-lmbtah-7143.vercel.app) ·
-[Repository](https://github.com/laurahenriques05/pawshare)
+[Repository](https://github.com/laurahenriques05/dogshift)
 
 Private, mobile-first care for one dog per household. React 19, TypeScript, Vite,
 Tailwind/CSS, Supabase Auth/Postgres/private Storage and Vercel. No framework/backend
@@ -44,7 +44,7 @@ npm run dev
 Open Vite's printed localhost URL. Never overwrite existing .env.local or print
 secrets. Required public browser settings: VITE_SUPABASE_URL,
 VITE_SUPABASE_PUBLISHABLE_KEY and VITE_APP_URL. The latter is normally
-https://pawshare-laurahenriques05.vercel.app for shared HTTPS tag links. VITE_
+https://dogshift-lmbtah-7143.vercel.app for shared HTTPS tag links. VITE_
 values are embedded in the browser; no service-role/database/SMTP credentials.
 Restart Vite after configuration changes. npm run check:config is a separate
 read-only live service request, not part of isolated tests.
