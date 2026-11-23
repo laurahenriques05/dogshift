@@ -122,6 +122,11 @@
 @media(max-width:600px){.academy-challenge-page .academy-challenge-guide{padding:16px}.academy-challenge-page .academy-training-drawing{gap:4px;grid-template-columns:minmax(0,1fr) 14px minmax(0,1fr) 14px minmax(0,1fr)}.academy-challenge-page .academy-training-drawing .academy-drawing-icon{width:64px;height:64px;border-radius:24px}.academy-challenge-page .academy-training-drawing .academy-drawing-icon svg{width:44px;height:44px}.academy-challenge-page .academy-training-drawing small{font-size:12px}.academy-challenge-page .academy-guide-content{padding:16px}.academy-challenge-page .academy-guide-content h2{font-size:20px}}
 
 /* Future stages remain browseable, with a visibly locked treatment. */
-.academy-stage.is-locked,.academy-stage-lessons li.is-locked{opacity:.65}
+.academy-stage.is-locked{opacity:1;background:#f4f7ee;color:#718168}
+.academy-stage.is-locked .academy-stage-icon{background:#e7eedf;color:#66825c}
+.academy-stage.is-locked small{color:#7a8874}
+.academy-stage-lessons li.is-locked{opacity:.82}
 .academy-stage.is-locked strong,.academy-stage-lessons li.is-locked strong,.academy-focused-parts>.is-locked strong{font-weight:400}
-.academy-focused-parts>.is-locked>details>summary{opacity:.65}
+.academy-focused-parts>.is-locked>details>summary{opacity:.82}
+
+.academy-guide-actions>button:disabled{opacity:1;background:#edf2e5;border:1px solid #d7e1cb;color:#315a40;cursor:default}

@@ -90,13 +90,14 @@ it('keeps Health changes and completion visible, pages all appointments and deni
  const f=await taskFixture();state.client=calendarClient(f.sql)
  try{
   const month=new Date().toISOString().slice(0,7)
-  const first=month+'-02T12:00:00Z',second=month+'-03T12:00:00Z'
+  const first=month+'-02T12:00:00Z'
   await f.sql.exec('reset role')
   // More than the normal service page: calendar must not silently truncate.
   await f.sql.query("insert into public.vet_appointments(household_id,title,starts_at) select $1,'Visit '||n,$2::timestamptz from generate_series(1,1001) n",[f.home,first])
   const vaccine=(await f.sql.query<{id:string}>("insert into public.vaccinations(household_id,name,next_due_on) values($1,'Test vaccine',$2::date) returning id",[f.home,month+'-04'])).rows[0].id
   await f.user(owner)
-  const schedule=(await f.sql.query<{id:string}>("select public.save_medication_schedule($1,null,'Test medication','Fixture instructions',array[$2::timestamptz,$3::timestamptz]) id",[f.home,first,second])).rows[0].id
+  // Given is only valid on the scheduled household-local day; keep both fixture doses today.
+  const schedule=(await f.sql.query<{id:string}>("select public.save_medication_schedule($1,null,'Test medication','Fixture instructions',array[date_trunc('day',clock_timestamp())+interval '12 hours',date_trunc('day',clock_timestamp())+interval '13 hours']) id",[f.home])).rows[0].id
   const doses=(await f.sql.query<{id:string}>('select id from public.medication_doses where schedule_id=$1 order by scheduled_at',[schedule])).rows
   await f.sql.query("select public.log_medication_dose($1,'given',clock_timestamp(),'')",[doses[0].id])
   await f.sql.query("select public.log_medication_dose($1,'skipped',null,'')",[doses[1].id])

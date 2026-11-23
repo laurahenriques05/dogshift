@@ -13,7 +13,7 @@ it('enforces the scheduled local day on the server without changing rejected dos
  for(const dose of [doses[0],doses[2]])await expect(sql.query("select public.log_medication_dose($1,'given',clock_timestamp(),'')",[dose.id])).rejects.toThrow('scheduled day')
  await expect(sql.query("select public.log_medication_dose($1,'given',clock_timestamp()-interval '1 day','')",[doses[1].id])).rejects.toThrow('scheduled day')
  await sql.query("select public.log_medication_dose($1,'given',clock_timestamp(),'')",[doses[1].id])
- expect((await sql.query("select status from public.medication_doses where id=$1",[doses[1].id])).rows[0].status).toBe('given')
- expect((await sql.query("select count(*)::int n from public.medication_doses where status='scheduled'")).rows[0].n).toBe(2)
+ expect((await sql.query<{status:string}>("select status from public.medication_doses where id=$1",[doses[1].id])).rows[0].status).toBe('given')
+ expect((await sql.query<{n:number}>("select count(*)::int n from public.medication_doses where status='scheduled'")).rows[0].n).toBe(2)
  }finally{await sql.close()}
 },30000)

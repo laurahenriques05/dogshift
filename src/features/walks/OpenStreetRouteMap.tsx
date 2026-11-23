@@ -103,7 +103,7 @@ export function OpenStreetRouteMap({ points, compact = false, places = [], live 
   }).catch(() => { if (!disposed) { setLoading(false); setError('The map could not load. Check your connection and retry.') } })
   return () => { disposed = true; resize?.disconnect(); removeWheel?.(); instance?.remove(); drawPlaces.current=()=>{}; fit.current = () => {}; draw.current = () => {}; renderFrame.current = () => {} }
  }, [visible, retry, live, mode])
- if (!valid.length) return <p className="walk-empty">{live?'Waiting for your first recorded GPS position…':'No GPS route recorded. Time-only walks are still included in summaries.'}</p>
+ if (!valid.length) return <p className="walk-empty">{live?'Waiting for your first recorded GPS position…':'No GPS route recorded.'}</p>
  return <figure className={`walk-route-map${compact ? ' compact' : ''}`}>
   <div ref={host} style={{visibility:ready?'visible':'hidden'}} className="walk-map-canvas" role="region" aria-label="Interactive walking route map. Pinch with two fingers to zoom. Normal scrolling leaves the map unchanged. Keyboard and zoom buttons are available."/>
   {visible && loading && <p className="walk-map-status" role="status">Loading street map…</p>}
