@@ -17,8 +17,8 @@ export function DeletionControls() {
  useEffect(()=>{try{const value=storageKey?JSON.parse(localStorage.getItem(storageKey)||'null'):null;setPendingRequest(value?.id&&value?.name?value:null)}catch{setPendingRequest(null)}},[storageKey])
  const serverPending = Boolean((household as (typeof household & { deletion_requested_by?: string | null }) | null)?.deletion_requested_by)
  const pending = serverPending || Boolean(pendingRequest)
- const familyId = household?.id || pendingRequest?.id
- const familyName = household?.name || pendingRequest?.name
+ const familyId = pendingRequest?.id || household?.id
+ const familyName = pendingRequest?.name || household?.name
  const canDeleteActive = Boolean(household && membership?.role === 'owner')
 
  async function invoke(name: 'delete-household' | 'delete-account', body: Record<string, string>) {
