@@ -462,3 +462,15 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{ou
 .feeding-nfc-visual>.feeding-nfc-setup-toggle{margin:0;min-height:44px}
 @media(max-width:1000px){.feeding-nfc-visual{grid-column:2}}
 @media(max-width:700px){.feeding-control-card>.feeding-nfc-visual{grid-area:artwork;width:100%}.feeding-nfc-visual>.feeding-nfc-bowl-sticker{flex:none;align-self:flex-end}}
+
+@media(max-width:700px){
+ .feeding-control-card{grid-template-columns:minmax(0,1fr) 120px;gap:10px}
+ .feeding-nfc-visual>.feeding-nfc-setup-toggle{white-space:nowrap;font-size:10.5px;gap:4px;padding-inline:0}
+ .feeding-nfc-visual>.feeding-nfc-setup-toggle>svg{width:13px;height:13px;flex:none}
+}
+@media(max-width:400px){
+ .feeding-control-card .feeding-next-copy h2{font-size:24px}
+ .feeding-control-card .feeding-next-copy>p:not(.eyebrow){font-size:11px}
+ .feeding-control-card .feeding-next-copy>.button{font-size:12px;gap:5px;padding:10px 8px}
+ .feeding-control-card .feeding-next-copy>.button>svg{width:14px;flex:none}
+}
