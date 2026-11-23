@@ -1,4 +1,4 @@
-# PawShare UI research and application
+# DogShift UI research and application
 
 Reviewed 14 November 2026. This is a focused design audit for a mobile-first
 household care app, not a ranking of every product or UI library.
@@ -7,14 +7,14 @@ household care app, not a ranking of every product or UI library.
 
 - **Apple Human Interface Guidelines:** adapt layouts to available space and
   text size, use familiar navigation, and place frequent mobile controls where
-  they are comfortable to reach. The PawShare sidebar can remain on wide screens
+  they are comfortable to reach. The DogShift sidebar can remain on wide screens
   while the bottom navigation serves phones.
 - **Material Design 3:** keep app bars focused on the current page and its most
   important actions; use color roles consistently so surfaces, text and feedback
   have predictable meaning.
 - **GOV.UK Design System:** keep the user's answers after validation errors,
   explain what failed and how to fix it, and make errors discoverable to screen
-  readers. This pattern is useful for PawShare forms even though PawShare is not
+  readers. This pattern is useful for DogShift forms even though DogShift is not
   a government service.
 - **WCAG 2.2:** normal text needs at least 4.5:1 contrast; visible focus and
   sufficiently sized pointer targets matter. A 44 CSS-pixel touch target is a
@@ -27,7 +27,7 @@ household care app, not a ranking of every product or UI library.
   sidebar on wider screens.
 - 48px default button and field heights, visible keyboard focus, skip link,
   explicit loading/error/empty states and reduced-motion handling.
-- A calm, recognizable PawShare palette and shared button, field, notice and
+- A calm, recognizable DogShift palette and shared button, field, notice and
   page-title primitives.
 
 ## Changes applied from this audit
@@ -44,7 +44,7 @@ household care app, not a ranking of every product or UI library.
 [Magic UI](https://magicui.design/docs/components) provides copyable React,
 TypeScript and Tailwind components, including animated lists and shimmer
 buttons. Its own examples present the animated list as a way to showcase
-notifications/events and the shimmer button as a visual effect. PawShare should
+notifications/events and the shimmer button as a visual effect. DogShift should
 only use such motion for genuine state changes: a looping or staged list could
 make care records look live when they are not, and a shimmering primary button
 would distract from routine actions. The repository has no Motion dependency,
