@@ -27,6 +27,8 @@ Do not rerun earlier applied migrations. No .env.local edits were made.
 
 ## Privileged deletion deployment
 
+Account Settings shows both permanent deletion actions as disabled while the two Edge Functions are unavailable. Leaving a family remains available under More → Family under the existing membership and ownership rules.
+
 Independent 23 November hosted check returned no Edge Functions. Therefore
 account/family deletion endpoints are not deployed; source/UI and database guards
 do not prove working Auth/Storage cleanup. Beni owns any separately authorized,
