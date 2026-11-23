@@ -38,7 +38,7 @@ export function MedicationProgress({ doses, name, zone, busy, onTake, renderDose
     <span><strong>{Math.round(progress)}%</strong><small>given</small></span>
    </div>
    <div className="medication-summary-copy"><p className="eyebrow">Treatment progress</p><h3>{given} of {doses.length} doses given</h3>
-   <p className="muted">Confirm medication only on its scheduled day. Other dates remain available to view.</p></div>
+   <p className="muted">Confirm today’s or previous days’ doses. Future doses remain available to view.</p></div>
   </div>
   {doses.length ? <ul className="dose-bubbles" aria-label={`${name} scheduled doses`}>
    {doses.map(dose => {

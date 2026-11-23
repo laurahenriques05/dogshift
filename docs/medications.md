@@ -30,3 +30,7 @@ No notification delivery or shared calendar writes. Agree on source type, stable
 ## Same-day administration
 
 Given is restricted to the scheduled household-local day; historical/future details, skipped logs and undo remain available. The proposed `20261123160000_medication_same_day.sql` migration enforces the scheduled date and actual administration date server-side while retaining membership, recorder ownership and future-time checks. It has not been applied to hosted Supabase. Review/install before releasing the client; existing saved records are not rewritten.
+
+## Allow retrospective administration records
+
+The follow-up migration `20261123170000_medication_allow_past.sql` replaces the earlier same-day restriction: doses scheduled today or earlier can be logged, future dates cannot. Actual administration time must still be finite, non-null and not in the future. Household time zone and recorder permissions remain enforced. Apply this follow-up after the same-day migration; neither file is automatically applied.
