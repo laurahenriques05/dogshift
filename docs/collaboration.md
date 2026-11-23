@@ -21,8 +21,8 @@ Do not send team messages unless explicitly asked.
 
 ## Project and latest evidence
 
-Repository: laurahenriques05/pawshare. Production app:
-https://pawshare-laurahenriques05.vercel.app. Vercel project pawshare,
+Repository: laurahenriques05/dogshift. Production app:
+https://dogshift-lmbtah-7143.vercel.app. Vercel project dogshift,
 prj_4tp8vt9Qb3J8KgFWI9Vn5qxVEpL5, team slug lmbtah-7143.
 Preferred production branch is main. Do not change settings to bypass access.
 
