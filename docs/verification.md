@@ -1,10 +1,10 @@
 # Verification evidence and limits
 
-Updated 21 November 2026. Test counts are observations, not permanent guarantees.
+Reconciled 23 November 2026. Test counts are observations, not permanent guarantees.
 Use Node 22.x >=22.12; npm test, npm run typecheck, npm run build and git diff
 --check. Tests must not call the hosted database or send real emails/push.
 
-## Latest checks — explicit Walks progress/history fallback
+## Historical checks — 21 November Walks progress/history fallback
 
 On `codex/walks-history-and-explicit-progress` (base main `113aa25`), all
 **308 isolated tests in 70 files**
@@ -38,13 +38,30 @@ also recorded. Manual Health SQL may not be represented in that ledger.
 
 Function inspection confirms hosted set_walk_deleted remains author-only and
 set_walk_routine preserves order but permits optional/partial estimates. Proposed
-family-deletion and strict-hour/stable-ID follow-ups are not applied. The consolidated family-removal migration is also proposed only. A read-only
+family-deletion and strict-hour/stable-ID follow-ups were not verified installed at that time. These observations are historical, not proof of current absence. A read-only
 21 November function check confirms author-only soft deletion and no permanent
 RPC; no live write was used to test this. No hosted care
 records or schema were changed by this follow-up.
 
-GitHub reports Vercel success for merged #68. Current Vercel team access is denied;
-exact production alias/READY/commit must be verified separately, not invented.
+## Current release evidence — 23 November
+
+- Main f12293a: GitHub Verify passed on Node 22, and Vercel reported deployment
+  success. An exported copy passed TypeScript/build locally on Node 26.13 with
+  reused dependencies. npm audit reported zero known vulnerabilities at that time.
+- A local Node 26 full-suite attempt recorded failures in tasks-experience and
+  care-calendar-integration, including a 30-second timeout; the slow run was
+  stopped before completion. Do not describe it as a full local pass. Matching
+  Node 22 CI passed; the cause of local failures was not established.
+- Medication follow-up df7bc10: eight focused tests passed, including temporary SQL
+  checks, plus TypeScript/build. Vercel reported success and the public bundle
+  contained the updated future-dose rule. No hosted medication records were changed.
+- Category migration: owner reported SQL Editor Success on 22 November. Independent
+  function/ledger inspection and two-member round-trip remain unverified; see
+  calendar-topics.md. Anonymous REST reads on 23 November returned permission
+  denied; no grants were changed.
+- Public-site responses and deployment statuses are evidence of availability and
+  release signals, not an authenticated end-to-end audit of every workflow.
+
 
 ## Still requires explicit integration/device evidence
 

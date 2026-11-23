@@ -132,8 +132,8 @@ Walks source now shows only completed adventures from the last 168 hours, with
 member-name titles and no Deleted/Not deleted selector or manual-removal crosses.
 The proposed retention migration schedules physical deletion every minute (batch
 limit 1000), including old deleted walks, while preserving existing task completion
-proof without keeping the walk. It is not installed: hosted inspection was blocked
-by the connector's automatic-review usage limit. Review the shared Tasks contract
+proof without keeping the walk. Its hosted installation is unverified: the last inspection was blocked. Do not
+infer that it is missing or rerun it without checking installed definitions. Review the shared Tasks contract
 with Maria/Laura before rollout. Client filtering is not evidence of server deletion.
 The recording-only page and stationary 2+5 minute prompt remain unchanged.
 
@@ -141,9 +141,10 @@ Main includes PRs #65–#78; #68 merged as
 72016adb6ea353f6daca5006698d34ebe8ec36a2. The four final screenshot adjustments
 are implemented, not outstanding. Neither rejected styling template was added.
 
-**Still pending:** reviewed seven-day retention migration/job rollout; routine SQL strict-hour hardening/reconciliation;
+**Requires rollout verification:** seven-day retention migration/job installation; routine SQL strict-hour hardening/reconciliation;
 physical NFC/Android/iPhone and background GPS acceptance; exact production alias verification. See team sync
-before acting. No Walks calendar producer or server-push integration is implemented.
+before acting. The shared calendar reads Walks routines and saved activity directly
+(see Automatic care calendar below); this does not establish server-push delivery.
 
 ### Health and account
 
@@ -170,8 +171,9 @@ series changes, occurrence-only assignment and recorder completion/undo. Real
 materialized dates are paginated. Calendar opens month view filtered by subject:
 All, Feeding, Walks, Health and Other. Health includes both Health tasks and
 clinical events, with Task/Appointment/Medication/Vaccination labels and original
-source links. Persisting Health/Other task categories requires the reviewed,
-**unapplied** `20261121120000_task_calendar_topics.sql` migration; see
+source links. Persisting Health/Other task categories requires the reviewed
+`20261121120000_task_calendar_topics.sql` migration, reported successfully applied
+by the project owner on 22 November 2026; do not rerun it based on older notes; see
 [calendar topics and rollout](docs/calendar-topics.md). Stable source IDs and cancellation belong
 to Maria's shared contract, not duplicate feature reminder systems.
 
@@ -216,7 +218,9 @@ or delete real activities during tests.
 
 Mobile navigation has six equal shortcuts (Home, Feed, Walks, Academy, Tasks and
 Health) with touch targets of at least 44px. The family name/avatar at the top right
-opens family, dog profile and account options. Desktop navigation is unchanged.
+opens family, dog profile and account options. Desktop has Home, Feeding, Walks,
+Academy, Tasks and Health; neither navigation bar contains More. The /more route
+remains accessible for existing links.
 Home shows the dog's six saved profile details, distributes them through the card,
 and places the pale-green family action alongside its caption. Form selectors use
 the shared green/cream picker while preserving native form values and validation.
@@ -252,7 +256,7 @@ See [flows and verification](docs/occurrence-care-tasks.md).
 
 ### Your space navigation
 
-The household initial in the header opens Dog profile, Family and Account in an accessible dialog on desktop and mobile. Desktop navigation omits More; mobile retains More, including Tasks, Health and the shared calendar. Links close the dialog; Close and Escape return focus to the header button. No database migration is required.
+The household initial on desktop and the family-name/avatar button on mobile open Dog profile, Family and Account in an accessible dialog. Both navigation bars provide Tasks and Health directly; Calendar is accessible from Tasks. The legacy /more page remains for existing links. Links close the dialog; Close and Escape return focus to the header button. No database migration is required.
 
 ### Application name
 

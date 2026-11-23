@@ -27,10 +27,19 @@ After coordinated migration application, create a disposable schedule, add multi
 
 No notification delivery or shared calendar writes. Agree on source type, stable schedule/dose IDs, household, planned UTC timestamp, family timezone, schedule title, source deep link, recipients, responsible person if applicable and audit fields. Use dose ID for idempotent event upsert; rescheduling must replace reminders and given/skipped must cancel them. Agree on corrections and future cancellation before enabling integration. No second calendar or scheduler is introduced.
 
-## Same-day administration
+## Current administration-date rule — 23 November 2026
 
-Given is restricted to the scheduled household-local day; historical/future details, skipped logs and undo remain available. The proposed `20261123160000_medication_same_day.sql` migration enforces the scheduled date and actual administration date server-side while retaining membership, recorder ownership and future-time checks. It has not been applied to hosted Supabase. Review/install before releasing the client; existing saved records are not rewritten.
+`20261123170000_medication_allow_past.sql` supersedes the earlier
+`20261123160000_medication_same_day.sql` rule. Doses scheduled today or earlier
+may be marked given in the household time zone; future scheduled days are blocked.
+Actual administration time must be finite, non-null and not in the future.
+Membership and recorder permissions remain enforced. Existing records are not
+rewritten. Keep both versioned migration files; do not edit or repeat applied SQL.
 
-## Allow retrospective administration records
-
-The follow-up migration `20261123170000_medication_allow_past.sql` replaces the earlier same-day restriction: doses scheduled today or earlier can be logged, future dates cannot. Actual administration time must still be finite, non-null and not in the future. Household time zone and recorder permissions remain enforced. Apply this follow-up after the same-day migration; neither file is automatically applied.
+Commit df7bc10 is on main. On 23 November GitHub reported Vercel success for it,
+and the public JavaScript bundle contained the updated future-dose message.
+This confirms the released client rule, not the installed hosted function body.
+Both SQL files were supplied to the owner for manual application; independent
+hosted function inspection and an authenticated save/reload test remain unverified.
+Eight focused tests passed (including the follow-up SQL in temporary PGlite),
+plus TypeScript/build; these are isolated evidence, not real medication records.

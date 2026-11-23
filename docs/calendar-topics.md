@@ -10,11 +10,14 @@ or duplicate calendar row is created by choosing Health for a task.
 
 ## Persistence and history
 
-New migration: `20261121120000_task_calendar_topics.sql`, after the existing
-Tasks reliability and occurrence-care migrations. **Not applied to shared Supabase
-by this work.** Coordinate with Laura and Beni, inspect actual installed definitions,
-review/merge and confirm backup before installing only missing SQL. No reset or
-repetition of applied migrations. Deploy the client after this dependency.
+Migration: `20261121120000_task_calendar_topics.sql`, after the existing
+Tasks reliability and occurrence-care migrations. On 22 November 2026 the project
+owner reported SQL Editor Success after running the supplied category migration.
+Treat this as owner-reported installation, not an independently inspected ledger
+or completed two-member save/reload test. Do not rerun it because an older note
+calls it unapplied. On 23 November a read-only anonymous REST check was denied
+for both task tables (42501); permissions were not changed and this response does
+not establish the installed column/function definitions.
 
 General task series/occurrences gain a Health/Other category; missing historical
 categories remain Other, with no inference from task titles. General-task editing
@@ -43,12 +46,16 @@ notification delivery settings are untouched.
   labels, Health task form explanation, Escape cancellation. Mobile document width
   remains 390px; only the existing month grid scrolls. No task or clinical record
   was created/edited in the shared project during browser checks.
-- Browser category-saving/reload on hosted Supabase remains pending migration
-  installation and a two-member smoke test. SQL saves use a disposable PGlite DB.
-- No hosted migration, production deployment, notification enablement or Academy
-  curriculum/UI change is included.
+- Hosted category-saving/reload with two members remains unverified; migration
+  installation was reported successful by the owner. SQL saves use a disposable PGlite DB.
+- The original implementation did not apply hosted SQL; the later owner-reported
+  installation is recorded above. This feature does not enable notifications or
+  change Academy curriculum.
 
-## Feeding/Walks integration audit — 21 November
+## Historical Feeding/Walks integration audit — 21 November
+
+The following audit predates the later direct routine/activity projection. For
+current calendar sources, see [calendar care routines](calendar-care-routines.md).
 
 A new isolated SQL-to-calendar adapter test executes actual task creation, ordinary
 Feeding confirmation, linked Walk start/finish and meal correction, then reloads
