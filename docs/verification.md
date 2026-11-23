@@ -6,8 +6,9 @@ or complete hosted end-to-end result.
 
 ## Local checks
 
-Latest behavioural suite for PR #110: **322 tests / 76 files passed** on Node 22,
-with browser Supabase configuration blank. TypeScript/build and diff checks passed.
+Latest check: **322 tests / 76 files passed** on an isolated snapshot of main
+`a97a794cddf7349f0684bc40fa7e5447e3c874fd`, using Node 22.23.5 with browser
+Supabase configuration blank. TypeScript/build passed; no hosted writes were made.
 PR #111 changed only CSS; TypeScript/build and mobile/desktop centring passed.
 Tests cover accepted/rejected permissions, invalid input, stock, idempotency,
 Tasks/calendar, queues, GPS segments and stationary 2+5-minute logic.
@@ -53,12 +54,47 @@ offset (0,0) at 390×844 and 1440×900. These are simulated, not physical-phone 
 
 ## Release evidence
 
-Main through merged PR #111: `b5f714674950ba9dce6e45f8ab60ab9c6c81ef4b`.
-GitHub Vercel status is success. Public assets at
+PR #112 is merged; checked main is `a97a794cddf7349f0684bc40fa7e5447e3c874fd`
+(subsequent Feeding mobile CSS adjustment). GitHub Vercel status is success.
+Public CSS is byte-identical to that main snapshot's build. Public assets at
 https://pawshare-laurahenriques05.vercel.app contain centred compact recovery and
 same-walk reconnect. The newer dogshift-lmbtah-7143.vercel.app alias redirects to
 Vercel login. Owning-team access is still needed for exact READY/alias/source
 metadata. Do not present the protected alias as public or redeploy to bypass access.
+
+## Authentication and acceptance readiness
+
+Read-only Auth logs on 23 November show confirmation-send events at 15:04 and
+15:07 UTC, followed by HTTP 429 `over_email_send_rate_limit` at 15:14. A send log
+does not establish mailbox delivery or identify a particular user's attempt.
+The public bundle targets the expected team Supabase project. No signup/recovery
+request, account confirmation, SMTP setting or Auth permission was changed.
+
+Carol authorized her former test family for live records; read-only inspection
+found it inactive with zero memberships. Recovery RPCs are installed, but restoring
+it needs its owner's authenticated product flow. Do not grant membership by SQL,
+leave Nova for testing, or assume localhost uses an isolated backend.
+
+## Live demo rehearsal
+
+Prepared order and proposed speakers; not yet rehearsed on the deployed app.
+Use authorized demo accounts/data, with one owner, another member and a separate
+household account. Carol operates; each feature owner explains their part.
+
+| Order | Speaker | Demonstration and check |
+| --- | --- | --- |
+| 1 | Carol | Public URL, sign-in, correct demo family; explain one dog per household. |
+| 2 | Laura | Save a mixed-food meal once; second member reloads and sees the same meal/stock. Reject an invalid amount; retry without duplicate deduction. |
+| 3 | Maria | Assign a Task and show its calendar source; confirm actual care, reload in the other account and check completion. Opening the source must record nothing. |
+| 4 | Carol | Start a time-only walk, pause/resume, finish and reload history. Other member sees the completed activity but cannot correct Carol's entry. NFC URL requires confirmation. |
+| 5 | Beni | Save an authorized Health record and reopen its calendar source; demonstrate private-file access with demo files only. Explain that deletion endpoints were absent at the last hosted check. |
+| 6 | Maria | Open an Academy lesson and show saved progress in the demo account. |
+| 7 | All | Separate-household account sees no demo-family data; explain offline/map fallback, test coverage and physical-device limits. |
+
+Rehearse on the public URL with two devices and record actual accepted/rejected
+results before claiming success. Prepare real authorized starting data; do not
+invent history or reset the shared database. Keep secrets/dashboards off the
+projector. Phone GPS/NFC checks are separate in walks-gps-testing.md.
 
 ## Still unverified
 

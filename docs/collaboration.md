@@ -29,9 +29,11 @@ Vercel login; do not call it the public demo/tag URL until verified by the team.
 No protection or domain settings were changed.
 
 Vercel project dogshift, prj_4tp8vt9Qb3J8KgFWI9Vn5qxVEpL5, team lmbtah-7143.
-Main through PR #111 is b5f714674950ba9dce6e45f8ab60ab9c6c81ef4b; GitHub Vercel
-status is success. The public app assets include the centred compact connection
-alert and same-walk reconnect code. Exact READY/alias/commit metadata still needs
+Checked main is a97a794cddf7349f0684bc40fa7e5447e3c874fd, after merged PR #112
+and a Feeding mobile CSS adjustment. GitHub Vercel status is success, linking to
+[its deployment](https://vercel.com/lmbtah-7143/dogshift/3HaMZcpYwzyYfpuNbZ7bczbs3Mv6).
+Public CSS is byte-identical to this commit's build; assets include the centred
+compact connection alert and same-walk reconnect code. Exact READY/alias/commit metadata still needs
 owning-team access: the connected Vercel account lacks that team's grant. This is
 not evidence of a failed current build. Do not broaden permissions or republish
 merely to bypass that access limitation.

@@ -6,14 +6,16 @@ handoff is needed. Consult technical documents only for the current task.
 
 ## Source and release
 
-Main through PR #111 is `b5f714674950ba9dce6e45f8ab60ab9c6c81ef4b`.
+Checked main is `a97a794cddf7349f0684bc40fa7e5447e3c874fd`: PR #112's
+documentation consolidation is merged, followed by a Feeding mobile CSS change.
 PR #109 records installed retention, recovery messages and the shorter README;
 #110 implements offline-stop/same-walk reconnect and removes popup paragraphs;
 #111 centres the connection alert. All are merged. The last UI request is done,
 not waiting for reimplementation. Earlier approved screenshot adjustments are also
 integrated; neither rejected Walks template was added.
 
-GitHub reports Vercel success for #111. The public app at
+GitHub reports Vercel success for the checked main. Public CSS matches its local
+build byte for byte. The public app at
 https://pawshare-laurahenriques05.vercel.app contains its compact centred alert
 CSS and reconnect code. The newer dogshift-lmbtah-7143.vercel.app alias redirects
 to Vercel login. Do not use that alias as a public demo/tag address without owning-
@@ -83,8 +85,9 @@ backup erasure. Do not rerun these migrations or superseded deletion proposals.
 1. Physical Android/iPhone NFC, outdoor GPS, denied permission, pause/resume,
    stationary 2+5, offline/reload/reconnect, app switching and screen lock acceptance.
 2. Disposable multi-user live smoke tests across Family/Feeding/Tasks/Walks and
-   cross-household rejection. Carol agreed to sign in test accounts, but the opened
-   browser was still her real Nova household. No test care records were written there.
+   cross-household rejection. Carol's authorized former test family is inactive
+   with zero memberships; owner sign-in/product recovery is needed. No test care
+   records were written in Nova. See verification.md for readiness and demo order.
 3. Routine SQL hardening: read-only 23 November definition still accepts partial/
    blank hours, while client requires every hour and server preserves input order.
    Review one reconciled strict-hours/stable-ID change before any installation;

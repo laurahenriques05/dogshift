@@ -63,6 +63,16 @@ membership-protected RPC, with no solar columns. Hosted RPC preserves input orde
 but still permits optional/partial hours. Strict SQL estimates and stable-identity
 proposals are unapplied; see walks.md before any coordinated rollout.
 
+Read-only SQL review on 23 November: authenticated clients have SELECT only on
+walk_daily_plans, and the old solar RPC is absent. The active set_walk_routine
+still accepts blank/partial arrays. The existing strict stable-order proposal
+rejects these without sorting, but also makes legacy set_walk_daily_plan(count)
+fail because that wrapper sends an empty array. Before rollout, Laura/Carol must
+agree that compatibility change and check current clients. Preserve removal via
+count=null/times=[], member checks, grants and existing manual slot identity;
+test invalid/null/multidimensional arrays and unchanged state after rejection.
+No migration was installed or existing routine rewritten during this review.
+
 Tests cover boundaries, progressive/stable numbering, original slot IDs, manual
 checks, automatic active/finish/overflow/deduplication/date/delete/restore behaviour,
 validation and RPC rejection. Real-component fixtures covered grouping/focus/save,

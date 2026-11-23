@@ -56,6 +56,8 @@ live connectivity check. Keep existing .env.local configuration intact.
   hosted check; their UI/source alone is not evidence of working cleanup.
 - Live multi-account workflows and file cleanup still need disposable-account
   acceptance. Local tests are not proof of every hosted integration.
+- [Verification and demo rehearsal](docs/verification.md#live-demo-rehearsal)
+  separates passing checks from live-account and phone tests still awaiting execution.
 - React/TypeScript replaces the course's Python stack; teaching-staff approval
   must be confirmed by the team, not inferred from this repository.
 
