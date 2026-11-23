@@ -1,4 +1,4 @@
-# PawShare Academy lesson template
+# DogShift Academy lesson template
 
 Use one copy of this template for each teammate's Academy module. Keep lessons
 short, practical and suitable for a household caring for one dog. This is a
