@@ -67,9 +67,9 @@ npm run ios:open
 In Xcode select the App scheme and your connected iPhone, choose your development
 team for signing, and Run. The bundle ID is pt.dogshift.app; the team must confirm
 ownership before distribution. No signing team, certificate or Apple credentials
-are committed. This machine currently has Command Line Tools only, so local
-installation needs full Xcode first. CI builds an unsigned simulator target and
-runs the pure Swift recorder checks; that does not exercise real GPS.
+are committed. Complete the Xcode first-launch license and iOS platform setup
+personally before building. CI builds an unsigned simulator target and runs the
+pure Swift recorder checks; that does not exercise real GPS.
 
 Sign in with an existing confirmed demo account inside the installed app. Email
 confirmation/reset links and HTTPS NFC tags still open the public website;
@@ -87,8 +87,10 @@ record. Check denied/revoked permission, pause/resume, no-network/Reconnect,
 queued finish, relaunch, sign-out and another account's rejection. Verify native
 GPS stops after finish. Do not put precise coordinates or credentials in evidence.
 
-Local evidence: TypeScript suite (including native bridge rejection/retry tests),
-TypeScript/build and portable Swift recorder checks. Full native build status
-belongs to the branch's Verify iOS job; physical background GPS remains pending until
-the installed build is tested. Safari diagnostic results do not validate this
+Local evidence: 328 TypeScript tests (including native bridge rejection/retry
+tests), TypeScript/build and nine portable Swift recorder checks passed.
+[Verify iOS](https://github.com/laurahenriques05/dogshift/actions/runs/45231523577)
+passed on source commit 9fc372b, compiling the full unsigned simulator app. This
+source includes main through PR #114. Physical background GPS remains pending
+until the installed build is tested. Safari diagnostic results do not validate this
 native recorder. Existing hosted retention and SQL routine proposals are unchanged.

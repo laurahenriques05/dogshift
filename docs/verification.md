@@ -67,9 +67,12 @@ Safari diagnostic. Local JavaScript suite: 328 tests / 77 files, including nativ
 queue isolation, rejection and retry checks; TypeScript/build pass. Nine portable
 Swift core checks cover serialization, quality filtering, pause/resume, outage,
 finish/acknowledgement, ownership, background fixes and stationary deadlines.
-Swift syntax and project/plist parsing pass. These do not compile Core Location
-or establish device behaviour. Verify iOS CI builds the full unsigned simulator
-app; installed-iPhone acceptance and signing remain separate. See ios-walks.md.
+Swift syntax and project/plist parsing pass. These local checks do not establish
+device behaviour. After integrating main through PR #114 and fixing the Capacitor
+snapshot encoding, [Verify iOS](https://github.com/laurahenriques05/dogshift/actions/runs/45231523577)
+passed for source commit 9fc372b, including the full unsigned simulator app. Local
+328-test suite and TypeScript/build passed on that source. Installed-iPhone
+acceptance and signing remain separate. See ios-walks.md.
 
 ## Still unverified
 
