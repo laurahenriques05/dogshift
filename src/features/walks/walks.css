@@ -318,3 +318,5 @@ dialog.walk-routine-summary{position:fixed;inset:0;margin:auto;height:fit-conten
 .walk-nfc-dog{display:flex;align-items:center;gap:12px;padding:18px;border-radius:12px;background:#f3f6eb;color:#31553e}
 .walk-nfc-dog>svg{flex:none}.walk-nfc-estimate{display:flex;align-items:baseline;gap:6px;margin:12px 0 0;font-size:14px;color:#637168}
 .walk-nfc-confirmation .walk-nfc-estimate time{position:static;margin:0;font:inherit}
+
+@media(max-width:600px){.walk-timeline li{grid-template-columns:max-content minmax(0,1fr)}.walk-timeline time{white-space:nowrap}.walk-timeline li>span{overflow-wrap:anywhere}}
