@@ -1,6 +1,6 @@
 # Dog places and the walk timeline
 
-The active walk keeps PawShare's existing green/cream cards, typography and
+The active walk keeps DogShift's existing green/cream cards, typography and
 buttons. A responsive map/timeline layout is inspired by the requested reference,
 without adding its unrelated goal features. Notes and GPS pause are now described in [map controls](walks-map-controls.md). Live maps label the
 moving endpoint Current position, hide route replay, follow new samples until the
