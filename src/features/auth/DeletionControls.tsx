@@ -10,6 +10,7 @@ export function DeletionControls() {
  const [busy, setBusy] = useState(false)
  const [error, setError] = useState('')
  const [message, setMessage] = useState('')
+ const pending = Boolean((household as (typeof household & { deletion_requested_by?: string | null }) | null)?.deletion_requested_by)
 
  async function invoke(name: 'delete-household' | 'delete-account', body: Record<string, string>) {
   setBusy(true); setError(''); setMessage('')
@@ -23,7 +24,7 @@ export function DeletionControls() {
 
  function deleteFamily() {
   if (!household) return
-  const confirmation = window.prompt(`To permanently delete “${household.name}”, type the family name exactly:`)
+  const confirmation = window.prompt(`To permanently ${pending ? 'finish deleting' : 'delete'} “${household.name}”, type the family name exactly:`)
   if (confirmation === null) return
   if (confirmation !== household.name) { setError('The family name did not match. Nothing was deleted.'); return }
   void invoke('delete-household', { household: household.id, confirmation })
@@ -40,11 +41,12 @@ export function DeletionControls() {
   <section className="card" aria-labelledby="permanent-deletion-title">
    <h2 id="permanent-deletion-title">Permanent deletion</h2>
    <p>These actions cannot be undone. Family deletion is available only to the sole current owner.</p>
+   {pending && <Notice>Family deletion is in progress. Retry to finish it after an interrupted cleanup.</Notice>}
    {error && <Notice error>{error}</Notice>}
    {message && <Notice>{message}</Notice>}
    <div className="walk-actions">
     <Button type="button" disabled={busy || !household || membership?.role !== 'owner'} onClick={deleteFamily}>
-     {busy ? 'Deleting…' : 'Permanently delete family'}
+     {busy ? 'Deleting…' : pending ? 'Retry family deletion' : 'Permanently delete family'}
     </Button>
     <Button type="button" className="secondary" disabled={busy || !session} onClick={deleteAccount}>
      {busy ? 'Deleting…' : 'Permanently delete my account'}
