@@ -320,3 +320,5 @@ dialog.walk-routine-summary{position:fixed;inset:0;margin:auto;height:fit-conten
 .walk-nfc-confirmation .walk-nfc-estimate time{position:static;margin:0;font:inherit}
 
 @media(max-width:600px){.walk-timeline li{grid-template-columns:max-content minmax(0,1fr)}.walk-timeline time{white-space:nowrap}.walk-timeline li>span{overflow-wrap:anywhere}}
+/* Keep connection recovery centred instead of reserving footer/navigation space. */
+.walk-dialog-backdrop.walk-connection-backdrop{padding:20px}
