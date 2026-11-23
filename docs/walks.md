@@ -44,6 +44,14 @@ device where storage is available. Only acknowledged batches are removed; pendin
 saves are not shown as cloud-saved. Finish freezes at its intended end instant,
 retries idempotently, then opens the saved detail. Storage/network failures stay
 visible. Cross-device transfer of an unfinished local queue is not implemented.
+On an offline event or a detected network save failure, GPS collection stops while
+the same walk and its earlier points remain. Online events do not restart GPS.
+Reconnect verifies the server, flushes the existing queue and resumes that same
+walk only if GPS was running before the outage. A manual pause stays paused;
+a queued finish is saved without restarting. Fresh fixes begin a separate segment,
+so the outage is neither drawn nor included in route distance. The compact dialog
+shows a connection heading and Reconnect only. Physical-phone acceptance remains
+pending; simulated-provider checks are recorded in verification.md.
 
 GPS inactivity warning: after 2 minutes within 30m with fresh continuous GPS,
 a centred dialog asks “Still on your adventure with (dog name)?” Yes resets the
