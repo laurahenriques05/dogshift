@@ -1,6 +1,6 @@
 # Walks — current state and next work
 
-Updated 21 November 2026. This is the existing current-state register, not a chat
+Updated 23 November 2026. This is the existing current-state register, not a chat
 transcript. Read AGENTS.md, README.md and this file first. Detailed behaviour is
 in walks.md and the focused documents linked there. Git retains old decisions;
 do not resurrect superseded requirements from old commits or chat previews.
@@ -30,15 +30,19 @@ member display name followed by `'s Walk`; unavailable names use an honest gener
 fallback. Deleted/Not deleted filters and removal/restoration controls are removed
 from the history and summary UI. Demo walks remain removed.
 
-The UI change is distinct from physical deletion. Proposed migration
-`20261122215728_walk_seven_day_retention.sql` purges completed walks older than
-168 hours, including previously deleted walks, in batches of 1000 once per minute
-when pg_cron is installed. No initial purge runs during migration installation.
-Task completion is preserved via private, minimal occurrence receipts; walk GPS,
-notes and waste are not archived. This shared Tasks contract requires Maria/Laura
-review. The migration/job are NOT installed or verified on the hosted project:
-read-only inspection was blocked by automatic approval review's usage limit.
-Never reapply the earlier deletion proposals to implement this new policy.
+Hosted retention is installed and verified on 23 November after Carol confirmed
+Maria/Laura approval. Source `20261122215728_walk_seven_day_retention.sql` maps
+to hosted `20261123142032`; schedule migration
+`20261123142121_enable_walk_retention_schedule.sql` maps to hosted `20261123142146`.
+The postgres-owned `pawshare-walk-seven-day-retention` job runs every minute,
+removing up to 1000 completed walks older than 168 hours, including deleted walks.
+The first scheduled run succeeded: seven expired walks disappeared; 37 recent
+walks and one completed Task remained unchanged. No active walks existed then;
+local SQL tests separately verify active/recent preservation. No orphan GPS,
+notes or waste remained. Only private minimal Task-completion receipts survive;
+walk routes/notes/waste are not archived. Do not reapply either migration or the
+superseded deletion proposals. This is app/database deletion, not a claim about
+provider backup erasure.
 
 ## Approved behaviour to preserve
 
@@ -77,12 +81,8 @@ Never reapply the earlier deletion proposals to implement this new policy.
 
 ## Genuine pending work
 
-1. **Seven-day retention rollout:** review the new migration and task-completion
-   receipts with Maria/Laura, inspect hosted definitions/ledger and pg_cron, then
-   install only the reviewed migration and verify the named job. Until then the
-   UI hides expired walks but physical deletion is not active. Earlier family
-   deletion proposals are superseded for this product flow, not newly authorized
-   installations. No real care records were deleted in this work.
+1. **Retention monitoring:** the job is active and its first run succeeded;
+   monitor scheduler failures/backlog. No further retention installation is pending.
 2. **Routine SQL hardening:** client requires all hours; hosted RPC still allows
    blank/partial estimates and preserves input order. The fixed-hours and stable-
    identity proposals remain unapplied. Review the final combined result before

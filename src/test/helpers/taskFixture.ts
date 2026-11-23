@@ -16,6 +16,9 @@ export async function taskFixture(includeFix = true, includeReliability = true) 
  alter table storage.objects enable row level security;grant usage on schema storage to authenticated,anon;
  grant select,insert,update,delete on storage.objects to authenticated;`)
  for (const file of readdirSync('supabase/migrations').filter(file => file.endsWith('.sql')).sort()) {
+  // pg_cron is unavailable in PGlite; the scheduler is verified on hosted Postgres.
+  // Keep the retention schema/function itself in these isolated behaviour tests.
+  if (file === '20261123142121_enable_walk_retention_schedule.sql') continue
   if (!includeFix && file === '20261115140000_task_review_fixes.sql') continue
   if (!includeReliability && (file === '20261117140000_tasks_reliability.sql' || file === '20261120140000_occurrence_care_tasks.sql' || file === '20261122215728_walk_seven_day_retention.sql')) continue
   await sql.exec(readFileSync(`supabase/migrations/${file}`, 'utf8'))

@@ -99,7 +99,7 @@ function Tracker({user,household,dog,children}:{user:string;household:string;dog
      try {localStorage.removeItem(key)} catch { /* Server has the completed walk. */ }
     }
     if(alive.current&&attempted){setError('');setConnectionFailed(false);networkFailed.current=false}
-   } catch(e) {if(alive.current){if(isNetworkFailure(e)){setConnectionFailed(true);networkFailed.current=true;}setError(`Could not save walk: ${errorMessage(e)}. Your unsaved points remain on this device. Reconnect and retry; use the original recording device if there is a sequence conflict.`)}}
+   } catch(e) {if(alive.current){if(isNetworkFailure(e)){setConnectionFailed(true);networkFailed.current=true;}setError(`Could not save walk: ${errorMessage(e)}. Keep this page open and choose Retry connection to save this recording. Do not start another walk. Use the original recording device if there is a sequence conflict.`)}}
   }
   // A passive tab must never flush or overwrite the recording tab's device buffer.
   const job=buffer.current&&navigator.locks&&!lockRelease.current

@@ -47,7 +47,7 @@ export default function GoogleRouteMap({ points, compact = false, places = [], l
   let resize: ResizeObserver | undefined
   const paths: google.maps.Polyline[] = []
   setLoading(true); setReady(false); setError('')
-  const fail = () => { if (!disposed) { setLoading(false); setError('Google Maps is unavailable. Check the map configuration or connection, then retry.') } }
+  const fail = () => { if (!disposed) { setLoading(false); setError('Google Maps could not load. Check your connection and choose Retry map. Retrying the map does not start another walk.') } }
   window.addEventListener(GOOGLE_MAP_ERROR, fail)
   const timeout = window.setTimeout(fail, 30_000)
   void loadGoogleMaps().then(libraries => {

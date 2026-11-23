@@ -17,6 +17,8 @@ async function fixture(includeFix = true) {
  alter table storage.objects enable row level security;grant usage on schema storage to authenticated,anon;
  grant select,insert,update,delete on storage.objects to authenticated;`)
  for (const file of readdirSync('supabase/migrations').filter(file => file.endsWith('.sql')).sort()) {
+  // PGlite cannot run the hosted-only pg_cron scheduler; retain all domain migrations.
+  if (file === '20261123142121_enable_walk_retention_schedule.sql') continue
   // Keep the historical archive implementation when testing its upgrade.
   // Retention depends on the care contract intentionally absent in this historical fixture.
   if (!includeFix && (file === '20261120140000_occurrence_care_tasks.sql' || file === '20261122215728_walk_seven_day_retention.sql')) continue
