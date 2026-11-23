@@ -1,6 +1,6 @@
 # DogShift
 
-[Live app](https://pawshare-laurahenriques05.vercel.app) · [Repository](https://github.com/laurahenriques05/dogshift)
+[Live app](https://dogshift-lmbtah-7143.vercel.app) · [Repository](https://github.com/laurahenriques05/dogshift)
 
 DogShift helps a family share the daily care of one dog: plan responsibilities,
 record what actually happened, and see the same care history on mobile or desktop.
@@ -71,8 +71,8 @@ live connectivity check. Keep existing .env.local configuration intact.
 ## How it is built
 
 React 19, TypeScript, Vite and Tailwind/CSS provide the interface. Supabase provides
-Auth, Postgres and private Storage; Vercel hosts the web app. Database policies and
-RPCs enforce permissions. src/app owns routing/shell, src/features feature logic,
+Auth, Postgres and private Storage; Vercel hosts the web app. Database policies and RPCs
+enforce permissions. src/app owns routing/shell, src/features feature logic,
 src/components/ui shared controls, and src/lib infrastructure/types.
 
 ## Technical documentation
