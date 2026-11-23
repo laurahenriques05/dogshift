@@ -19,12 +19,12 @@ Old implementation diaries were consolidated; Git retains their history.
 
 ## Team and responsibilities
 
-| Member | Scope |
-| --- | --- |
-| Laura | Feeding, food stock, feeding NFC; proposed coordinator for shared contracts/migrations |
-| Carol | Walks, GPS routes/statistics and walk NFC |
-| Beni | Health, medication/documents/weight/vet and account settings |
-| Maria | Family tasks, shared calendar, notifications and Academy |
+| Member | Student number | Scope |
+| --- | --- | --- |
+| Laura Henriques | 62479 | Feeding, food stock, feeding NFC; proposed coordinator for shared contracts/migrations |
+| Maria Carolina Alves | 62808 | Walks, GPS routes/statistics and walk NFC |
+| Maria Benedita Azevedo | 62526 | Health, medication/documents/weight/vet and account settings |
+| Maria Ortigão Malato | 51854 | Family tasks, shared calendar, notifications and Academy |
 
 One agent per checkout. Preserve teammates' work. Coordinate shared shell/styles,
 routes/types/schema with Laura and affected owners. Members need to understand
