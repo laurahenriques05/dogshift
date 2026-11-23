@@ -134,7 +134,7 @@ export default function VectorRouteMap({ points, compact = false, places = [], l
   }).catch(() => { if (!disposed) setFallback(true) })
   return () => { disposed = true; removeWheel?.(); resize?.disconnect(); popup.current?.remove();popup.current=null;instance?.remove(); poiMap.current=null; drawPoints.current = () => {}; renderFrame.current = () => {}; fit.current = () => {} }
  }, [visible, hasPoints, retry, fallback, live])
- if (!hasPoints) return <p className="walk-empty">{live?'Waiting for your first recorded GPS position…':'No GPS route recorded. Time-only walks are still included in summaries.'}</p>
+ if (!hasPoints) return <p className="walk-empty">{live?'Waiting for your first recorded GPS position…':'No GPS route recorded.'}</p>
  if (fallback) return <OpenStreetRouteMap points={points} compact={compact} places={places} live={live} mode={mode} showDogPlaces={showDogPlaces}/>
  return <figure className={`walk-route-map walk-vector-map${compact ? ' compact' : ''}`}>
   <div ref={host} style={{visibility:ready?'visible':'hidden'}} className="walk-map-canvas" role="region" aria-label="Recorded walking route map. Pinch to zoom; normal scrolling leaves the map unchanged."/>

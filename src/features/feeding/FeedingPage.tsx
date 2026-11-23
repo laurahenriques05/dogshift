@@ -65,7 +65,7 @@ function FeedingHousehold({ householdId, dogName, timezone }: { householdId: str
  const weekRecorded=data.events.filter(event=>!event.deleted_at&&new Date(event.occurred_at).getTime()>=weekStart).length
  const setupComplete=data.products.length>0&&data.plan.length>0
  function close() { setEditor(null); setQuery({}, { replace: true }) }
- function saved() { close(); setRemove(null); setMessage('Saved. Your family’s feeding and stock records are up to date.'); data.refresh() }
+ function saved() { close(); setRemove(null); setMessage(''); data.refresh() }
  async function deleteEntry(entry: FeedingEntry) {
   setBusy(true); setError('')
   try {

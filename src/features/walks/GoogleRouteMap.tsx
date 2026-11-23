@@ -123,7 +123,7 @@ export default function GoogleRouteMap({ points, compact = false, places = [], l
    element.replaceChildren()
   }
  }, [visible, hasPoints, retry, live])
- if (!hasPoints) return <p className="walk-empty">{live?'Waiting for your first recorded GPS position…':'No GPS route recorded. Time-only walks are still included in summaries.'}</p>
+ if (!hasPoints) return <p className="walk-empty">{live?'Waiting for your first recorded GPS position…':'No GPS route recorded.'}</p>
  return <figure className={`walk-route-map${compact ? ' compact' : ''}`}>
   <div ref={host} style={{visibility:ready?'visible':'hidden'}} className="walk-map-canvas" role="region" aria-label="Google Maps walking route. Pinch with two fingers to zoom. Normal scrolling leaves the map unchanged."/>
   {visible && loading && <p className="walk-map-status" role="status">Loading Google Maps…</p>}
