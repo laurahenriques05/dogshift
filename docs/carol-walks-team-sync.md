@@ -67,6 +67,9 @@ provider backup erasure.
 - Walking together retains completed total. Charts offer distance/time only.
 - Mobile only (up to 600px): estimated-hour inputs use one full-width field per row;
   the summary period selector sits at the top right, above the full-width title.
+- Connection loss stops GPS collection, preserving the same walk and prior queue.
+  Reconnect verifies the server, saves pending points and resumes a new GPS
+  segment; the gap is not drawn. Manual pauses and pending finishes are respected.
 - Pause freezes elapsed time and GPS; resume creates a segment. Notes/events can
   be corrected by their author, preserving all raw GPS. Save updates timeline.
 - History uses real saved walks from the last 168 hours only; no Demo or Deleted view.

@@ -32,7 +32,7 @@ function Tracker({user,household,dog,children}:{user:string;household:string;dog
  const [ready,setReady]=useState(false)
  const [walks,setWalks]=useState<Walk[]>([]),[loading,setLoading]=useState(true),[error,setError]=useState(''),[busy,setBusy]=useState(false)
  const [connectionFailed,setConnectionFailed]=useState(false)
- const networkFailed=useRef(false)
+ const networkFailed=useRef(false),resumeAfterConnection=useRef(false),syncFailed=useRef(false)
  const gpsChoice=useRef(true)
  const [gpsEnabled,setGpsEnabled]=useState(true)
  const [paused,setPaused]=useState(false),[quality,setQuality]=useState<GpsQuality>('waiting'),[accuracy,setAccuracy]=useState<number|null>(null),[saved,setSaved]=useState(false),[recovery,setRecovery]=useState(false)
@@ -65,9 +65,17 @@ function Tracker({user,household,dog,children}:{user:string;household:string;dog
   setPending(buffer.current.points.length);setEnding(!!buffer.current.ending)
   try {localStorage.setItem(key,JSON.stringify(buffer.current));setStorageError('')} catch {setStorageError('Device storage is unavailable or full. Keep this page open and reconnect to save GPS points. Reloading may lose unsaved points.')}
  },[key])
+ // A connection outage ends the GPS segment, not the walk or its saved route.
+ const connectionLost=useCallback(()=>{
+  if(!active.current)return
+  resumeAfterConnection.current ||= watch.current!==null
+  networkFailed.current=true;setConnectionFailed(true)
+  stop();setGpsMessage('Connection lost. Reconnect to resume this walk.')
+ },[stop])
  const upsert=useCallback((walk:Walk)=>setWalks(previous=>[walk,...previous.filter(w=>w.id!==walk.id)].sort((a,b)=>b.started_at.localeCompare(a.started_at))),[])
  const sync=useCallback(async()=>{
   if(syncing.current) return syncing.current
+  syncFailed.current=false
   const save=async()=>{
    if(!lockRelease.current)readLatestBuffer()
    const draft=buffer.current
@@ -98,8 +106,8 @@ function Tracker({user,household,dog,children}:{user:string;household:string;dog
      loadVersion.current++;upsert(result.data);active.current=null;buffer.current=null;setPending(0);setEnding(false)
      try {localStorage.removeItem(key)} catch { /* Server has the completed walk. */ }
     }
-    if(alive.current&&attempted){setError('');setConnectionFailed(false);networkFailed.current=false}
-   } catch(e) {if(alive.current){if(isNetworkFailure(e)){setConnectionFailed(true);networkFailed.current=true;}setError(`Could not save walk: ${errorMessage(e)}. Keep this page open and choose Retry connection to save this recording. Do not start another walk. Use the original recording device if there is a sequence conflict.`)}}
+    if(alive.current&&attempted){setError('');if(!networkFailed.current)setConnectionFailed(false)}
+   } catch(e) {syncFailed.current=true;if(alive.current){if(isNetworkFailure(e))connectionLost();setError(`Could not save walk: ${errorMessage(e)}. Keep this page open and choose Retry connection to save this recording. Do not start another walk. Use the original recording device if there is a sequence conflict.`)}}
   }
   // A passive tab must never flush or overwrite the recording tab's device buffer.
   const job=buffer.current&&navigator.locks&&!lockRelease.current
@@ -107,7 +115,7 @@ function Tracker({user,household,dog,children}:{user:string;household:string;dog
    : save()
   syncing.current=job
   try {await job} finally {syncing.current=null}
- },[key,user,persist,upsert,readLatestBuffer])
+ },[key,user,persist,upsert,readLatestBuffer,connectionLost])
  const recovered=useRef<string|null>(null)
  const reload=useCallback(async()=>{
   if(operation.current||syncing.current)return
@@ -154,13 +162,13 @@ function Tracker({user,household,dog,children}:{user:string;household:string;dog
  useEffect(()=>{
   const timer=setInterval(()=>{setNow(Date.now());if(booted.current)void sync()},5000)
   const poll=setInterval(()=>{if(!document.hidden&&booted.current)void reload()},30000)
-  const online=()=>{networkFailed.current=false;setConnectionFailed(false);void sync()}
-  const offline=()=>{networkFailed.current=true;setConnectionFailed(true)}
+  const online=()=>{if(!networkFailed.current)void sync()}
+  const offline=()=>connectionLost()
   const visibility=()=>{if(stationary.current?.warnedAt==null){stationary.current=null;setWarning(null)};if(!gpsChoice.current){setGpsMessage('Time-only walk. GPS is not used.');return}if(document.hidden)setGpsMessage('App hidden. GPS may pause; new inactivity detection is suspended. An unanswered warning still has its deadline.');else if(watch.current!==null)setGpsMessage('App visible. Waiting for fresh GPS; any interruption remains a gap.')}
   const unload=(event:BeforeUnloadEvent)=>{if(active.current){event.preventDefault();event.returnValue=''}}
   window.addEventListener('online',online);window.addEventListener('offline',offline);document.addEventListener('visibilitychange',visibility);window.addEventListener('beforeunload',unload)
   return()=>{clearInterval(timer);clearInterval(poll);window.removeEventListener('online',online);window.removeEventListener('offline',offline);document.removeEventListener('visibilitychange',visibility);window.removeEventListener('beforeunload',unload)}
- },[reload,sync])
+ },[reload,sync,connectionLost])
  const end=useCallback(async(reason:'manual'|'stationary'='manual',note?:NoteDraft)=>{
   if(!buffer.current || !active.current || operation.current)return
   operation.current=true;loadVersion.current++;setBusy(true)
@@ -208,13 +216,16 @@ function Tracker({user,household,dog,children}:{user:string;household:string;dog
    if(!alive.current){lockRelease.current?.();return}
    const merged=new Map(remote.map(p=>[p.seq,p as Point]));for(const p of buffer.current!.points)merged.set(p.seq,p)
    route.current=[...merged.values()].sort((a,b)=>a.seq-b.seq);setPoints(route.current);recovered.current=active.current!.id
+   if(!navigator.onLine||networkFailed.current){connectionLost();return}
    let nextSegment=supportsBreaks&&route.current.length>0
    setQuality('waiting');setGpsMessage('Waiting for location permission and a fresh GPS position…')
+   const segmentSince=Date.now()
    const version=++watchVersion.current
    watch.current=navigator.geolocation.watchPosition(position=>{
     if(!alive.current||version!==watchVersion.current||!active.current||buffer.current?.ending)return
+    if(!navigator.onLine||networkFailed.current){connectionLost();return}
     const timestamp=locationTimestamp(position.timestamp)
-    if(timestamp===null){setQuality('waiting');setGpsMessage('Waiting for a fresh GPS position; the device returned an invalid or outdated timestamp.');return}
+    if(timestamp===null||timestamp<segmentSince){setQuality('waiting');setGpsMessage('Waiting for a fresh GPS position; the device returned an invalid or outdated timestamp.');return}
     const point:Point={seq:(route.current.at(-1)?.seq??-1)+1,recorded_at:new Date(timestamp).toISOString(),latitude:position.coords.latitude,longitude:position.coords.longitude,accuracy:position.coords.accuracy,...(nextSegment?{segment_start:true}:{})}
     if(Date.parse(point.recorded_at)<Date.parse(active.current.started_at)||!acceptable(point,route.current.at(-1))) {if(point.accuracy>50){setQuality('weak');setAccuracy(point.accuracy)}setGpsMessage('Waiting for a fresh, accurate GPS position (accuracy ≤50 m); noisy points are ignored.');return}
     nextSegment=false;setQuality('good');setAccuracy(point.accuracy)
@@ -242,6 +253,26 @@ function Tracker({user,household,dog,children}:{user:string;household:string;dog
   }catch(e){if(alive.current)setError(errorMessage(e))}finally{operation.current=false;if(alive.current)setBusy(false)}
  }
  async function resume(){if(operation.current)return;operation.current=true;loadVersion.current++;setBusy(true);setError('');try{await record()}catch(e){setError(errorMessage(e))}finally{operation.current=false;if(alive.current)setBusy(false)}}
+ async function reconnect(){
+  if(operation.current||!navigator.onLine)return false
+  operation.current=true;setBusy(true)
+  try{
+   // A real request verifies connectivity; the browser online flag alone is insufficient.
+   const server=await getWalks(household)
+   if(!alive.current||!navigator.onLine)return false
+   const current=active.current
+   if(current&&!server.some(w=>w.id===current.id&&!w.ended_at&&!w.deleted_at)){
+    setError('This walk ended on another device. Reload Walks before continuing.');return false
+   }
+   await sync()
+   if(!alive.current||!navigator.onLine||syncFailed.current)return false
+   networkFailed.current=false
+   if(resumeAfterConnection.current&&active.current&&!buffer.current?.ending&&!buffer.current?.paused)await record()
+   if(!alive.current||!navigator.onLine||networkFailed.current)return false
+   resumeAfterConnection.current=false;setConnectionFailed(false);setError('');return true
+  }catch(e){if(alive.current){if(isNetworkFailure(e))connectionLost();setError(`Could not reconnect: ${errorMessage(e)}`)}return false}
+  finally{operation.current=false;if(alive.current)setBusy(false)}
+ }
  async function start(mode:WasteMode='off',trackGps=true,taskOccurrence?:string){
   if(operation.current)return;operation.current=true;loadVersion.current++;setBusy(true);setError('')
   try {
@@ -254,5 +285,5 @@ function Tracker({user,household,dog,children}:{user:string;household:string;dog
  }
  function keepWalking(){stationary.current=null;setWarning(null)}
  function setAutoEnd(value:boolean){auto.current=value;setAutoEndState(value);keepWalking()}
- return <Context.Provider value={{walks,ready,loading,error:loadError||storageError||error,busy,tracking,gpsEnabled,points,pending,ending,now,warning,autoEnd,gpsMessage,connectionFailed,paused,quality,accuracy,saved,recovered:recovery,pause,reload,start,resume,elapsedSeconds:active.current?duration(active.current,buffer.current?.ending?Date.parse(buffer.current.ending.at):now,buffer.current?.pauses):0,finish:(note)=>end('manual',note),sync,reconnect:async()=>{await sync();return navigator.onLine&&!networkFailed.current},keepWalking,setAutoEnd}}>{children}</Context.Provider>
+ return <Context.Provider value={{walks,ready,loading,error:loadError||storageError||error,busy,tracking,gpsEnabled,points,pending,ending,now,warning,autoEnd,gpsMessage,connectionFailed,paused,quality,accuracy,saved,recovered:recovery,pause,reload,start,resume,elapsedSeconds:active.current?duration(active.current,buffer.current?.ending?Date.parse(buffer.current.ending.at):now,buffer.current?.pauses):0,finish:(note)=>end('manual',note),sync,reconnect,keepWalking,setAutoEnd}}>{children}</Context.Provider>
 }

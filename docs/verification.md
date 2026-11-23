@@ -15,13 +15,14 @@ recent walks stayed 37, completed Tasks stayed 1, and orphan GPS/notes/waste wer
 zero. No active walks existed during this live check; isolated SQL tests cover
 active preservation and minimal completion receipts. No old migrations reran.
 Notifications remain out of scope; no sender was deployed/enabled.
-Recovery UI follow-up: 322 isolated tests/76 files, Node 22 TypeScript/build
-and diff checks passed. PGlite fixtures omit only the pg_cron setup migration
-because that extension is unavailable there; all retention/domain SQL and
-assertions remain. Actual-component browser fixtures verified unsuccessful
-Reconnect feedback and a repeatable map failure/retry at 390px and 1440px,
-without horizontal overflow. GPS denial/recovery messages now reach the screen.
-This is simulated failure UI, not outdoor GPS or real connectivity acceptance.
+Recovery follow-up: 322 isolated tests/76 files, Node 22 TypeScript/build and
+diff checks passed. PGlite fixtures omit only pg_cron setup, retaining domain
+and retention SQL/assertions. Actual WalkProvider browser fixture (mocked services,
+GPS and connection) verified offline stops point collection; online alone does
+not resume; Reconnect retains the same walk ID, flushes a prior pending point and
+resumes with segment_start. Repeated retries kept one start and four unique
+saved points across two outages. The compact dialog has no explanatory paragraphs
+and no mobile overflow. These are simulated checks, not physical GPS/device proof.
 
 ## Node 22 reliability check — 23 November 2026
 
