@@ -131,7 +131,7 @@ final class NativeWalkRecorder: NSObject, CLLocationManagerDelegate {
     func snapshot() throws -> JSObject {
         var result: JSObject = ["session": NSNull()]
         if let session {
-            result["session"] = try JSONSerialization.jsonObject(with: JSONEncoder().encode(session))
+            result["session"] = try JSValueEncoder().encode(session)
         }
         if let failure, session == nil { result["error"] = failure }
         return result

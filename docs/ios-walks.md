@@ -8,9 +8,10 @@ for the recorder, and no production deployment is authorized by this document.
 
 ## Review-only publication
 
-This branch is published for technical review only. Teaching-staff approval for
-this stack/native extension is still unconfirmed and must be resolved before
-further rollout. AGENTS.md keeps its original prerequisite. No merge, deployment,
+This branch is published for technical review only. Carol relayed her colleague's
+confirmation of teaching-staff approval; this is a team-reported confirmation,
+not independent verification of the original approval. Technical review and
+installed-iPhone acceptance remain required. No merge, deployment,
 signing or distribution is included. vercel.json disables automatic deployment
 for codex/ios-background-walks only; other branches keep their existing behaviour.
 The Verify iOS workflow compiles without signing or hosted credentials.
