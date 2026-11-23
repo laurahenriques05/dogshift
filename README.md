@@ -40,6 +40,13 @@ follow the reviewed migration setup with the team; never reset the shared databa
 or blindly replay migration files. npm run check:config is a separate read-only
 live connectivity check. Keep existing .env.local configuration intact.
 
+## Installed iOS version
+
+An iOS shell reuses this app and backend with native background GPS recording.
+Build/install instructions and limits: [iOS Walks](docs/ios-walks.md). This source
+is not yet physical-device acceptance or an App Store/TestFlight release; Safari
+and Home Screen web apps keep their browser GPS limitations.
+
 ## Current limits
 
 - The public app URL above was checked on 23 November. The newer

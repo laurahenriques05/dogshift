@@ -1,0 +1,29 @@
+name: Verify iOS
+on:
+  push:
+    paths: ['ios/**', 'src/**', 'package*.json', 'capacitor.config.json', 'vite.config.ts', '.github/workflows/verify-ios.yml']
+  pull_request:
+    paths: ['ios/**', 'src/**', 'package*.json', 'capacitor.config.json', 'vite.config.ts', '.github/workflows/verify-ios.yml']
+permissions:
+  contents: read
+jobs:
+  build-ios:
+    runs-on: macos-26
+    timeout-minutes: 20
+    env:
+      VITE_SUPABASE_URL: ''
+      VITE_SUPABASE_PUBLISHABLE_KEY: ''
+      VITE_APP_URL: ''
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run test:ios:core
+      - run: npm run ios:sync
+      - name: Build simulator without signing or hosted credentials
+        run: |
+          xcodebuild -version
+          xcodebuild -project ios/App/App.xcodeproj -scheme App -destination 'generic/platform=iOS Simulator' -derivedDataPath "$RUNNER_TEMP/dogshift-ios" CODE_SIGNING_ALLOWED=NO build

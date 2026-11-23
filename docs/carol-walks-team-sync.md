@@ -78,6 +78,14 @@ local SQL separately tests active preservation. Latest read-only check: active
 job, 32 successful runs, zero failures. This is database/app deletion, not provider
 backup erasure. Do not rerun these migrations or superseded deletion proposals.
 
+## Native iOS source
+
+Carol authorized an installed iOS shell for background GPS. Feature-branch source
+uses Core Location and a durable private queue while reusing the current UI/RPCs.
+See ios-walks.md for build, permissions and acceptance. It is not installed or
+verified on a physical iPhone; the public Safari app remains browser-based.
+No migration, Auth setting or tag URL was changed.
+
 ## Real remaining work
 
 1. Physical Android/iPhone NFC, outdoor GPS, denied permission, pause/resume,

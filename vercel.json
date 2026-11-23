@@ -24,5 +24,10 @@
         }
       ]
     }
-  ]
+  ],
+  "git": {
+    "deploymentEnabled": {
+      "codex/ios-background-walks": false
+    }
+  }
 }

@@ -7,7 +7,7 @@ import { recordingBreaksAvailable } from './recordingCapabilities'
 import type { GpsQuality } from './recordingStatus'
 import { startWalkWithWaste, walkUsesGps, type WasteMode } from './waste'
 import { locationTimestamp } from './locationTimestamp'
-import { createContext, useCallback, useContext, useEffect, useRef, useState, type ReactNode } from 'react'
+import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react'
 import { db } from '../../lib/supabase/client'
 import type { Walk } from '../../lib/supabase/database.types'
 import { errorMessage } from '../../components/ui'
@@ -17,15 +17,14 @@ import { getPoints, getWalks } from './api'
 import { duration, acceptable, stationaryFix, stationaryTick, type Point, type Stationary } from './gps'
 
 import { mergeBuffer, parseBuffer, type WalkBuffer as Buffer } from './buffer'
-type Value = {
- walks: Walk[]; ready: boolean; loading: boolean; error: string; busy: boolean; tracking: boolean; gpsEnabled: boolean; points: Point[]; pending: number; ending: boolean; now: number; warning: number | null; autoEnd: boolean; gpsMessage: string; paused:boolean; quality:GpsQuality; accuracy:number|null; saved:boolean; recovered:boolean; connectionFailed:boolean; elapsedSeconds:number;
- pause:()=>Promise<void>; reload: () => Promise<void>; start: (mode?: WasteMode, trackGps?: boolean, taskOccurrence?:string) => Promise<void>; resume: () => Promise<void>; finish: (note?:NoteDraft) => Promise<void>; sync: () => Promise<void>; reconnect:()=>Promise<boolean>; keepWalking: () => void; setAutoEnd: (value:boolean)=>void;
-}
-const Context=createContext<Value>(null!)
-export const useWalks=()=>useContext(Context)
+import { WalkContext as Context } from './walkContext'
+export { useWalks } from './walkContext'
+import { isNativeIOS } from '../../lib/native/platform'
+import { NativeWalkTracker } from './native/NativeWalkTracker'
 export function WalkProvider({children}:{children:ReactNode}) {
  const {session}=useAuth(); const {household,dog}=useHousehold()
- return <Tracker key={`${session!.user.id}:${household!.id}`} user={session!.user.id} household={household!.id} dog={dog!.id}>{children}</Tracker>
+ const Recorder=isNativeIOS()?NativeWalkTracker:Tracker
+ return <Recorder key={`${session!.user.id}:${household!.id}`} user={session!.user.id} household={household!.id} dog={dog!.id}>{children}</Recorder>
 }
 function Tracker({user,household,dog,children}:{user:string;household:string;dog:string;children:ReactNode}) {
  const key=`pawshare.walk-buffer.v1.${user}.${household}`

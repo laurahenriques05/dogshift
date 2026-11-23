@@ -1,0 +1,6 @@
+{
+  "appId": "pt.dogshift.app",
+  "appName": "DogShift",
+  "webDir": "dist",
+  "ios": { "contentInset": "automatic" }
+}

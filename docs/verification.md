@@ -60,6 +60,17 @@ same-walk reconnect. The newer dogshift-lmbtah-7143.vercel.app alias redirects t
 Vercel login. Owning-team access is still needed for exact READY/alias/source
 metadata. Do not present the protected alias as public or redeploy to bypass access.
 
+## Native iOS checks
+
+The iOS branch adds a native durable recorder, tested separately from the public
+Safari diagnostic. Local JavaScript suite: 328 tests / 77 files, including native
+queue isolation, rejection and retry checks; TypeScript/build pass. Nine portable
+Swift core checks cover serialization, quality filtering, pause/resume, outage,
+finish/acknowledgement, ownership, background fixes and stationary deadlines.
+Swift syntax and project/plist parsing pass. These do not compile Core Location
+or establish device behaviour. Verify iOS CI builds the full unsigned simulator
+app; installed-iPhone acceptance and signing remain separate. See ios-walks.md.
+
 ## Still unverified
 
 Disposable-account sign-in/registration/email recovery/invitations; two-member
